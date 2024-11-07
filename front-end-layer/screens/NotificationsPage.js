@@ -1,16 +1,23 @@
+/**
+ * @file NotificationsPage.js  
+ * @description The notifications of the application including new challenges, 
+ *              daily goal reminders, feed updates etc. 
+ * 
+ * @datecreated 05.11.2024
+ * @lastmodified 07.11.2024
+ */
+
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text } from 'react-native';
 import styles from '../styles/styles';
 
+// Notifications Page layout
 const NotificationsPage = () => {
-  const navigation = useNavigation();
-
-  return (
-    <View style={styles.container}>
-        <Text style={styles.text}>Notifications Page</Text>
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <Text style={styles.text}>Notifications Page</Text>
+        </View>
+    );
 };
 
 export default NotificationsPage;

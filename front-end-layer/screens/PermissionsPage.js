@@ -1,16 +1,23 @@
+/**
+ * @file PermissionsPage.js  
+ * @description Asks the user for consent after the sign up process. 
+ *              If not signed the user can't continue to the application. 
+ * 
+ * @datecreated 05.11.2024
+ * @lastmodified 07.11.2024
+ */
+
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text } from 'react-native';
 import styles from '../styles/styles';
 
+// Permissions Page layout
 const PermissionsPage = () => {
-  const navigation = useNavigation();
-
-  return (
-    <View style={styles.container}>
-        <Text style={styles.text}>Permissions Page</Text>
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <Text style={styles.text}>Permissions Page</Text>
+        </View>
+    );
 };
 
 export default PermissionsPage;

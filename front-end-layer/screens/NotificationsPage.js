@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const CoursesPage = () => {
+const NotificationsPage = () => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
-        <Text style={styles.text}>Courses Page</Text>
+        <Text style={styles.text}>Notifications Page</Text>
     </View>
   );
 };
@@ -24,4 +24,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CoursesPage;
+export default NotificationsPage;

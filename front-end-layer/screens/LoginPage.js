@@ -9,8 +9,8 @@ const SignUpPage = () => {
       <View style={styles.container}>
           <Text style={styles.text}>Login Page</Text>
           <Button
-              title="Login"
-              onPress={() => navigation.replace('Dashboard')}  
+              title="Complete Login"
+              onPress={() => navigation.replace('Home')}  
           />
           <Button
           title="SignUp"

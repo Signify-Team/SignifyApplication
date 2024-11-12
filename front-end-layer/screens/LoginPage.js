@@ -13,8 +13,8 @@ import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
 
-// SignUp Page layout
-const SignUpPage = () => {
+// Login Page layout
+const LoginPage = () => {
     const navigation = useNavigation();
   
     return (
@@ -53,5 +53,5 @@ const SignUpPage = () => {
     );
 };
 
-export default SignUpPage;
+export default LoginPage;
 

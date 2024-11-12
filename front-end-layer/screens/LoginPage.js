@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
@@ -21,12 +21,12 @@ const SignUpPage = () => {
         <View style={styles.container}>
             {/* Logo */}
             <Image 
-                source={require('../assets/images/Signify-Logo-HighRes.png')}
+                source={require('../assets/images/Signify-Logo.png')}
                 style={styles.loginLogo}
             />
 
             {/* Welcome Text TODO: Fetch user name to display*/}
-            <Text style ={styles.loginWelcomeText}>WELCOME BACK, UNAME!</Text>
+            <Text style ={styles.loginWelcomeText}>WELCOME BACK, {'\n'} UNAME!</Text>
 
             {/* Inputs */}
             <CustomTextInput label="EMAIL" placeholder="yourmail@mail.com"/>
@@ -35,14 +35,20 @@ const SignUpPage = () => {
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>        
 
-            <Button
-                title="Log In"
+            <TouchableOpacity
+                style={styles.loginButton}
                 onPress={() => navigation.replace('Home')}  
-            />
-            <Button
-                title="SignUp"
-                onPress={() => navigation.replace('SignUp')}  
-            />
+            >
+                <Text style={styles.loginButtonText}>Log In</Text>
+            </TouchableOpacity>
+
+            <View style={styles.signUpContainer}>
+                <Text style={styles.signUpText}>Don't have an account?</Text>
+                <TouchableOpacity onPress={() => navigation.replace('SignUp')}>
+                    <Text style={styles.signUpLink}> Sign Up.</Text>
+                </TouchableOpacity>
+            </View>
+
         </View>
     );
 };

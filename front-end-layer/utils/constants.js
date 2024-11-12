@@ -14,6 +14,7 @@ export const COLORS = {
     signUpLoginMainText: '#FF3E3E',
     placeholderTextSignUp: '#7F6675',
     loginBordorColor: '#503144',
+    signUpLineText: '#F4766D',
 };
 
 export const FONTS = {

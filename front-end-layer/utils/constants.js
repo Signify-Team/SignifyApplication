@@ -20,4 +20,5 @@ export const COLORS = {
 export const FONTS = {
     title: 24,
     body: 16,
+    signUpOr: 13,
 };

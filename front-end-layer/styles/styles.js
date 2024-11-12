@@ -121,4 +121,14 @@ export default StyleSheet.create({
         color: COLORS.signUpLineText,
         fontWeight: 'bold',
     },
+
+    // SignUp Page styles
+    signUpOrText: {
+        fontSize: FONTS.signUpOr,
+        fontWeight: '800',
+        color: COLORS.signUpLoginMainText,
+        marginBottom: height * 0.01,
+        marginTop: - height * 0.01,
+        textAlign: 'center',
+    },
 });

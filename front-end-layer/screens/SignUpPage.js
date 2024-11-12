@@ -33,7 +33,11 @@ const SignUpPage = () => {
             {/* Inputs */}
             <CustomTextInput label="USERNAME" placeholder="yourusername"/>
             <CustomTextInput label="EMAIL" placeholder="yourmail@mail.com"/>
-            
+
+            <Text style ={styles.signUpOrText}>OR</Text>
+            <Text style ={styles.signUpOrText}>google</Text>
+            <Text style ={styles.signUpOrText}>apple</Text>
+
             {/* Sign up container */}
             <TouchableOpacity
                 style={styles.loginButton}

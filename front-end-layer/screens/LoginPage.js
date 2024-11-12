@@ -8,9 +8,11 @@
  */
 
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, TextInput, Button, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles';
+import { COLORS } from '../utils/constants';
+import CustomTextInput from '../utils/textInputSignLogin';
 
 // SignUp Page layout
 const SignUpPage = () => {
@@ -18,17 +20,30 @@ const SignUpPage = () => {
   
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Login Page</Text>
+            {/* @TODO: Logo */}
+            <Text> logo</Text>
+
+            {/* Welcome Text TODO: Fetch user name to display*/}
+            <Text style ={styles.loginWelcomeText}>WELCOME BACK, UNAME!</Text>
+
+            {/* Inputs */}
+            <CustomTextInput label="EMAIL" placeholder="yourmail@mail.com"/>
+            <CustomTextInput label="PASSWORD" placeholder="yourpassword"/>
+            <TouchableOpacity>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>        
+
             <Button
-                title="Complete Login"
+                title="Log In"
                 onPress={() => navigation.replace('Home')}  
             />
             <Button
-            title="SignUp"
-            onPress={() => navigation.replace('SignUp')}  
+                title="SignUp"
+                onPress={() => navigation.replace('SignUp')}  
             />
         </View>
     );
 };
 
 export default SignUpPage;
+

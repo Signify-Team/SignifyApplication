@@ -71,4 +71,11 @@ export default StyleSheet.create({
         color: COLORS.placeholderTextSignUp,
         fontFamily: 'PassionOne-Regular',
     },
+    loginLogo: {
+        width: width * 0.3,
+        height: height * 0.3,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+        marginBottom: height * 0.03,
+    },
 });

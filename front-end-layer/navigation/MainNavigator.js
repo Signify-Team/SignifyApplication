@@ -23,7 +23,7 @@ const MainNavigator = () => (
     <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen name="Welcome" component={WelcomePage} />
         <Stack.Screen name="SignUp" component={SignUpPage} />
-        <Stack.Screen name="Login" component={LoginPage} />
+        <Stack.Screen name="Login" component={LoginPage} options={{headerShown: false}} />
         <Stack.Screen name="Home" component={BottomTabsNavigator} />
         <Stack.Screen name="Settings" component={SettingsPage} />
     </Stack.Navigator>

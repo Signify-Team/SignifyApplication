@@ -78,3 +78,11 @@ microservices/lesson-management-service/asl_dataset/
 
 # Environment
 venv/
+
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+
+# Ignore model files
+*.keras
+*.h5

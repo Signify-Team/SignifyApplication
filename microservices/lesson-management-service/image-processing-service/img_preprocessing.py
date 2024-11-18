@@ -13,11 +13,12 @@ def load_data():
     current_label = 0
 
     for label in sorted(os.listdir(DATASET_PATH)):
-        label_map[label] = current_label
         folder_path = os.path.join(DATASET_PATH, label)
 
         if not os.path.isdir(folder_path):
             continue
+        
+        label_map[label] = current_label
 
         for file in os.listdir(folder_path):
             img_path = os.path.join(folder_path, file)
@@ -50,6 +51,7 @@ def split_data(images, labels):
 # Running the script for testing
 if __name__ == '__main__':
     images, labels, label_map = load_data()
+    print("Label map:", label_map)
     X_train, X_val, y_train, y_val = split_data(images, labels)
     print(f"Loaded {len(images)} images across {len(label_map)} classes.")
     print(f"Training data size: {len(X_train)}")

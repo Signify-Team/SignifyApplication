@@ -72,3 +72,9 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# ASL Dataset
+microservices/lesson-management-service/asl_dataset/
+
+# Environment
+venv/

@@ -15,6 +15,7 @@ import SignUpPage from '../screens/SignUpPage';
 import LoginPage from '../screens/LoginPage';
 import SettingsPage from '../screens/SettingsPage';
 import AuthenticationPage from '../screens/AuthenticationPage';
+import ImageProcessingPage from '../screens/ImageProcessingPage';
 import BottomTabsNavigator from './BottomTabsNavigator';
 
 const Stack = createStackNavigator();
@@ -28,6 +29,7 @@ const MainNavigator = () => (
         <Stack.Screen name="Home" component={BottomTabsNavigator} />
         <Stack.Screen name="Settings" component={SettingsPage} />
         <Stack.Screen name="Authentication" component={AuthenticationPage} options={{headerShown: false}} />
+        <Stack.Screen name="ImageProcessing" component={ImageProcessingPage} />
     </Stack.Navigator>
 );
 

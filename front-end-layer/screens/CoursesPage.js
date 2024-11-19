@@ -8,14 +8,21 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import styles from '../styles/styles';
+import { useNavigation } from '@react-navigation/native';
 
 // Courses Page layout
 const CoursesPage = () => {
+    const navigation = useNavigation();
+    
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Courses Page</Text>
+            <Button
+                title="Image Processing"
+                onPress={() => navigation.replace('ImageProcessing')}  
+            />
         </View>
     );
 };

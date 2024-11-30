@@ -4,7 +4,7 @@ import MainNavigator from './front-end-layer/navigation/MainNavigator';
 
 const App = () => (
   <NavigationContainer>
-    <MainNavigator/>
+    <MainNavigator />
   </NavigationContainer>
 );
 

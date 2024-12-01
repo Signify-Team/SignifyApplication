@@ -4,7 +4,7 @@ import scipy.io
 import numpy as np
 
 # Path to a sample .mat file
-sample_mat_file = "egohands_dataset/_LABELLED_SAMPLES/PUZZLE_OFFICE_T_S/polygons.mat"  # Update this path
+sample_mat_file = "TEST_SCRIPTS/egohands_dataset/_LABELLED_SAMPLES/PUZZLE_OFFICE_T_S/polygons.mat"  # Update this path
 print("file directory: ", os.path.dirname(sample_mat_file))
 print("file name: ", os.path.basename(sample_mat_file))
 
@@ -21,8 +21,8 @@ for key in mat_data:
 print("\n\n\n\n")
 
 # Paths to EgoHands dataset
-dataset_dir = "egohands_dataset/_LABELLED_SAMPLES"  # Update this with your dataset path
-output_dir = "processed_dataset"
+dataset_dir = "TEST_SCRIPTS/egohands_dataset/_LABELLED_SAMPLES"  # Update this with your dataset path
+output_dir = "TEST_SCRIPTS/processed_dataset"
 os.makedirs(output_dir, exist_ok=True)
 
 def extract_bounding_boxes_from_polygons(polygons):

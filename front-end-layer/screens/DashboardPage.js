@@ -8,16 +8,29 @@
  */
 
 import React from 'react';
-import {View, Text} from 'react-native';
+import {
+    View,
+    Text,
+} from 'react-native';
 import styles from '../styles/styles';
 
 // Dashboard Page layout
-const DashboardPage = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Dashboard Page</Text>
-    </View>
-  );
-};
+const DashboardPage =
+    () => {
+        return (
+            <View
+                style={
+                    styles.container
+                }>
+                <Text
+                    style={
+                        styles.text
+                    }>
+                    Dashboard
+                    Page
+                </Text>
+            </View>
+        );
+    };
 
 export default DashboardPage;

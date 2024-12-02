@@ -7,14 +7,27 @@
  */
 
 import React from 'react';
-import {View, Text} from 'react-native';
+import {
+    View,
+    Text,
+} from 'react-native';
 import styles from '../styles/styles';
 
 // Settings Page layout
-const SettingsPage = () => (
-  <View style={styles.container}>
-    <Text style={styles.text}>Settings Page</Text>
-  </View>
-);
+const SettingsPage =
+    () => (
+        <View
+            style={
+                styles.container
+            }>
+            <Text
+                style={
+                    styles.text
+                }>
+                Settings
+                Page
+            </Text>
+        </View>
+    );
 
 export default SettingsPage;

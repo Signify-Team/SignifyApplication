@@ -8,23 +8,42 @@
  */
 
 import React from 'react';
-import {View, Text, Button} from 'react-native';
+import {
+    View,
+    Text,
+    Button,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styles from '../styles/styles';
 
 // Profile Page layout
-const ProfilePage = () => {
-  const navigation = useNavigation();
+const ProfilePage =
+    () => {
+        const navigation =
+            useNavigation();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Profile Page</Text>
-      <Button
-        title="Settings"
-        onPress={() => navigation.navigate('Settings')}
-      />
-    </View>
-  );
-};
+        return (
+            <View
+                style={
+                    styles.container
+                }>
+                <Text
+                    style={
+                        styles.text
+                    }>
+                    Profile
+                    Page
+                </Text>
+                <Button
+                    title="Settings"
+                    onPress={() =>
+                        navigation.navigate(
+                            'Settings',
+                        )
+                    }
+                />
+            </View>
+        );
+    };
 
 export default ProfilePage;

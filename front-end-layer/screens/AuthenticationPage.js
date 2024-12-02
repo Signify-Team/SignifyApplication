@@ -7,23 +7,42 @@
  */
 
 import React from 'react';
-import {View, Text, Button} from 'react-native';
+import {
+    View,
+    Text,
+    Button,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styles from '../styles/styles';
 
 // Authentication Page Layout
-const AuthenticationPage = () => {
-  const navigation = useNavigation();
+const AuthenticationPage =
+    () => {
+        const navigation =
+            useNavigation();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Authentication Page</Text>
-      <Button
-        title="Get Started"
-        onPress={() => navigation.replace('SignUp')}
-      />
-    </View>
-  );
-};
+        return (
+            <View
+                style={
+                    styles.container
+                }>
+                <Text
+                    style={
+                        styles.text
+                    }>
+                    Authentication
+                    Page
+                </Text>
+                <Button
+                    title="Get Started"
+                    onPress={() =>
+                        navigation.replace(
+                            'SignUp',
+                        )
+                    }
+                />
+            </View>
+        );
+    };
 
 export default AuthenticationPage;

@@ -8,16 +8,29 @@
  */
 
 import React from 'react';
-import {View, Text} from 'react-native';
+import {
+    View,
+    Text,
+} from 'react-native';
 import styles from '../styles/styles';
 
 // Achievements Page Layout
-const AchievementsPage = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Achievements Page</Text>
-    </View>
-  );
-};
+const AchievementsPage =
+    () => {
+        return (
+            <View
+                style={
+                    styles.container
+                }>
+                <Text
+                    style={
+                        styles.text
+                    }>
+                    Achievements
+                    Page
+                </Text>
+            </View>
+        );
+    };
 
 export default AchievementsPage;

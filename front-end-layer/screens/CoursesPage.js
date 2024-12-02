@@ -7,17 +7,17 @@
  * @lastmodified 07.11.2024
  */
 
-import React from 'react';
-import { View, Text } from 'react-native';
-import styles from '../styles/styles';
+import React from 'react'
+import { View, Text } from 'react-native'
+import styles from '../styles/styles'
 
 // Courses Page layout
 const CoursesPage = () => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Courses Page</Text>
-        </View>
-    );
-};
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Courses Page</Text>
+    </View>
+  )
+}
 
-export default CoursesPage;
+export default CoursesPage

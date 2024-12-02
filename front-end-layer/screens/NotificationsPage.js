@@ -7,17 +7,17 @@
  * @lastmodified 07.11.2024
  */
 
-import React from 'react';
-import { View, Text } from 'react-native';
-import styles from '../styles/styles';
+import React from 'react'
+import { View, Text } from 'react-native'
+import styles from '../styles/styles'
 
 // Notifications Page layout
 const NotificationsPage = () => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Notifications Page</Text>
-        </View>
-    );
-};
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Notifications Page</Text>
+    </View>
+  )
+}
 
-export default NotificationsPage;
+export default NotificationsPage

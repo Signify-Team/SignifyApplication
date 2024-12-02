@@ -1,8 +1,8 @@
 /**
- * @file CoursesPage.js  
+ * @file CoursesPage.js
  * @description Courses page of the application including different courses according
- *              to the curriculum. 
- * 
+ *              to the curriculum.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */

@@ -1,8 +1,8 @@
 /**
- * @file LoginPage.js  
- * @description Login page for the application. Asks for name and password. 
- *              Adds a sign up option if the user doesn't have an account. 
- * 
+ * @file LoginPage.js
+ * @description Login page for the application. Asks for name and password.
+ *              Adds a sign up option if the user doesn't have an account.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */
@@ -16,11 +16,11 @@ import CustomTextInput from '../utils/textInputSignLogin';
 // Login Page layout
 const LoginPage = () => {
     const navigation = useNavigation();
-  
+
     return (
         <View style={styles.container}>
             {/* Logo */}
-            <Image 
+            <Image
                 source={require('../assets/images/Signify-Logo.png')}
                 style={styles.loginLogo}
             />
@@ -33,11 +33,11 @@ const LoginPage = () => {
             <CustomTextInput label="PASSWORD" placeholder="yourpassword"/>
             <TouchableOpacity>
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>        
+            </TouchableOpacity>
 
             <TouchableOpacity
                 style={styles.loginButton}
-                onPress={() => navigation.replace('Home')}  
+                onPress={() => navigation.replace('Home')}
             >
                 <Text style={styles.loginButtonText}>Log In</Text>
             </TouchableOpacity>
@@ -54,4 +54,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

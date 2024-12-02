@@ -1,8 +1,8 @@
 /**
- * @file PermissionsPage.js  
- * @description Asks the user for consent after the sign up process. 
- *              If not signed the user can't continue to the application. 
- * 
+ * @file PermissionsPage.js
+ * @description Asks the user for consent after the sign up process.
+ *              If not signed the user can't continue to the application.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */

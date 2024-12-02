@@ -1,8 +1,8 @@
 /**
- * @file ProfilePage.js  
- * @description Profile page including user information, preferences, changeable information. 
- *              Includes a settings button for the user to change their preferences. 
- * 
+ * @file ProfilePage.js
+ * @description Profile page including user information, preferences, changeable information.
+ *              Includes a settings button for the user to change their preferences.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */
@@ -19,9 +19,9 @@ const ProfilePage = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Profile Page</Text>
-            <Button 
-                title="Settings" 
-                onPress={() => navigation.navigate('Settings')} 
+            <Button
+                title="Settings"
+                onPress={() => navigation.navigate('Settings')}
             />
         </View>
     );

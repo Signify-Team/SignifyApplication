@@ -1,7 +1,7 @@
 /**
- * @file SettingsPage.js  
- * @description Includes settings and configurations for the application 
- *  
+ * @file SettingsPage.js
+ * @description Includes settings and configurations for the application
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */

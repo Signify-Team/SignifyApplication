@@ -1,7 +1,7 @@
 /**
- * @file MainNavigator.js  
- * @description Includes main navigations of the pages. 
- * 
+ * @file MainNavigator.js
+ * @description Includes main navigations of the pages.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */

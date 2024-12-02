@@ -1,8 +1,8 @@
 /**
- * @file NotificationsPage.js  
- * @description The notifications of the application including new challenges, 
- *              daily goal reminders, feed updates etc. 
- * 
+ * @file NotificationsPage.js
+ * @description The notifications of the application including new challenges,
+ *              daily goal reminders, feed updates etc.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */

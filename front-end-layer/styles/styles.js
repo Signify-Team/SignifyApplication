@@ -1,12 +1,12 @@
 /**
- * @file styles.js  
+ * @file styles.js
  * @description Includes styles for the texts, buttons, etc.
- * 
+ *
  * @datecreated 05.11.2024
  * @lastmodified 12.11.2024
  */
 
-import { StyleSheet, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { COLORS, FONTS } from '../utils/constants';
 
 const { width, height } = Dimensions.get('window');
@@ -43,7 +43,7 @@ export default StyleSheet.create({
     forgotPasswordText: {
         color: COLORS.placeholderTextSignUp,
         textAlign: 'center',
-        marginTop: - height * 0.015,
+        marginTop: -height * 0.015,
         marginBottom: height * 0.03,
     },
     loginInputContainer: {
@@ -57,7 +57,7 @@ export default StyleSheet.create({
         marginBottom: -9,
         position: 'absolute',
         backgroundColor: COLORS.background,
-        top: - (height * 0.01), 
+        top: -(height * 0.01),
         left: width * 0.04,
         paddingHorizontal: width * 0.02,
         zIndex: 1,
@@ -67,13 +67,12 @@ export default StyleSheet.create({
     loginTextInput: {
         borderWidth: 3,
         borderColor: COLORS.loginBordorColor,
-        borderRadius: 8, 
+        borderRadius: 8,
         padding: 10,
         height: height * 0.07,
         backgroundColor: COLORS.background,
         fontSize: 13,
         color: COLORS.placeholderTextSignUp,
-        // fontFamily: 'PassionOne-Regular',
     },
     loginLogo: {
         width: width * 0.6,
@@ -88,10 +87,10 @@ export default StyleSheet.create({
         paddingHorizontal: width * 0.08,
         paddingVertical: height * 0.008,
         alignItems: 'center',
-        borderRadius: 10, 
+        borderRadius: 10,
         justifyContent: 'center',
         marginTop: height * 0.04,
-        marginBottom: - (height * 0.01),
+        marginBottom: -(height * 0.01),
     },
     loginButtonText: {
         color: COLORS.background,
@@ -115,7 +114,7 @@ export default StyleSheet.create({
     signUpText: {
         fontSize: 13,
         color: COLORS.signUpLineText,
-    },  
+    },
     signUpLink: {
         fontSize: 13,
         color: COLORS.signUpLineText,

@@ -1,8 +1,8 @@
 /**
- * @file WelcomePage.js  
- * @description Initial page when the application is opened for the first time 
+ * @file WelcomePage.js
+ * @description Initial page when the application is opened for the first time
  *              Includes information about the application
- * 
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */
@@ -21,7 +21,7 @@ const WelcomePage = () => {
             <Text style={styles.text}>Welcome Page</Text>
             <Button
                 title="Get Started"
-                onPress={() => navigation.replace('SignUp')}  
+                onPress={() => navigation.replace('SignUp')}
             />
         </View>
     );

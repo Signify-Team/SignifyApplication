@@ -1,7 +1,7 @@
 /**
- * @file constants.js  
- * @description Includes constants for the application for consistency. 
- * 
+ * @file constants.js
+ * @description Includes constants for the application for consistency.
+ *
  * @datecreated 05.11.2024
  * @lastmodified 12.11.2024
  */

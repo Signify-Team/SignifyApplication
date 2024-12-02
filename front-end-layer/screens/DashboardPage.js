@@ -1,8 +1,8 @@
 /**
- * @file DashboardPage.js  
- * @description Dashboard of the application where the user can reach the courses, 
+ * @file DashboardPage.js
+ * @description Dashboard of the application where the user can reach the courses,
  *              see their overall process, see latest badges, and current streak.
- * 
+ *
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */

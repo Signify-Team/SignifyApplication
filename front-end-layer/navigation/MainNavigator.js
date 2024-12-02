@@ -1,7 +1,7 @@
 /**
- * @file MainNavigator.js
- * @description Includes main navigations of the pages.
- *
+ * @file MainNavigator.js  
+ * @description Includes main navigations of the pages. 
+ * 
  * @datecreated 05.11.2024
  * @lastmodified 07.11.2024
  */
@@ -21,26 +21,14 @@ const Stack = createStackNavigator();
 
 // Main Stack navigations
 const MainNavigator = () => (
-  <Stack.Navigator initialRouteName="Welcome">
-    <Stack.Screen name="Welcome" component={WelcomePage} />
-    <Stack.Screen
-      name="SignUp"
-      component={SignUpPage}
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen
-      name="Login"
-      component={LoginPage}
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen name="Home" component={BottomTabsNavigator} />
-    <Stack.Screen name="Settings" component={SettingsPage} />
-    <Stack.Screen
-      name="Authentication"
-      component={AuthenticationPage}
-      options={{ headerShown: false }}
-    />
-  </Stack.Navigator>
+    <Stack.Navigator initialRouteName="Welcome">
+        <Stack.Screen name="Welcome" component={WelcomePage} />
+        <Stack.Screen name="SignUp" component={SignUpPage} options={{headerShown: false}} />
+        <Stack.Screen name="Login" component={LoginPage} options={{headerShown: false}} />
+        <Stack.Screen name="Home" component={BottomTabsNavigator} />
+        <Stack.Screen name="Settings" component={SettingsPage} />
+        <Stack.Screen name="Authentication" component={AuthenticationPage} options={{headerShown: false}} />
+    </Stack.Navigator>
 );
 
 export default MainNavigator;

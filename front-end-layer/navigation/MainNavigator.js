@@ -10,14 +10,14 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 
 // Screen Links
-import WelcomePage from '../screens/WelcomePage';
-import SignUpPage from '../screens/SignUpPage';
-import LoginPage from '../screens/LoginPage';
-import SettingsPage from '../screens/SettingsPage';
-import AuthenticationPage from '../screens/AuthenticationPage';
-import BottomTabsNavigator from './BottomTabsNavigator';
+import WelcomePage from '../screens/WelcomePage'
+import SignUpPage from '../screens/SignUpPage'
+import LoginPage from '../screens/LoginPage'
+import SettingsPage from '../screens/SettingsPage'
+import AuthenticationPage from '../screens/AuthenticationPage'
+import BottomTabsNavigator from './BottomTabsNavigator'
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
 // Main Stack navigations
 const MainNavigator = () => (
@@ -43,4 +43,4 @@ const MainNavigator = () => (
   </Stack.Navigator>
 );
 
-export default MainNavigator;
+export default MainNavigator

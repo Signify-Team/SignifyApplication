@@ -16,7 +16,7 @@ import Profile from '../screens/ProfilePage';
 import Notifications from '../screens/NotificationsPage';
 import Achievements from '../screens/AchievementsPage';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator()
 
 // Bottom Tabs navigation
 const BottomTabsNavigator = () => (

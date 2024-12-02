@@ -6,7 +6,7 @@
  * @lastmodified 12.11.2024
  */
 
-import {StyleSheet, Dimensions, Platform} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 import {COLORS, FONTS} from '../utils/constants';
 
 const {width, height} = Dimensions.get('window');
@@ -121,4 +121,5 @@ export default StyleSheet.create({
     color: COLORS.signUpLineText,
     fontWeight: 'bold',
   },
+
 });

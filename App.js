@@ -6,6 +6,6 @@ const App = () => (
   <NavigationContainer>
     <MainNavigator />
   </NavigationContainer>
-);
+)
 
-export default App;
+export default App

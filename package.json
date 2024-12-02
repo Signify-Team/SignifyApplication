@@ -7,15 +7,18 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/stack": "^7.0.0",
     "react": "18.3.1",
-    "react-native": "0.76.1",
-    "react-native-gesture-handler": "^2.20.2",
+    "react-native": "^0.76.3",
+    "react-native-gesture-handler": "^2.21.2",
     "react-native-responsive-screen": "^1.4.2",
     "react-native-safe-area-context": "^4.14.0",
     "react-native-screens": "^4.0.0"
@@ -31,16 +34,37 @@
     "@react-native/eslint-config": "0.76.1",
     "@react-native/metro-config": "0.76.1",
     "@react-native/typescript-config": "0.76.1",
+    "@testing-library/react-native": "^12.9.0",
     "@types/react": "^18.2.6",
     "@types/react-test-renderer": "^18.0.0",
     "babel-jest": "^29.6.3",
     "eslint": "^8.19.0",
-    "jest": "^29.6.3",
+    "husky": "^8.0.0",
+    "jest": "^29.7.0",
+    "jest-react-native": "^18.0.0",
+    "lint-staged": "^15.2.10",
+    "metro-react-native-babel-preset": "^0.77.0",
     "prettier": "^2.8.8",
+    "react-native-reanimated": "^3.16.3",
     "react-test-renderer": "18.3.1",
     "typescript": "5.0.4"
   },
   "engines": {
     "node": ">=18"
+  },
+  "jest": {
+    "preset": "react-native",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@react-native|react-native|@react-navigation|react-native-reanimated)/)"
+    ],
+    "moduleNameMapper": {
+      "^react-native$": "<rootDir>/__mocks__/react-native.js"
+    }
+  },
+  "lint-staged": {
+    "*.js": "prettier --write"
   }
 }

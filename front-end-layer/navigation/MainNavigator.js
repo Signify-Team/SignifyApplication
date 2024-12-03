@@ -15,6 +15,7 @@ import SignUpPage from '../screens/SignUpPage';
 import LoginPage from '../screens/LoginPage';
 import SettingsPage from '../screens/SettingsPage';
 import AuthenticationPage from '../screens/AuthenticationPage';
+import ImageProcessingPage from '../screens/ImageProcessingPage';
 import BottomTabsNavigator from './BottomTabsNavigator';
 
 const Stack =

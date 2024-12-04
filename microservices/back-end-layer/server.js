@@ -20,6 +20,10 @@ app.get('/', (req, res) => {
     res.send('Backend is running!');
 });
 
+// Routes
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

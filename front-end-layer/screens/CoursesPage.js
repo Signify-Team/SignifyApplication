@@ -13,6 +13,7 @@ import {
     Text,
 } from 'react-native';
 import styles from '../styles/styles';
+import { useNavigation } from '@react-navigation/native';
 
 // Courses Page layout
 const CoursesPage =

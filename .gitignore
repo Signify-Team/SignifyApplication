@@ -77,9 +77,6 @@ yarn-error.log
 microservices/lesson-management-service/asl_dataset/
 
 # Environment
-<<<<<<< Updated upstream
-venv/
-=======
 venv/
 
 # Ignore compiled Python files
@@ -100,4 +97,3 @@ ios/Pods/
 
 # Ignore key
 microservices/back-end-layer/.env
->>>>>>> Stashed changes

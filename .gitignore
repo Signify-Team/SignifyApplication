@@ -86,3 +86,11 @@ __pycache__/
 # Ignore model files
 *.keras
 *.h5
+
+# cocoapods
+ios/Podfile.lock
+ios/Pods/
+
+# xcode temporary files 
+*.xcworkspace
+*.xcworkspace/xcuserdata

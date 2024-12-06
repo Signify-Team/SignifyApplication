@@ -1,3 +1,11 @@
+/**
+ * @file server.js
+ * @description Main server file.
+ *
+ * @datecreated 02.12.2024
+ * @lastmodified 06.12.2024
+ */
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');

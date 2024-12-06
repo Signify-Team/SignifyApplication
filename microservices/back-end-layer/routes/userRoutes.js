@@ -1,10 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
+/**
+ * @file userRoutes.js
+ * @description This file handles the user routes.
+ *
+ * @datecreated 03.12.2024
+ * @lastmodified 06.12.2024
+ */
+
+
+const express = require('express'); // Express web server framework
+const router = express.Router(); // Router middleware
+const User = require('../models/User'); // User model
 
 router.post('/register', async (req, res) => {
     const {name, email, password} = req.body;
 
+    // Check if user already exists
     try {
         let user = await User({name, email, password});
         await user.save();
@@ -15,6 +25,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// Test route
 router.get('/test', (req, res) => {
     res.send('User route is working!');
 });

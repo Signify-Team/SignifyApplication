@@ -94,3 +94,6 @@ ios/Pods/
 # xcode temporary files 
 *.xcworkspace
 *.xcworkspace/xcuserdata
+
+# Ignore key
+microservices/back-end-layer/.env

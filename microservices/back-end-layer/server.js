@@ -1,6 +1,18 @@
+/**
+ * @file server.js
+ * @description Main server file.
+ *
+ * @datecreated 02.12.2024
+ * @lastmodified 06.12.2024
+ */
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const connectDB = require('./config/db');
+
+require('dotenv').config();
+
 
 // Initialize Express app
 const app = express();
@@ -9,10 +21,17 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// Connect to MongoDB
+connectDB();
+
 // Default route
 app.get('/', (req, res) => {
     res.send('Backend is running!');
 });
+
+// Routes
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

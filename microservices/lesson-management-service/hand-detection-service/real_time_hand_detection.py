@@ -1,4 +1,4 @@
-import cv2
+import cv2 
 import mediapipe as mp
 
 mp_hands = mp.solutions.hands
@@ -25,11 +25,22 @@ hands_static = mp_hands.Hands(
     # no tracking confidence for static images
 )
 
-cap = cv2.VideoCapture(0) #initialize web cam for computer testing (0 for default camera)
-# alternatively, you can use a video file by providing the path to the file like this:
-# cap = cv2.VideoCapture("path/to/video.mp4")
-# if source is a video file, you can also save the output to a file like this:
-# out = cv2.VideoWriter("output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 10, (640, 480))
+useCamera = True
+cap = None
+
+if useCamera:
+    cap = cv2.VideoCapture(0) #initialize web cam for computer testing (0 for default camera)
+else:
+    # THESE VARIABLES ARE USED FOR VIDEO OUTPUT
+    input_video_path = "greetings_goodbye_1.mp4"  # Input video file EXAMPLE
+    output_video_path = "greetings_goodbye_1_output.mp4"  # Output video file EXAMPLE
+    cap = cv2.VideoCapture(input_video_path)
+
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for .mp4 format
+    out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
 while cap.isOpened():
     ret, frame = cap.read() # read the frame
@@ -66,14 +77,21 @@ while cap.isOpened():
             cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2) # draw bounding box 
 
     # display the frame with landmarks and bounding box
-    cv2.imshow("MediaPipe Hands", frame)
+    if useCamera:
+        cv2.imshow("MediaPipe Hands", frame)
+    else:
+        #save output to file in mp4 format
+        out.write(frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+
+    if cv2.waitKey(1) & 0xFF == ord('q'): # press q to quit
         break
 
 #SOURCE RELEASE (MANDATORY!!!!!!!!!)
-cap.release()
+if useCamera:
+    cap.release()
+if not useCamera:
+    out.release()
 cv2.destroyAllWindows()
 hands_non_static.close()
 hands_static.close() # NOT USED IN THIS SCRIPT BUT CAN BE USED IN FURTHER IMPLEMENTATIONS.
-

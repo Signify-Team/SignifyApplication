@@ -1,3 +1,10 @@
+"""
+@File: real_time_hand_detection.py
+@Title: Real-Time Hand Detection
+@Description: This script is used to detect hands in real-time using the MediaPipe Hands model.
+@Author: Deniz Polat
+@Date: 2021-07-06
+"""
 import cv2 
 import mediapipe as mp
 

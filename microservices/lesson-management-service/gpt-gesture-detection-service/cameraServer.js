@@ -1,10 +1,21 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
+const axios = require('axios');
+
 
 const app = express();
+
+// OPEN AI API KEY
+const API_KEY = process.env.OPENAI_API_KEY;
+
+if(!API_KEY){
+    console.error('API key not found');
+    process.exit(1);
+}
 
 // FFMPEG path
 ffmpeg.setFfmpegPath(ffmpegPath);
@@ -19,14 +30,32 @@ app.get('/', (req, res) => {
 
 // Saves the video as a video.webm file in the directory.
 app.post('/save-video', (req, res) => {
-    const filePath = path.join(__dirname, 'video.webm');
-    const writeStream = fs.createWriteStream(filePath);
+    const videoPath = path.join(__dirname, 'video.webm');
+    const outputDir = path.join(__dirname, 'keyframes');
+    const writeStream = fs.createWriteStream(videoPath);
 
     req.pipe(writeStream);
-    req.on('end', () => {
+    req.on('end', async () => {
+        console.log('Video saved');
         res.send('Video saved');
-        // Extract keyframes 
-        extractKeyFrames(filePath, path.join(__dirname, 'keyframes'));
+        // Extract keyframes
+        try {
+            await extractKeyFrames(videoPath, outputDir);
+
+            // Read keyframes
+            const keyframes = fs.readdirSync(outputDir)
+                .filter(file => file.endsWith('.jpg'))
+                .map(file => fs.readFileSync(path.join(outputDir, file), 'base64'));
+
+            // Send keyframes to GPT
+            const gptResponse = await sendKeyFramesToGPT(keyframes);
+            console.log('Keyframes sent to GPT:', gptResponse);
+            res.send({message: 'Keyframes sent to GPT', response: gptResponse});
+        }
+        catch(error){
+            console.error('Error extracting keyframes:', error);
+            res.status(500).send('Error extracting keyframes');
+        }
     });
 
     req.on('error', (err) => {
@@ -44,7 +73,7 @@ const extractKeyFrames = (videoPath, outputDir) => {
 
         ffmpeg(videoPath)
             .output(path.join(outputDir, 'keyframe-%04d.jpg'))
-            .outputOptions('-vf', 'fps=5') // Extract keyframes at 5 fps
+            .outputOptions('-vf', 'fps=4') // Extract keyframes at 5 fps
             .on('end', () => {
                 console.log('Keyframes extracted');
                 resolve();
@@ -55,6 +84,39 @@ const extractKeyFrames = (videoPath, outputDir) => {
             })
             .run();
     });
+};
+
+// Method: Send Keyframes to GPT - Sends the keyframes to the GPT model.
+const sendKeyFramesToGPT = async (keyframes) => {
+    try {
+        // console.log('Sending API key in header:', `Bearer ${API_KEY}`);
+        console.log('Payload size (bytes):', JSON.stringify(keyframes).length);
+
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-4',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a image processing and sign language translation expert. Analyze the following keyframes and provide what they might mean.',
+                },
+                {
+                    role: 'user',
+                    content: `Here are Base64-encoded images: ${keyframes.join(', ')}`,
+                },
+            ],
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return response.data;
+    }
+    catch(error){
+        console.error('Error sending keyframes to GPT:', error);
+        throw error;
+    }
 };
 
 // Serves on port 3001

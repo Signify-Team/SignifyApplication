@@ -107,3 +107,4 @@ microservices/back-end-layer/.env
 # Ignore gpt-service keyframes and video
 microservices/lesson-management-service/gpt-gesture-detection-service/keyframes/*
 microservices/lesson-management-service/gpt-gesture-detection-service/video.webm
+microservices/lesson-management-service/gpt-gesture-detection-service/.env

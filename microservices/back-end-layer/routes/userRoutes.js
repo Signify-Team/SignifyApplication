@@ -12,11 +12,11 @@ const router = express.Router(); // Router middleware
 const User = require('../models/User'); // User model
 
 router.post('/register', async (req, res) => {
-    const {name, email, password} = req.body;
+    const {username, email, password} = req.body;
 
     // Check if user already exists
     try {
-        let user = await User({name, email, password});
+        let user = await User({username, email, password});
         await user.save();
         res.status(201).json({message: 'User registered successfully', user});
     }

@@ -1,5 +1,5 @@
 /**
- * @file Quest.js
+ * @file QuestDB.js
  * @description This file defines the Quest model for MongoDB.
  *
  * @datecreated 13.12.2024
@@ -15,7 +15,6 @@ const QuestSchema = new mongoose.Schema({
     description: { type: String }, // Detailed description
     rewardPoints: { type: Number, default: 0 }, // Points rewarded upon completion
     deadline: { type: Date }, // Optional deadline for the quest
-    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Quest', QuestSchema);

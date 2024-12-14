@@ -1,5 +1,5 @@
 /**
- * @file Notification.js
+ * @file NotificationDB.js
  * @description This file defines the Notification model for MongoDB.
  *
  * @datecreated 14.12.2024

@@ -1,5 +1,5 @@
 /**
- * @file Course.js
+ * @file CourseDB.js
  * @description This file defines the Course model for MongoDB.
  *
  * @datecreated 13.12.2024
@@ -17,7 +17,6 @@ const CourseSchema = new mongoose.Schema({
     exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }], // List of exercises in the course
     dictionary: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Word' }], // Words associated with the course
     totalLessons: { type: Number, default: 0 }, // Total number of lessons
-    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Course', CourseSchema);

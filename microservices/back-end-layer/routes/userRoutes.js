@@ -9,7 +9,7 @@
 
 const express = require('express'); // Express web server framework
 const router = express.Router(); // Router middleware
-const User = require('../models/User'); // User model
+const User = require('../models/UserDB'); // User model
 
 router.post('/register', async (req, res) => {
     const {username, email, password} = req.body;

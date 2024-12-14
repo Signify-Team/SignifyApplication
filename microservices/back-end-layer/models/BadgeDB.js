@@ -1,5 +1,5 @@
 /**
- * @file Badge.js
+ * @file BadgeDB.js
  * @description This file defines the Badge model for MongoDB.
  *
  * @datecreated 14.12.2024
@@ -14,7 +14,6 @@ const BadgeSchema = new mongoose.Schema({
     name: { type: String, required: true }, // Badge title
     description: { type: String }, // Badge description
     iconUrl: { type: String }, // URL for badge icon
-    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Badge', BadgeSchema);

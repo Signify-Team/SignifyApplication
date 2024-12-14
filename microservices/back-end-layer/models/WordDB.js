@@ -1,5 +1,5 @@
 /**
- * @file Word.js
+ * @file WordDB.js
  * @description This file defines the Word model for MongoDB.
  *
  * @datecreated 14.12.2024
@@ -14,7 +14,6 @@ const WordSchema = new mongoose.Schema({
     name: { type: String, required: true }, // Word in text form
     videoUrl: { type: String, required: true }, // URL to the video of the sign
     description: { type: String }, // Optional description or usage of the word
-    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Word', WordSchema);

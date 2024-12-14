@@ -1,5 +1,5 @@
 /**
- * @file User.js
+ * @file UserDB.js
  * @description This file defines the User model for MongoDB.
  *
  * @datecreated 04.12.2024

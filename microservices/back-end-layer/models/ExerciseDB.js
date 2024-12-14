@@ -1,5 +1,5 @@
 /**
- * @file Exercise.js
+ * @file ExerciseDB.js
  * @description This file defines the Exercise model for MongoDB.
  *
  * @datecreated 13.12.2024
@@ -17,7 +17,6 @@ const ExerciseSchema = new mongoose.Schema({
     word: { type: String }, // The displayed word (for `WordToSign` type)
     correctAnswer: { type: String, required: true }, // The correct answer (word or sign gesture name)
     options: [{ type: String }], // Possible answers (for `SignToWord` type)
-    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Exercise', ExerciseSchema);

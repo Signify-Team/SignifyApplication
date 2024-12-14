@@ -1,5 +1,5 @@
 /**
- * @file Achievement.js
+ * @file AchievementDB.js
  * @description This file defines the Achievement model for MongoDB.
  *
  * @datecreated 14.12.2024
@@ -14,7 +14,6 @@ const AchievementSchema = new mongoose.Schema({
     name: { type: String, required: true }, // Achievement name
     description: { type: String }, // Achievement description
     rewardPoints: { type: Number, default: 0 }, // Points for unlocking
-    createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Achievement', AchievementSchema);

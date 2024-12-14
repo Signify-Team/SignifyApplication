@@ -1,10 +1,12 @@
+"""
+This script demonstrates the workflow for processing a video file with hand detection and sending the selected frames to the OpenAI GPT API for analysis.
+
+The video file is processed frame by frame, extracting the frames and running hand detection on each frame. The frames with detected hand movements are then sent to the GPT API for analysis.
+"""
 import cv2
 import sys
 import os
-import subprocess
-import json
 import base64
-import openai
 import time
 from pathlib import Path
 from openai import OpenAI

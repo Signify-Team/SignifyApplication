@@ -78,8 +78,8 @@ Pods/
 
 # ASL Dataset
 microservices/lesson-management-service/asl_dataset/
-microservices/lesson-management-service/hand-detection-service/TEST_SCRIPTS/egohands_dataset
-microservices/lesson-management-service/hand-detection-service/TEST_SCRIPTS/processed_dataset
+microservices/lesson-management-service/hand_detection_service/TEST_SCRIPTS/egohands_dataset
+microservices/lesson-management-service/hand_detection_service/TEST_SCRIPTS/processed_dataset
 
 # Environment
 venv/

@@ -31,7 +31,7 @@ router.post('/register', registerLimiter, async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email: { $eq: email } });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email is already registered' });
+            return res.status(409).json({ message: 'Email is already registered' });
         }
 
         // Hash the password
@@ -45,7 +45,12 @@ router.post('/register', registerLimiter, async (req, res) => {
         });
 
         await user.save();
-        return res.status(201).json({ message: 'User registered successfully', user });
+        return res.status(201).json({ message: 'User registered successfully', user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+        }, 
+    });
     } catch (error) {
         console.error('Registration Error:', error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -54,7 +59,7 @@ router.post('/register', registerLimiter, async (req, res) => {
 
 
 // Route: Login an existing user
-router.post('/login', async (req, res) => {
+router.post('/login', registerLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {

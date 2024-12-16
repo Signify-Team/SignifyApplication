@@ -19,6 +19,23 @@ const registerLimiter = rateLimit({
     max: 100, // Limit each IP to 100 requests per `window` (15 minutes)
     message: { message: 'Too many requests, please try again later.' },
 });
+const loginLimiter = rateLimit({
+    windowMs: 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (1,5 minutes)
+    message: { message: 'Too many requests, please try again later.' },
+});
+
+const profileLimiter = rateLimit({
+    windowMs: 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (1,5 minutes)
+    message: { message: 'Too many requests, please try again later.' },
+});
+
+const updateLimiter = rateLimit({
+    windowMs: 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (1,5 minutes)
+    message: { message: 'Too many requests, please try again later.' },
+});
 
 router.post('/register', registerLimiter, async (req, res) => {
     const { username, email, password } = req.body;
@@ -59,7 +76,7 @@ router.post('/register', registerLimiter, async (req, res) => {
 
 
 // Route: Login an existing user
-router.post('/login', registerLimiter, async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -94,7 +111,7 @@ router.post('/login', registerLimiter, async (req, res) => {
 });
 
 // Route: Get user profile
-router.get('/profile', registerLimiter, async (req, res) => {
+router.get('/profile', profileLimiter, async (req, res) => {
     const { userId } = req.query;
     
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -114,7 +131,7 @@ router.get('/profile', registerLimiter, async (req, res) => {
 });
 
 // Route: Update user preferences or progress
-router.put('/update', registerLimiter, async (req, res) => {
+router.put('/update', updateLimiter, async (req, res) => {
     const { userId, languagePreference, learningLanguages } = req.body;
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {

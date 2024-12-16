@@ -41,7 +41,7 @@ export default StyleSheet.create(
         },
         button: {
             backgroundColor:
-                COLORS.primary,
+                COLORS.neutral_base_soft,
             padding: 10,
             borderRadius: 5,
             alignItems:
@@ -124,7 +124,6 @@ export default StyleSheet.create(
                     COLORS.background,
                 fontSize: 13,
                 color: COLORS.placeholderTextSignUp,
-                // fontFamily: 'PassionOne-Regular',
             },
         loginLogo: {
             width:
@@ -207,6 +206,27 @@ export default StyleSheet.create(
             color: COLORS.signUpLineText,
             fontWeight:
                 'bold',
+        },
+
+        // Bottom Bar Styles
+        bottomBarStyle: {
+            backgroundColor: COLORS.neutral_base_soft,
+            borderTopWidth: 0,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 6,
+            height: height * 0.11,
+        },
+        bottomBarIcon: {
+            width: width * 0.1,
+            height: height * 0.11,
+            resizeMode: 'contain',
+            marginTop: height * 0.02,
+        },
+        bottomBarIconContainer: {
+            alignItems: 'center',
+            justifyContent: 'center',
         },
     },
 );

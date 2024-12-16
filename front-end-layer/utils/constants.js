@@ -3,11 +3,11 @@
  * @description Includes constants for the application for consistency.
  *
  * @datecreated 05.11.2024
- * @lastmodified 12.11.2024
+ * @lastmodified 16.12.2024
  */
 
 export const COLORS = {
-    primary: '#6200ea',
+    neutral_base_soft: '#D1E2EC',
     secondary:
         '#03dac6',
     background:

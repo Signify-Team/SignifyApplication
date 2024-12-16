@@ -8,52 +8,78 @@
 
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import { Image } from 'react-native';
+import styles from '../styles/styles';
 
 // Page Links
 import Courses from '../screens/CoursesPage';
-import Dashboard from '../screens/DashboardPage';
 import Profile from '../screens/ProfilePage';
-import Notifications from '../screens/NotificationsPage';
+import Quests from '../screens/QuestsPage';
 import Achievements from '../screens/AchievementsPage';
+
+// Icon Links
+import AchievementActiveIcon from '../assets/icons/48x48/achievement-active.png';
+import AchievementPassiveIcon from '../assets/icons/48x48/achievement-passive.png';
+import DashboardActiveIcon from '../assets/icons/48x48/dashboard-active.png';
+import DashboardPassiveIcon from '../assets/icons/48x48/dashboard-passive.png';
+import HomeActiveIcon from '../assets/icons/48x48/home-active.png';
+import HomePassiveIcon from '../assets/icons/48x48/home-passive.png';
+import UserActiveIcon from '../assets/icons/48x48/user-active.png';
+import UserPassiveIcon from '../assets/icons/48x48/user-passive.png';
 
 const Tab =
     createBottomTabNavigator();
 
-// Bottom Tabs navigation
-const BottomTabsNavigator =
-    () => (
-        <Tab.Navigator>
-            <Tab.Screen
-                name="Courses"
-                component={
-                    Courses
-                }
-            />
-            <Tab.Screen
-                name="Dashboard"
-                component={
-                    Dashboard
-                }
-            />
-            <Tab.Screen
-                name="Profile"
-                component={
-                    Profile
-                }
-            />
-            <Tab.Screen
-                name="Notifications"
-                component={
-                    Notifications
-                }
-            />
-            <Tab.Screen
-                name="Achievements"
-                component={
-                    Achievements
-                }
-            />
-        </Tab.Navigator>
+const tabBarIcon = ({ route }) => ({ focused }) => {
+    let iconSource;
+
+    switch (route.name) {
+        case 'Courses':
+            iconSource = focused ? HomeActiveIcon : HomePassiveIcon;
+            break;
+        case 'Quests':
+            iconSource = focused ? DashboardActiveIcon : DashboardPassiveIcon;
+            break;
+        case 'Profile':
+            iconSource = focused ? UserActiveIcon : UserPassiveIcon;
+            break;
+        case 'Achievements':
+            iconSource = focused ? AchievementActiveIcon : AchievementPassiveIcon;
+            break;
+        default:
+            break;
+    }
+    return(
+        <Image
+            source={iconSource}
+            style={styles.bottomBarIcon}
+        />
     );
+};
+
+const BottomTabsNavigator = () => (
+    <Tab.Navigator screenOptions={({ route }) => ({
+        tabBarIcon: tabBarIcon({ route }),
+        tabBarShowLabel: false,
+        tabBarStyle: styles.bottomBarStyle,
+    })}>
+        <Tab.Screen
+            name="Courses"
+            component={Courses}
+        />
+        <Tab.Screen
+            name="Quests"
+            component={Quests}
+        />
+        <Tab.Screen
+            name="Profile"
+            component={Profile}
+        />
+        <Tab.Screen
+            name="Achievements"
+            component={Achievements}
+        />
+    </Tab.Navigator>
+);
 
 export default BottomTabsNavigator;

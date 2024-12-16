@@ -10,11 +10,18 @@
 const express = require('express'); // Express web server framework
 const bcrypt = require('bcrypt'); // For password hashing
 const User = require('../models/UserDB'); // User model
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router(); // Router middleware
 
-router.post('/register', async (req, res) => {
-    const {username, email, password} = req.body;
+const registerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (15 minutes)
+    message: { message: 'Too many requests, please try again later.' },
+});
+
+outer.post('/register', registerLimiter, async (req, res) => {
+    const { username, email, password } = req.body;
 
     try {
         // Check if user already exists
@@ -34,11 +41,12 @@ router.post('/register', async (req, res) => {
         });
 
         await user.save();
-        res.status(201).json({ message: 'User registered successfully', user });
+        return res.status(201).json({ message: 'User registered successfully', user });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 });
+
 
 // Route: Login an existing user
 router.post('/login', async (req, res) => {

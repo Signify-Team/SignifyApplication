@@ -94,7 +94,7 @@ router.post('/login', registerLimiter, async (req, res) => {
 });
 
 // Route: Get user profile
-router.get('/profile', async (req, res) => {
+router.get('/profile', registerLimiter, async (req, res) => {
     const { userId } = req.query;
     
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -114,7 +114,7 @@ router.get('/profile', async (req, res) => {
 });
 
 // Route: Update user preferences or progress
-router.put('/update', async (req, res) => {
+router.put('/update', registerLimiter, async (req, res) => {
     const { userId, languagePreference, learningLanguages } = req.body;
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {

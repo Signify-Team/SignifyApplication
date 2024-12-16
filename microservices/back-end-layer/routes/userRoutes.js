@@ -9,9 +9,9 @@
 
 const express = require('express'); // Express web server framework
 const bcrypt = require('bcrypt'); // For password hashing
+const mongoose = require('mongoose'); // For MongoDB ObjectId validation
 const User = require('../models/UserDB'); // User model
 const rateLimit = require('express-rate-limit');
-const mongoose = require('mongoose');
 const router = express.Router(); // Router middleware
 
 const registerLimiter = rateLimit({

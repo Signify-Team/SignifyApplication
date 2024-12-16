@@ -3,7 +3,7 @@
  * @description This file handles the user routes.
  *
  * @datecreated 03.12.2024
- * @lastmodified 06.12.2024
+ * @lastmodified 17.12.2024
  */
 
 
@@ -11,7 +11,7 @@ const express = require('express'); // Express web server framework
 const bcrypt = require('bcrypt'); // For password hashing
 const User = require('../models/UserDB'); // User model
 const rateLimit = require('express-rate-limit');
-
+const mongoose = require('mongoose');
 const router = express.Router(); // Router middleware
 
 const registerLimiter = rateLimit({
@@ -20,8 +20,12 @@ const registerLimiter = rateLimit({
     message: { message: 'Too many requests, please try again later.' },
 });
 
-outer.post('/register', registerLimiter, async (req, res) => {
+router.post('/register', registerLimiter, async (req, res) => {
     const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
 
     try {
         // Check if user already exists
@@ -43,7 +47,8 @@ outer.post('/register', registerLimiter, async (req, res) => {
         await user.save();
         return res.status(201).json({ message: 'User registered successfully', user });
     } catch (error) {
-        return res.status(400).json({ message: error.message });
+        console.error('Registration Error:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -51,6 +56,10 @@ outer.post('/register', registerLimiter, async (req, res) => {
 // Route: Login an existing user
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+    }
 
     try {
         // Find user by email
@@ -65,15 +74,27 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        res.status(200).json({ message: 'Login successful', user });
+        res.status(200).json({
+            message: 'Login successful',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+            },
+        });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Login Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
 // Route: Get user profile
 router.get('/profile', async (req, res) => {
     const { userId } = req.query;
+    
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
 
     try {
         const user = await User.findById(userId).select('-password'); // Exclude password
@@ -82,13 +103,18 @@ router.get('/profile', async (req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Profile Fetch Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
 // Route: Update user preferences or progress
 router.put('/update', async (req, res) => {
     const { userId, languagePreference, learningLanguages } = req.body;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
 
     try {
         const user = await User.findById(userId);
@@ -109,7 +135,6 @@ router.put('/update', async (req, res) => {
 
 // Test route
 router.get('/test', (req, res) => {
-    res.send('User route is working!');
+    res.status(200).send('User route is working!');
 });
-
 module.exports = router;

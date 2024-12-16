@@ -9,6 +9,7 @@
 
 const express = require('express'); // Express web server framework
 const bcrypt = require('bcrypt'); // For password hashing
+const mongoose = require('mongoose'); // For MongoDB ObjectId validation
 const User = require('../models/UserDB'); // User model
 const rateLimit = require('express-rate-limit');
 
@@ -74,6 +75,10 @@ router.post('/login', async (req, res) => {
 // Route: Get user profile
 router.get('/profile', async (req, res) => {
     const { userId } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
 
     try {
         const user = await User.findById(userId).select('-password'); // Exclude password

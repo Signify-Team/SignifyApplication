@@ -7,21 +7,20 @@
  */
 
 export const COLORS = {
+    primary: '#8EB1CF',
+    secondary: '#F76C63',
+    tertiary: '#87CB97',
+    neutral_base_dark: '#333333',
     neutral_base_soft: '#D1E2EC',
-    primary_color: '#8EB1CF',
-    secondary:
-        '#03dac6',
-    background:
-        '#FFE5E5',
-    text: '#333',
-    signUpLoginMainText:
-        '#FF3E3E',
-    placeholderTextSignUp:
-        '#7F6675',
-    loginBordorColor:
-        '#503144',
-    signUpLineText:
-        '#F4766D',
+    button_color: '#EB4511',
+    highlight_color_2: '#EE3C3C',
+    dark_accent: '#2C2C2C',
+    soft_accent: '#F9E2D0',
+    dark_gray_1: '#969797',
+    lemonade: '#FFFFC7',
+    bright_button_color: '#4068F5',
+    light_gray_1: '#DDDDDD',
+    light_gray_2: '#EEEEEE',
 };
 
 export const FONTS = {

@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import {
     COLORS,
-    FONTS,
 } from '../utils/constants';
 
 const {width, height} =

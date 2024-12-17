@@ -3,31 +3,100 @@
  * @description Includes settings and configurations for the application
  *
  * @datecreated 05.11.2024
- * @lastmodified 07.11.2024
+ * @lastmodified 17.12.2024
  */
 
 import React from 'react';
-import {
-    View,
-    Text,
-} from 'react-native';
-import styles from '../styles/styles';
+import { View, Text, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { COLORS, FONTS } from '../utils/constants';
+import styles from '../styles/SettingsStyles';
 
-// Settings Page layout
-const SettingsPage =
-    () => (
-        <View
-            style={
-                styles.container
-            }>
-            <Text
-                style={
-                    styles.text
-                }>
-                Settings
-                Page
-            </Text>
+const SettingsPage = () => {
+    const [isDarkMode, setIsDarkMode] = React.useState(false);
+    const [isVibration, setIsVibration] = React.useState(false);
+
+    return (
+        <View style={styles.container}>
+            <ScrollView>
+                {/* Account Settings */}
+                <Text style={styles.sectionTitle}>Account Settings:</Text>
+                <View style={styles.settingCard}>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={styles.optionText}>Change Password</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={styles.optionText}>Language Selection</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={[styles.optionText, { color: COLORS.button_color }]}>Delete Account</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Notification Settings */}
+                <Text style={styles.sectionTitle}>Notification Settings:</Text>
+                <View style={styles.settingCard}>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={styles.optionText}>Notifications</Text>
+                        <Text style={styles.arrow}>{'>'}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* App Preferences */}
+                <Text style={styles.sectionTitle}>App Preferences:</Text>
+                <View style={styles.settingCard}>
+                    <View style={styles.option}>
+                        <Text style={styles.optionText}>Dark Mode</Text>
+                        <View style={styles.switchWrapper}>
+                            <Switch
+                                value={isDarkMode}
+                                onValueChange={setIsDarkMode}
+                                trackColor={{ true: COLORS.bright_button_color, false: COLORS.light_gray_2 }}
+                                style={styles.switch}
+                            />
+                        </View>
+                    </View>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={styles.optionText}>Sound Effects</Text>
+                        <Text style={styles.arrow}>{'>'}</Text>
+                    </TouchableOpacity>
+                    <View style={styles.option}>
+                        <Text style={styles.optionText}>Vibration Feedback</Text>
+                        <View style={styles.switchWrapper}>
+                            <Switch
+                                value={isVibration}
+                                onValueChange={setIsVibration}
+                                trackColor={{ true: COLORS.bright_button_color, false: COLORS.light_gray_2 }}
+                                style={styles.switch}
+                            />
+                        </View>
+                    </View>
+                </View>
+
+                {/* Privacy Settings */}
+                <Text style={styles.sectionTitle}>Privacy Settings:</Text>
+                <View style={styles.settingCard}>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={styles.optionText}>Data Privacy</Text>
+                        <Text style={styles.arrow}>{'>'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.option}>
+                        <Text style={styles.optionText}>Consent Forms</Text>
+                        <Text style={styles.arrow}>{'>'}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Footer */}
+                <Text style={styles.footerText}>
+                    App Version 1.1.1 | Terms and Conditions | Contact Support
+                </Text>
+                <TouchableOpacity>
+                    <Text style={[styles.logoutText]}>
+                        Logout
+                    </Text>
+                </TouchableOpacity>
+            </ScrollView>
         </View>
     );
+};
 
 export default SettingsPage;

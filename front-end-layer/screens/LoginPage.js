@@ -20,10 +20,11 @@ import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
 import { loginUser } from '../utils/apiService'; // Import API service
 import axios from 'axios';
+import Config from 'react-native-config';
 
-import { API_URL, LOGIN_ENDPOINT } from 'react-native-dotenv';
-
-
+// The API_URL should normally be reached from the .env file but I could not 
+// manage the connection, for now it could stay like this for testing purposes.
+const API_URL = Config.API_URL;
 
 // Login Page layout
 const LoginPage =
@@ -34,8 +35,8 @@ const LoginPage =
             useNavigation();
 
             const handleLogin = async () => {
-                try {            
-                    const response = await axios.post(`${API_URL}${LOGIN_ENDPOINT}`, {
+                try {
+                    const response = await axios.post(API_URL, {
                         email,
                         password,
                     });

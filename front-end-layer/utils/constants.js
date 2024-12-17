@@ -7,7 +7,7 @@
  */
 
 export const COLORS = {
-    primary: '#6200ea',
+    primary: '#8EB1CF',
     secondary: '#F76C63',
     tertiary: '#87CB97',
     neutral_base_dark: '#333333',
@@ -16,6 +16,11 @@ export const COLORS = {
     highlight_color_2: '#EE3C3C',
     dark_accent: '#2C2C2C',
     soft_accent: '#F9E2D0',
+    dark_gray_1: '#969797',
+    lemonade: '#FFFFC7',
+    bright_button_color: '#4068F5',
+    light_gray_1: '#DDDDDD',
+    light_gray_2: '#EEEEEE',
 };
 
 export const FONTS = {

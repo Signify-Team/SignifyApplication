@@ -4,7 +4,7 @@
  *              Adds a sign up option if the user doesn't have an account.
  *
  * @datecreated 05.11.2024
- * @lastmodified 07.11.2024
+ * @lastmodified 18.11.2024
  */
 import React, { useState } from 'react';
 import {
@@ -22,8 +22,6 @@ import { loginUser } from '../utils/apiService'; // Import API service
 import axios from 'axios';
 import Config from 'react-native-config';
 
-// The API_URL should normally be reached from the .env file but I could not 
-// manage the connection, for now it could stay like this for testing purposes.
 const API_URL = Config.API_URL;
 
 // Login Page layout

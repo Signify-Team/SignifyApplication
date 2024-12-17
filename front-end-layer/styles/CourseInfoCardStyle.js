@@ -28,7 +28,7 @@ export default StyleSheet.create({
         backgroundColor: COLORS.tertiary,
         borderRadius: 12,
         width: width * 0.95,
-        height: 80,
+        height: height * 0.09,
         elevation: 3,
         shadowColor: COLORS.neutral_base_dark,
         shadowOffset: {width: 0, height: 2},
@@ -37,10 +37,10 @@ export default StyleSheet.create({
     },
     innerShadow: {
         position: 'absolute',
-        top: -2,
+        top: 0,
         left: 0,
         right: 0,
-        height: 10,
+        height: height * 0.01,
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
         backgroundColor: 'rgba(0, 0, 0, 0.04)',
@@ -50,7 +50,7 @@ export default StyleSheet.create({
     icon: {
         width: width * 0.35,
         height: height * 0.2,
-        marginRight: 20,
+        marginRight: width * 0.05,
         resizeMode: 'contain',
     },
     title: {

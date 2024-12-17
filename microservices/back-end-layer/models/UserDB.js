@@ -16,10 +16,10 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profilePicture: { type: String },
-    languagePreference: { type: String, enum: ['ASL', 'TSL']},
+    languagePreference: { type: String, enum: ['ASL', 'TID']},
     learningLanguages: [
         {
-            languageId: { type: String,required: true, enum: ['ASL', 'TSL'],}, // ID of the language being learned
+            languageId: { type: String,required: true, enum: ['ASL', 'TID'],}, 
             progress: { type: Number, default: 0 }, // Progress percentage in the language
             level: { type: Number, default: 1 }, // Level in the language
         },

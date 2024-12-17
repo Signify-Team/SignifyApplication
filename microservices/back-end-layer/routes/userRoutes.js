@@ -14,26 +14,28 @@ const User = require('../models/UserDB'); // User model
 const rateLimit = require('express-rate-limit');
 const router = express.Router(); // Router middleware
 
+const MINUTES_15 = 15 * 60 * 1000;
+
 const registerLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: MINUTES_15,
     max: 100, // Limit each IP to 100 requests per `window` (15 minutes)
     message: { message: 'Too many requests, please try again later.' },
 });
 const loginLimiter = rateLimit({
-    windowMs: 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (1,5 minutes)
+    windowMs: MINUTES_15, 
+    max: 100, 
     message: { message: 'Too many requests, please try again later.' },
 });
 
 const profileLimiter = rateLimit({
-    windowMs: 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (1,5 minutes)
+    windowMs: MINUTES_15,
+    max: 100, 
     message: { message: 'Too many requests, please try again later.' },
 });
 
 const updateLimiter = rateLimit({
-    windowMs: 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (1,5 minutes)
+    windowMs: MINUTES_15,
+    max: 100, 
     message: { message: 'Too many requests, please try again later.' },
 });
 

@@ -21,6 +21,9 @@ import CustomTextInput from '../utils/textInputSignLogin';
 import { loginUser } from '../utils/apiService'; // Import API service
 import axios from 'axios';
 
+import { API_URL, LOGIN_ENDPOINT } from 'react-native-dotenv';
+
+
 
 // Login Page layout
 const LoginPage =
@@ -32,7 +35,7 @@ const LoginPage =
 
             const handleLogin = async () => {
                 try {            
-                    const response = await axios.post(`http://192.168.1.140:3000/api/users/login`, {
+                    const response = await axios.post(`${API_URL}${LOGIN_ENDPOINT}`, {
                         email,
                         password,
                     });

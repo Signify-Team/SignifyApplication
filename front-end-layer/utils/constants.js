@@ -10,6 +10,8 @@ export const COLORS = {
     primary: '#6200ea',
     secondary:
         '#03dac6',
+    neutral_base_dark: '#333333',
+    tertiary: '#87CB97',
     background:
         '#FFE5E5',
     text: '#333',

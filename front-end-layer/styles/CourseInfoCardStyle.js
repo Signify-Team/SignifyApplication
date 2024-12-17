@@ -43,8 +43,9 @@ export default StyleSheet.create({
         height: 10,
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
-        backgroundColor: 'rgba(0, 0, 0, 0.03)',
+        backgroundColor: 'rgba(0, 0, 0, 0.04)',
         shadowColor: COLORS.neutral_base_dark,
+        shadowOffset: {width: 0, height: 2},
     },
     icon: {
         width: width * 0.35,

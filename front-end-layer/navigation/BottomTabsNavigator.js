@@ -3,7 +3,7 @@
  * @description Bottom Tab navigations are handled in this file.
  *
  * @datecreated 05.11.2024
- * @lastmodified 07.11.2024
+ * @lastmodified 16.12.2024
  */
 
 import React from 'react';
@@ -66,6 +66,10 @@ const BottomTabsNavigator = () => (
         <Tab.Screen
             name="Courses"
             component={Courses}
+            // Do not show the default header.
+            options={{
+                headerShown: false,
+            }}
         />
         <Tab.Screen
             name="Quests"

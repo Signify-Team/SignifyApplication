@@ -8,6 +8,7 @@
 
 export const COLORS = {
     neutral_base_soft: '#D1E2EC',
+    primary_color: '#8EB1CF',
     secondary:
         '#03dac6',
     background:

@@ -13,24 +13,20 @@ import {
     Text,
 } from 'react-native';
 import styles from '../styles/styles';
-import { useNavigation } from '@react-navigation/native';
+import CoursesTopBar from '../components/CoursesTopBar';
 
 // Courses Page layout
 const CoursesPage =
     () => {
         return (
-            <View
-                style={
-                    styles.container
-                }>
-                <Text
-                    style={
-                        styles.text
-                    }>
-                    Courses
-                    Page
-                </Text>
-            </View>
+            <>
+                {/* Custom Top Bar */}
+                <CoursesTopBar />
+                {/* Main content */}
+                <View style={styles.container}>
+                    <Text style={styles.text}>Courses Page</Text>
+                </View>
+            </>
         );
     };
 

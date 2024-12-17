@@ -3,7 +3,7 @@
  * @description Includes styles for the texts, buttons, etc.
  *
  * @datecreated 05.11.2024
- * @lastmodified 12.11.2024
+ * @lastmodified 16.12.2024
  */
 
 import {
@@ -220,7 +220,7 @@ export default StyleSheet.create(
         },
         bottomBarIcon: {
             width: width * 0.1,
-            height: height * 0.11,
+            height: height * 0.1,
             resizeMode: 'contain',
             marginTop: height * 0.02,
         },

@@ -21,6 +21,10 @@ export const COLORS = {
     bright_button_color: '#4068F5',
     light_gray_1: '#DDDDDD',
     light_gray_2: '#EEEEEE',
+    soft_pink_background: '#FFE5E5',
+    gray: '#D9D9D9',
+    paw_color: '#8EB1CF',
+    soft_container_color: '#B3D0E8',
 };
 
 export const FONTS = {

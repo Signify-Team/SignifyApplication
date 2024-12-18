@@ -20,9 +20,9 @@ const QuestsPage = () => {
         <QuestsCard
           title="Finish this quest"
           timeRemaining="6 hours"
-          progress={0}
-          total={1}
-          isTimeLimited={true}
+          progress={1}
+          total={2}
+          isDailyQuest={true}
         />
 
         <QuestsCard
@@ -30,16 +30,15 @@ const QuestsPage = () => {
           timeRemaining="6 hours"
           progress={0}
           total={1}
-          isTimeLimited={true}
+          isDailyQuest={true}
         />
 
-        <Text style={styles.subHeader}>Quests between friends:</Text>
+        <Text style={styles.header}>Quests between friends:</Text>
 
         <QuestsCard
           title="Finish this quest"
           progress={1}
           total={1}
-          isCompleted={true}
         />
 
         <QuestsCard

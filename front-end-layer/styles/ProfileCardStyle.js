@@ -7,7 +7,7 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { COLORS} from '../utils/constants';
+import { COLORS, hexToRgba } from '../utils/constants';
 
 const {width, height} =
     Dimensions.get(
@@ -41,7 +41,6 @@ export default StyleSheet.create({
     header: {
         fontSize: 30,
         color: COLORS.neutral_base_dark,
-        marginTop: height * 0.02,
         marginBottom: height * 0.01,
     },
     row: {
@@ -50,5 +49,22 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         width: width * 0.9,
         marginBottom: height * 0.01,
+    },
+    statsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 12,
+        backgroundColor: hexToRgba(COLORS.neutral_base_dark, 0.1),
+        padding: 10,
+    },
+    statsIcon: {
+        width: width * 0.05,
+        height: height * 0.03,
+        marginRight: width * 0.03,
+    },
+    statsText: {
+        fontSize: 16,
+        color: COLORS.neutral_base_dark,
     },
 });

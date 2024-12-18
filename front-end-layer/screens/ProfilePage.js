@@ -4,7 +4,7 @@
  *              Includes a settings button for the user to change their preferences.
  *
  * @datecreated 05.11.2024
- * @lastmodified 07.11.2024
+ * @lastmodified 19.12.2024
  */
 
 import React from 'react';
@@ -19,9 +19,8 @@ import ProfileTopBar from '../components/ProfileTopBar';
 import ProfileCard from '../components/ProfileCard';
 import StatsCard from '../components/StatsCard.js';
 import FireIcon from '../assets/icons/header/streak.png';
-import { COLORS} from '../utils/constants';
 
-const {width, height} =
+const {height} =
     Dimensions.get(
         'window',
     );
@@ -72,6 +71,58 @@ const ProfilePage =
 
                     {/* Badges */}
                     <Text style={styles.header}>Badges</Text>
+                    <View style={styles.row}>
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                    </View>
+                    <View style={styles.row}>
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                        <StatsCard
+                            height={height * 0.085}
+                            width={'22%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                    </View>
                 </ScrollView>
             </View>
             </>

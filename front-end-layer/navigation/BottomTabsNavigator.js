@@ -61,7 +61,6 @@ const BottomTabsNavigator = () => (
     <Tab.Navigator screenOptions={({ route }) => ({
         tabBarIcon: tabBarIcon({ route }),
         tabBarShowLabel: false,
-        tabBarStyle: styles.bottomBarStyle,
     })}>
         <Tab.Screen
             name="Courses"

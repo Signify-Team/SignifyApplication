@@ -11,21 +11,69 @@ import React from 'react';
 import {
     View,
     Text,
+    ScrollView,
+    Dimensions,
 } from 'react-native';
-import styles from '../styles/styles';
+import styles from '../styles/ProfileCardStyle.js';
 import ProfileTopBar from '../components/ProfileTopBar';
+import ProfileCard from '../components/ProfileCard';
+import StatsCard from '../components/StatsCard.js';
+import FireIcon from '../assets/icons/header/streak.png';
+import { COLORS} from '../utils/constants';
 
-// Profile Page layout
+const {width, height} =
+    Dimensions.get(
+        'window',
+    );
+
 const ProfilePage =
     () => {
         return (
             <>
-                {/* Custom Top Bar */}
-                <ProfileTopBar />
-                {/* Main content */}
-                <View style={styles.container}>
-                    <Text style={styles.text}>Profile Page</Text>
-                </View>
+            {/* Custom Top Bar */}
+            <ProfileTopBar />
+            {/* Main content */}
+            <View style={styles.container}>
+                <ScrollView>
+                    <ProfileCard  username="profile card"/>
+                    <Text style={styles.header}>Info Box</Text>
+                    <Text style={styles.header}>Add friends</Text>
+
+                    {/* Statistics */}
+                    <Text style={styles.header}>Statistics</Text>
+                    <View style={styles.row}>
+                        <StatsCard
+                            height={height * 0.09}
+                            width={'49%'}
+                            icon={FireIcon}
+                            text="Streak Count"
+                        />
+                        <StatsCard
+                            height={height * 0.09}
+                            width={'49%'}
+                            text="Total Points"
+                            showIcon={false}
+                        />
+                    </View>
+                    <View style={styles.row}>
+                        <StatsCard
+                            height={height * 0.09}
+                            width={'49%'}
+                            text="Progress"
+                            showIcon={false}
+                        />
+                        <StatsCard
+                            height={height * 0.09}
+                            width={'49%'}
+                            showIcon={false}
+                            showText={false}
+                        />
+                    </View>
+
+                    {/* Badges */}
+                    <Text style={styles.header}>Badges</Text>
+                </ScrollView>
+            </View>
             </>
         );
     };

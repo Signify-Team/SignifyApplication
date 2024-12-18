@@ -15,24 +15,21 @@ import {
 import styles from '../styles/styles';
 import CourseInfoCard from '../components/CourseInfoCard';
 import GreetingsIcon from '../assets/icons/course-info/greetings.png';
+import CoursesTopBar from '../components/CoursesTopBar';
 
 // Courses Page Layout
 const CoursesPage =
     () => {
         return (
-            <View
-                style={
-                    styles.container
-                }>
-                <Text
-                    style={
-                        styles.text
-                    }>
-                    Courses
-                    Page
-                </Text>
-                <CourseInfoCard icon={GreetingsIcon} title="Greetings"/>
+            <>
+                {/* Custom Top Bar */}
+                <CoursesTopBar />
+                {/* Main content */}
+                <View style={styles.container}>
+                    <Text style={styles.text}>Courses Page</Text>
+                    <CourseInfoCard icon={GreetingsIcon} title="Greetings"/>
             </View>
+            </>
         );
     };
 

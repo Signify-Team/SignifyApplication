@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { View, Text, TouchableOpacity, Switch, ScrollView } from 'react-native';
-import { COLORS, FONTS } from '../utils/constants';
+import { COLORS } from '../utils/constants';
 import styles from '../styles/SettingsStyles';
 
 const SettingsPage = () => {

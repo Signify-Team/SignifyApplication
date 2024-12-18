@@ -84,6 +84,7 @@ microservices/lesson-management-service/hand-detection-service/TEST_SCRIPTS/proc
 # Environment
 venv/
 myenv/
+.env
 
 # Ignore compiled Python files
 *.pyc
@@ -96,6 +97,7 @@ __pycache__/
 # cocoapods
 ios/Podfile.lock
 ios/Pods/
+ios/SignifyProject.xcodeproj/project.pbxproj
 
 # xcode temporary files 
 *.xcworkspace

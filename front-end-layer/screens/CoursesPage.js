@@ -28,7 +28,7 @@ const CoursesPage =
                 <View style={styles.container}>
                     <Text style={styles.text}>Courses Page</Text>
                     <CourseInfoCard icon={GreetingsIcon} title="Greetings"/>
-            </View>
+                </View>
             </>
         );
     };

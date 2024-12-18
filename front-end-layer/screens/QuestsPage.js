@@ -6,12 +6,13 @@
  * @lastmodified 17.12.2024
  */
 
-import React from 'react';
-import { View, ScrollView, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, Text, Modal } from 'react-native';
 import styles from '../styles/QuestsCardStyle.js';
 import QuestsCard from '../components/QuestsCard';
 
 const QuestsPage = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -39,6 +40,7 @@ const QuestsPage = () => {
           title="Finish this quest"
           progress={1}
           total={1}
+          onCompletePress={() => console.log('Complete pressed')}
         />
 
         <QuestsCard

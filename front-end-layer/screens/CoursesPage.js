@@ -4,7 +4,7 @@
  *              to the curriculum.
  *
  * @datecreated 05.11.2024
- * @lastmodified 07.11.2024
+ * @lastmodified 17.12.2024
  */
 
 import React from 'react';
@@ -13,24 +13,23 @@ import {
     Text,
 } from 'react-native';
 import styles from '../styles/styles';
-import { useNavigation } from '@react-navigation/native';
+import CourseInfoCard from '../components/CourseInfoCard';
+import GreetingsIcon from '../assets/icons/course-info/greetings.png';
+import CoursesTopBar from '../components/CoursesTopBar';
 
-// Courses Page layout
+// Courses Page Layout
 const CoursesPage =
     () => {
         return (
-            <View
-                style={
-                    styles.container
-                }>
-                <Text
-                    style={
-                        styles.text
-                    }>
-                    Courses
-                    Page
-                </Text>
+            <>
+                {/* Custom Top Bar */}
+                <CoursesTopBar />
+                {/* Main content */}
+                <View style={styles.container}>
+                    <Text style={styles.text}>Courses Page</Text>
+                    <CourseInfoCard icon={GreetingsIcon} title="Greetings"/>
             </View>
+            </>
         );
     };
 

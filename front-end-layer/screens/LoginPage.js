@@ -74,12 +74,12 @@ const LoginPage =
                     style={
                         styles.loginWelcomeText
                     }>
-                    WELCOME
-                    BACK,{' '}
+                    Welcome
+                    back,{' '}
                     {
                         '\n'
                     }{' '}
-                    UNAME!
+                    Dila!
                 </Text>
 
                 {/* Inputs */}
@@ -99,8 +99,7 @@ const LoginPage =
                         style={
                             styles.forgotPasswordText
                         }>
-                        Forgot
-                        Password?
+                        Forgot Your Password?
                     </Text>
                 </TouchableOpacity>
 
@@ -113,8 +112,7 @@ const LoginPage =
                         style={
                             styles.loginButtonText
                         }>
-                        Log
-                        In
+                        Log In
                     </Text>
                 </TouchableOpacity>
 
@@ -126,10 +124,7 @@ const LoginPage =
                         style={
                             styles.signUpText
                         }>
-                        Don't
-                        have
-                        an
-                        account?
+                        Don't have an account?
                     </Text>
                     <TouchableOpacity
                         onPress={() =>
@@ -142,8 +137,7 @@ const LoginPage =
                                 styles.signUpLink
                             }>
                             {' '}
-                            Sign
-                            Up.
+                            Sign Up.
                         </Text>
                     </TouchableOpacity>
                 </View>

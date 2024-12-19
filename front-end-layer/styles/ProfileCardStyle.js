@@ -21,7 +21,20 @@ export default StyleSheet.create({
         paddingTop: height * 0.005,
         alignItems: 'center',
     },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: COLORS.neutral_base_soft,
+        paddingVertical: 10,
+    },
+    divider: {
+        width: 1,
+        height: '70%',
+        backgroundColor: COLORS.neutral_base_dark,
+    },
     buttonRow: {
+        paddingVertical: height * 0.01,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

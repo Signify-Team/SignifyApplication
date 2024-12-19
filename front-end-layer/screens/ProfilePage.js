@@ -15,12 +15,16 @@ import {
     Dimensions,
 } from 'react-native';
 import styles from '../styles/ProfileCardStyle.js';
+import { SIZES, COLORS } from '../utils/constants.js';
+
+// Components
 import ProfileTopBar from '../components/ProfileTopBar';
 import ProfileCard from '../components/ProfileCard';
 import StatsCard from '../components/StatsCard.js';
-import FireIcon from '../assets/icons/header/streak.png';
 import RectangularButton from '../components/RectangularButton.js';
-import { SIZES, COLORS } from '../utils/constants.js';
+import InfoBox from '../components/InfoBox.js';
+
+import FireIcon from '../assets/icons/header/streak.png';
 
 const {height} =
     Dimensions.get(
@@ -31,13 +35,32 @@ const ProfilePage =
     () => {
         return (
             <>
-            {/* Custom Top Bar */}
+            {/* Profile Top Bar */}
             <ProfileTopBar />
             {/* Main content */}
             <View style={styles.container}>
                 <ScrollView>
                     <ProfileCard  username="profile card"/>
-                    <Text style={styles.header}>Info Box</Text>
+
+                    {/* Info Bar */}
+                    <View style={styles.infoRow}>
+                        <InfoBox
+                            icon={require('../assets/icons/header/turkish-flag.png')}
+                            value=""
+                            label="Course"
+                        />
+                        <View style={styles.divider} />
+                        <InfoBox
+                            value="12"
+                            label="Followers"
+                        />
+                        <View style={styles.divider} />
+                        <InfoBox
+                            value="12"
+                            label="Following"
+                        />
+                    </View>
+
                     {/* Buttons */}
                     <View style={styles.buttonRow}>
                         <RectangularButton

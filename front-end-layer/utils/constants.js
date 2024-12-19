@@ -25,6 +25,8 @@ export const COLORS = {
     gray: '#D9D9D9',
     paw_color: '#8EB1CF',
     soft_container_color: '#B3D0E8',
+    button_underline: 'rgba(218, 218, 244, 0.3)',
+    white: '#FFFFFF',
 };
 
 export const FONTS = {
@@ -55,4 +57,21 @@ export const hexToRgba = (hex, opacity) => {
     }
 
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
+// Darkens a color by a specified amount
+export const darkenColor = (color, amount) => {
+    let colorValue = color.startsWith('#') ? color.slice(1) : color;
+
+    // Parse the hex color to get RGB components
+    const r = Math.max(0, parseInt(colorValue.substring(0, 2), 16) - amount);
+    const g = Math.max(0, parseInt(colorValue.substring(2, 4), 16) - amount);
+    const b = Math.max(0, parseInt(colorValue.substring(4, 6), 16) - amount);
+
+    // Convert each component back to a hex value
+    const rHex = r.toString(16).padStart(2, '0');
+    const gHex = g.toString(16).padStart(2, '0');
+    const bHex = b.toString(16).padStart(2, '0');
+
+    return `#${rHex}${gHex}${bHex}`;
 };

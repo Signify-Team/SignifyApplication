@@ -13,7 +13,7 @@ import styles from '../styles/ProfileCardStyle.js';
 const ProfileCard = ({ profilePic, username, date }) => {
     return (
         <View style={styles.profileCard}>
-            <Text style={styles.title}>{username}</Text>
+            <Text style={styles.userTitle}>{username}</Text>
         </View>
     );
 };

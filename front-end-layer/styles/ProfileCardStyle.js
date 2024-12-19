@@ -55,6 +55,40 @@ export default StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 3,
     },
+    avatarContainer: {
+        width: width * 0.3,
+        height: width * 0.3,
+        borderRadius: width * 0.3,
+        marginHorizontal: width * 0.03,
+        backgroundColor: COLORS.neutral_base_soft,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: COLORS.neutral_base_dark,
+    },
+    avatar: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    infoContainer: {
+        marginLeft: width * 0.04,
+        justifyContent: 'center',
+    },
+    handle: {
+        fontSize: 16,
+        color: COLORS.neutral_base_dark,
+        marginVertical: 4,
+    },
+    memberSince: {
+        fontSize: 16,
+        color: COLORS.neutral_base_dark,
+    },
+    userTitle: {
+        fontFamily: 'Poppins-Bold',
+        fontWeight: 'bold',
+    },
     header: {
         fontSize: 30,
         color: COLORS.neutral_base_dark,

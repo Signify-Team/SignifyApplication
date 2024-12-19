@@ -21,7 +21,11 @@ export default StyleSheet.create({
         paddingTop: height * 0.005,
         alignItems: 'center',
     },
-
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     profileCard: {
         flexDirection: 'row',
         alignItems: 'center',

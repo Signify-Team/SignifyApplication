@@ -20,7 +20,7 @@ import ProfileCard from '../components/ProfileCard';
 import StatsCard from '../components/StatsCard.js';
 import FireIcon from '../assets/icons/header/streak.png';
 import RectangularButton from '../components/RectangularButton.js';
-import { SIZES } from '../utils/constants.js';
+import { SIZES, COLORS } from '../utils/constants.js';
 
 const {height} =
     Dimensions.get(
@@ -38,8 +38,23 @@ const ProfilePage =
                 <ScrollView>
                     <ProfileCard  username="profile card"/>
                     <Text style={styles.header}>Info Box</Text>
-                    <Text style={styles.header}>Add friends</Text>
-                    <RectangularButton/>
+                    {/* Buttons */}
+                    <View style={styles.buttonRow}>
+                        <RectangularButton
+                            width={295}
+                            text="ADD FRIENDS"
+                            color={COLORS.bright_button_color}
+                            onPress={() => console.log('Add Friends button pressed')}
+                        />
+
+                        <RectangularButton
+                            width={50}
+                            icon={require('../assets/icons/header/share.png')}
+                            onlyIcon={true}
+                            color={COLORS.bright_button_color}
+                            onPress={() => console.log('Icon button pressed')}
+                        />
+                    </View>
                     {/* Statistics */}
                     <Text style={styles.header}>Statistics</Text>
                     <View style={styles.row}>

@@ -7,7 +7,7 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { COLORS, hexToRgba } from '../utils/constants';
+import { COLORS, FONTS, hexToRgba } from '../utils/constants';
 
 const {width, height} =
     Dimensions.get(
@@ -22,6 +22,7 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     infoRow: {
+        fontFamily: FONTS.poppins_font,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -40,6 +41,7 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     profileCard: {
+        fontFamily: FONTS.poppins_font,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
@@ -55,7 +57,12 @@ export default StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 3,
     },
+    userTitle: {
+        fontFamily: "Poppins-Bold",
+        fontWeight: "bold",
+    },
     header: {
+        fontFamily: FONTS.baloo_font,
         fontSize: 30,
         color: COLORS.neutral_base_dark,
         marginBottom: height * 0.01,
@@ -81,6 +88,7 @@ export default StyleSheet.create({
         marginRight: width * 0.03,
     },
     statsText: {
+        fontFamily: FONTS.poppins_font,
         fontSize: 16,
         color: COLORS.neutral_base_dark,
     },

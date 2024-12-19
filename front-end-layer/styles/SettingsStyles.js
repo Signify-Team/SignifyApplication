@@ -11,7 +11,7 @@ import {
     Dimensions,
 } from 'react-native';
 import {
-    COLORS,
+    COLORS, FONTS
 } from '../utils/constants';
 
 const {width, height} =
@@ -27,6 +27,7 @@ export default StyleSheet.create({
         paddingHorizontal: width * 0.05,
     },
     sectionTitle: {
+        fontFamily: FONTS.baloo_font,
         fontSize: 20,
         marginTop: height * 0.02,
         marginBottom: height * 0.01,
@@ -50,6 +51,7 @@ export default StyleSheet.create({
         borderColor: COLORS.light_gray_1,
     },
     optionText: {
+        fontFamily: FONTS.poppins_font,
         fontSize: 16,
         color: COLORS.neutral_base_dark,
     },

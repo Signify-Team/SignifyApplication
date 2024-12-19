@@ -26,6 +26,7 @@ export default StyleSheet.create({
         borderColor: COLORS.button_underline,
     },
     buttonPressed: {
+        top: 5,
         borderBottomWidth: 0,
     },
     contentWrapper: {

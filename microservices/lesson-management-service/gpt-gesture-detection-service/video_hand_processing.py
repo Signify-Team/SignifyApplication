@@ -57,12 +57,12 @@ def encode_image_as_base64(image_path):
 def send_frames_to_gpt(frames):
     print("Sending frames to GPT...")
 
-    context_words = "yes"
+    context_words = "GREETINGS - HELLO"
     # Prepare the message content with all images
     message_content = [
         {
             "type": "text",
-            "text": f"Here are frames from a video of someone signing in ASL. Please analyze these images to identify whether the performed gesture is '{context_words}'. Please give a yes or no answer according to the similarity. If you think it is slightly similar, say yes. If you do not think this gesture is '{context_words}', give a suggestion about which sign this could be, and how the '{context_words}' is correctly signed in ASL. If you cannot identify the sign, please mention that as well and describe the movement."
+            "text": f"Here are frames from a video of someone signing in ASL. Please analyze these images to identify whether the performed gesture is '{context_words}'. Please give a yes or no answer according to the similarity. If you think it is slightly similar, say yes. If you do not think this gesture is '{context_words}', give a suggestion about which sign this could be, and how the '{context_words}' is correctly signed in ASL. If you cannot identify the sign, please mention that as well and describe the movement. Please display your response as: 'The given prompt was.. and my answer is ..'"
         },
     ]
 
@@ -110,7 +110,7 @@ def reduce_image_size_before_sending_to_gpt(frames):
 if __name__ == "__main__":
     # capture the time spent on the process
     start_time = time.time()
-    video_path = "yes.mp4"  # Replace with your video file
+    video_path = "videos/hello_deniz.mp4"  # Replace with your video file
     frames = extract_frames(video_path)
     selected_frames = process_with_detection(frames)
     reduced_frames = reduce_image_size_before_sending_to_gpt(selected_frames)

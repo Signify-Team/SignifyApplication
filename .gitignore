@@ -80,6 +80,7 @@ Pods/
 microservices/lesson-management-service/asl_dataset/
 microservices/lesson-management-service/hand_detection_service/TEST_SCRIPTS/egohands_dataset
 microservices/lesson-management-service/hand_detection_service/TEST_SCRIPTS/processed_dataset
+microservices/lesson-management-service/gpt-gesture-detection-service/videos/
 
 # Environment
 venv/

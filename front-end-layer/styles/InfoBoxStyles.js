@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {
     COLORS,
+    FONTS,
 } from '../utils/constants';
 
 const {width, height} =
@@ -36,6 +37,7 @@ export default StyleSheet.create({
     },
     label: {
         fontSize: 13,
+        fontFamily: FONTS.poppins_font,
         color: COLORS.neutral_base_dark,
     },
 });

@@ -27,9 +27,15 @@ export const COLORS = {
     soft_container_color: '#B3D0E8',
     button_underline: 'rgba(218, 218, 244, 0.3)',
     white: '#FFFFFF',
+    start_button: '#FFCC00',
 };
 
 export const FONTS = {
+    baloo_font: "Baloo2-Bold",
+    poppins_font: "Poppins-Regular",
+    login_box_credential_font: "PassionOne-Regular",
+    description_font: "Inter_28pt-Regular",
+    game_button_font: "Nunito-Black",
     title: 24,
     body: 16,
 };

@@ -17,7 +17,7 @@ const ProfileCard = ({ profilePic, username, handle, memberSince }) => {
                 <Image source={profilePic} style={styles.avatar} />
             </View>
             <View style={styles.infoContainer}>
-                <Text style={styles.username}>{username}</Text>
+                <Text style={styles.userTitle}>{username}</Text>
                 <Text style={styles.handle}>{handle}</Text>
                 <Text style={styles.memberSince}>Member since {memberSince}</Text>
             </View>

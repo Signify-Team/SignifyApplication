@@ -31,3 +31,28 @@ export const FONTS = {
     title: 24,
     body: 16,
 };
+
+export const SIZES = {
+    statsContainer: 0.09,
+    badgesContainer: 0.085,
+};
+
+// Converts hex to rgba for opacity handling in styles
+export const hexToRgba = (hex, opacity) => {
+    let r = 0, g = 0, b = 0;
+
+    // Handle shorthand hex (#RGB)
+    if (hex.length === 4) {
+        r = parseInt(hex[1] + hex[1], 16);
+        g = parseInt(hex[2] + hex[2], 16);
+        b = parseInt(hex[3] + hex[3], 16);
+    }
+    // Handle full hex (#RRGGBB)
+    else if (hex.length === 7) {
+        r = parseInt(hex[1] + hex[2], 16);
+        g = parseInt(hex[3] + hex[4], 16);
+        b = parseInt(hex[5] + hex[6], 16);
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};

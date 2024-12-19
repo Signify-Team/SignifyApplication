@@ -61,7 +61,6 @@ const BottomTabsNavigator = () => (
     <Tab.Navigator screenOptions={({ route }) => ({
         tabBarIcon: tabBarIcon({ route }),
         tabBarShowLabel: false,
-        tabBarStyle: styles.bottomBarStyle,
     })}>
         <Tab.Screen
             name="Courses"
@@ -74,10 +73,16 @@ const BottomTabsNavigator = () => (
         <Tab.Screen
             name="Quests"
             component={Quests}
+            options={{
+                headerShown: false,
+            }}
         />
         <Tab.Screen
             name="Profile"
             component={Profile}
+            options={{
+                headerShown: false,
+            }}
         />
         <Tab.Screen
             name="Achievements"

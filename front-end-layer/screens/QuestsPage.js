@@ -15,13 +15,13 @@ const QuestsPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView >
         <Text style={styles.header}>Daily quests</Text>
 
         <QuestsCard
           title="Finish this quest"
           timeRemaining="6 hours"
-          progress={1}
+          progress={2}
           total={2}
           isDailyQuest={true}
         />

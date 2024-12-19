@@ -24,13 +24,29 @@ export default StyleSheet.create(
     {
         container: {
             flex: 1,
-            padding: 16,
-            justifyContent:
-                'center',
-            alignItems:
-                'center',
-            backgroundColor:
-                COLORS.neutral_base_soft,
+            paddingVertical: height * 0.02,
+            backgroundColor: COLORS.neutral_base_soft,
+            alignItems: 'center',
+        },
+        scrollContainer: {
+            paddingVertical: 20,
+            width: '100%',
+            alignItems: 'flex-start',
+        },
+        buttonRow: {
+            width: '100%',
+            marginVertical: height * 0.01,
+            flexDirection: 'row',
+        },
+        leftButton: {
+            justifyContent: 'flex-start',
+            flex: 1,
+            paddingLeft: width * 0.1,
+        },
+        rightButton: {
+            justifyContent: 'flex-end',
+            flex: 1,
+            paddingRight: width * 0.1,
         },
         textTitle: {
             fontSize:

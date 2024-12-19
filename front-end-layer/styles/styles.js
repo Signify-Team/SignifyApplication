@@ -24,7 +24,7 @@ export default StyleSheet.create(
     {
         container: {
             flex: 1,
-            paddingVertical: 20,
+            paddingVertical: height * 0.02,
             backgroundColor: COLORS.neutral_base_soft,
             alignItems: 'center',
         },

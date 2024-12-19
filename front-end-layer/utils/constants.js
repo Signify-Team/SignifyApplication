@@ -31,6 +31,11 @@ export const COLORS = {
 };
 
 export const FONTS = {
+    baloo_font: "Baloo2-Bold",
+    poppins_font: "Poppins-Regular",
+    login_box_credential_font: "PassionOne-Regular",
+    description_font: "Inter_28pt-Regular",
+    game_button_font: "Nunito-Black",
     title: 24,
     body: 16,
 };

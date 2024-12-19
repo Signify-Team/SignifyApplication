@@ -11,7 +11,7 @@ import {
     Dimensions,
 } from 'react-native';
 import {
-    COLORS,
+    COLORS, FONTS,
 } from '../utils/constants';
 
 const {width, height} =
@@ -63,6 +63,7 @@ export default StyleSheet.create({
         marginRight: width * 0.01,
     },
     streakText: {
+        fontFamily: FONTS.poppins_font,
         fontSize: width * 0.045,
         fontWeight: 'bold',
         color: '#FF5722',
@@ -83,6 +84,7 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     badgeText: {
+        fontFamily: FONTS.poppins_font,
         color: '#FFFFFF',
         fontSize: width * 0.025,
         fontWeight: 'bold',

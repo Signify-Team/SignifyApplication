@@ -7,7 +7,7 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { COLORS} from '../utils/constants';
+import { COLORS, FONTS} from '../utils/constants';
 
 const {width, height} =
     Dimensions.get(
@@ -16,7 +16,7 @@ const {width, height} =
 
 export default StyleSheet.create({
     outerWrapper: {
-        borderRadius: 12,
+        borderRadius: 10,
         paddingBottom: height * 0.008,
         alignItems: 'center',
     },
@@ -25,17 +25,18 @@ export default StyleSheet.create({
         paddingBottom: height * 0.01,
     },
     button: {
-        borderRadius: 12,
+        borderRadius: 10,
         paddingVertical: height * 0.008,
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottomStartRadius: 6,
-        borderBottomEndRadius: 6,
+        borderBottomStartRadius: 10,
+        borderBottomEndRadius: 10,
         borderBottomWidth: 2,
         borderColor: COLORS.button_underline,
     },
     buttonPressed: {
-        borderRadius: 6,
+        top: 8,
+        borderRadius: 10,
         borderBottomWidth: 0,
     },
     contentWrapper: {
@@ -44,6 +45,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
+        fontFamily: FONTS.game_button_font,
         fontSize: 20,
         fontWeight: 'bold',
         color: COLORS.white,

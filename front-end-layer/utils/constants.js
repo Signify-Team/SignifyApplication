@@ -27,6 +27,7 @@ export const COLORS = {
     soft_container_color: '#B3D0E8',
     button_underline: 'rgba(218, 218, 244, 0.3)',
     white: '#FFFFFF',
+    start_button: '#FFCC00',
 };
 
 export const FONTS = {

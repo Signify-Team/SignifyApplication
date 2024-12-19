@@ -3,7 +3,7 @@
  * @description Bottom Tab navigations are handled in this file.
  *
  * @datecreated 17.12.2024
- * @lastmodified 17.12.2024
+ * @lastmodified 19.12.2024
  */
 
 import React from 'react';

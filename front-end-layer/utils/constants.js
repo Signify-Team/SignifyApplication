@@ -32,6 +32,11 @@ export const FONTS = {
     body: 16,
 };
 
+export const SIZES = {
+    statsContainer: 0.09,
+    badgesContainer: 0.085,
+};
+
 // Converts hex to rgba for opacity handling in styles
 export const hexToRgba = (hex, opacity) => {
     let r = 0, g = 0, b = 0;

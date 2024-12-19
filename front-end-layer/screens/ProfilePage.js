@@ -19,6 +19,7 @@ import ProfileTopBar from '../components/ProfileTopBar';
 import ProfileCard from '../components/ProfileCard';
 import StatsCard from '../components/StatsCard.js';
 import FireIcon from '../assets/icons/header/streak.png';
+import { SIZES } from '../utils/constants.js';
 
 const {height} =
     Dimensions.get(
@@ -42,13 +43,13 @@ const ProfilePage =
                     <Text style={styles.header}>Statistics</Text>
                     <View style={styles.row}>
                         <StatsCard
-                            height={height * 0.09}
+                            height={height * SIZES.statsContainer}
                             width={'49%'}
                             icon={FireIcon}
                             text="Streak Count"
                         />
                         <StatsCard
-                            height={height * 0.09}
+                            height={height * SIZES.statsContainer}
                             width={'49%'}
                             text="Total Points"
                             showIcon={false}
@@ -56,13 +57,13 @@ const ProfilePage =
                     </View>
                     <View style={styles.row}>
                         <StatsCard
-                            height={height * 0.09}
+                            height={height * SIZES.statsContainer}
                             width={'49%'}
                             text="Progress"
                             showIcon={false}
                         />
                         <StatsCard
-                            height={height * 0.09}
+                            height={height * SIZES.statsContainer}
                             width={'49%'}
                             showIcon={false}
                             showText={false}
@@ -73,25 +74,25 @@ const ProfilePage =
                     <Text style={styles.header}>Badges</Text>
                     <View style={styles.row}>
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
                         />
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
                         />
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
                         />
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
@@ -99,25 +100,25 @@ const ProfilePage =
                     </View>
                     <View style={styles.row}>
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
                         />
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
                         />
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}
                         />
                         <StatsCard
-                            height={height * 0.085}
+                            height={height * SIZES.badgesContainer}
                             width={'22%'}
                             showIcon={false}
                             showText={false}

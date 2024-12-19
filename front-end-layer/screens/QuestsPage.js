@@ -21,7 +21,7 @@ const QuestsPage = () => {
         <QuestsCard
           title="Finish this quest"
           timeRemaining="6 hours"
-          progress={1}
+          progress={2}
           total={2}
           isDailyQuest={true}
         />

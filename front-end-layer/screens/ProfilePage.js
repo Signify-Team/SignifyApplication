@@ -23,6 +23,8 @@ import ProfileCard from '../components/ProfileCard';
 import StatsCard from '../components/StatsCard.js';
 import RectangularButton from '../components/RectangularButton.js';
 import InfoBox from '../components/InfoBox.js';
+// import CircularButton from '../components/CircularButton.js';
+// import KoalaHand from '../assets/icons/header/koala-hand.png';
 
 import FireIcon from '../assets/icons/header/streak.png';
 
@@ -163,6 +165,25 @@ const ProfilePage =
                             showText={false}
                         />
                     </View>
+
+                    {/* Circular Buttons example usage, delete after use.
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', margin: 20 }}>
+                        <CircularButton
+                            size={100}
+                            icon={KoalaHand}
+                            onlyIcon={true}
+                            color={COLORS.bright_button_color}
+                            onPress={() => console.log('Paw button pressed')}
+                        />
+                        <CircularButton
+                            size={50}
+                            text="1"
+                            onlyText={true}
+                            color={COLORS.bright_button_color}
+                            onPress={() => console.log('Number button pressed')}
+                        />
+                    </View> */}
+
                 </ScrollView>
             </View>
             </>

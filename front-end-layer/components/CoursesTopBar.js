@@ -19,14 +19,17 @@ const CoursesTopBar = () => {
             <Image source={TurkishFlagIcon} style={styles.flagIcon} />
 
             <View style={styles.center}>
-                <Image source={StreaksIcon} style={styles.streakIcon} />
-                <Text style={styles.streakText}>5</Text>
-            </View>
+                <View style = {styles.streakBox}>
+                    <Image source={StreaksIcon} style={styles.streakIcon} />
+                    <Text style={styles.streakText}>5</Text>
+                </View>
 
-            <View style={styles.notificationContainer}>
-                <Image source={NotificationsIcon} style={styles.notifIcon} />
-                <View style={styles.badge}>
-                    <Text style={styles.badgeText}>2</Text>
+                <View style={styles.notificationContainer}>
+                    <Image source={NotificationsIcon} style={styles.notifIcon} />
+
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>2</Text>
+                    </View>
                 </View>
             </View>
         </View>

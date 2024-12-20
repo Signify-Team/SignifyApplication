@@ -24,7 +24,7 @@ export default StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.neutral_base_soft,
-        paddingTop: height * 0.005,
+        paddingTop: height * 0.1,
         paddingHorizontal: width * 0.05,
     },
     cardContainer: {

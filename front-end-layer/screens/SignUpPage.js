@@ -13,7 +13,6 @@ import React from 'react';
 import {
     View,
     Text,
-    Button,
     Image,
     TouchableOpacity,
 } from 'react-native';
@@ -45,7 +44,7 @@ const SignUpPage =
                     style={
                         styles.loginWelcomeText
                     }>
-                    WELCOME!
+                    Welcome!
                 </Text>
 
                 {/* Inputs */}

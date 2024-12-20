@@ -3,7 +3,7 @@
  * @description Includes styles for the texts, buttons, etc.
  *
  * @datecreated 05.11.2024
- * @lastmodified 12.11.2024
+ * @lastmodified 17.12.2024
  */
 
 import {
@@ -24,20 +24,37 @@ export default StyleSheet.create(
     {
         container: {
             flex: 1,
-            padding: 16,
-            justifyContent:
-                'center',
-            alignItems:
-                'center',
-            backgroundColor:
-                COLORS.background,
+            paddingVertical: height * 0.02,
+            backgroundColor: COLORS.neutral_base_soft,
+            alignItems: 'center',
+        },
+        scrollContainer: {
+            paddingVertical: 20,
+            width: '100%',
+            alignItems: 'flex-start',
+        },
+        buttonRow: {
+            width: '100%',
+            marginVertical: height * 0.01,
+            flexDirection: 'row',
+        },
+        leftButton: {
+            justifyContent: 'flex-start',
+            flex: 1,
+            paddingLeft: width * 0.1,
+        },
+        rightButton: {
+            justifyContent: 'flex-end',
+            flex: 1,
+            paddingRight: width * 0.1,
         },
         textTitle: {
             fontSize:
                 FONTS.title,
+            fontFamily: FONTS.baloo_font,
             fontWeight:
                 'bold',
-            color: COLORS.text,
+            color: COLORS.neutral_base_dark,
         },
         button: {
             backgroundColor:
@@ -53,103 +70,94 @@ export default StyleSheet.create(
             {
                 fontSize:
                     FONTS.title,
+                    fontFamily: FONTS.baloo_font,
                 fontWeight:
                     'bold',
-                color: COLORS.signUpLoginMainText,
+                color: COLORS.neutral_base_dark,
                 marginBottom:
-                    height *
-                    0.07,
+                    height * 0.07,
                 marginTop:
-                    height *
-                    0.05,
+                    height * 0.05,
                 textAlign:
                     'center',
             },
         forgotPasswordText:
             {
-                color: COLORS.placeholderTextSignUp,
+                fontFamily: FONTS.poppins_font,
+                color: COLORS.neutral_base_dark,
                 textAlign:
                     'center',
                 marginTop:
-                    -height *
-                    0.015,
+                    -height * 0.015,
                 marginBottom:
-                    height *
-                    0.03,
+                    height * 0.03,
             },
         loginInputContainer:
             {
+                fontFamily: FONTS.poppins_font,
                 width: '75%',
                 marginBottom:
-                    height *
-                    0.03,
+                    height * 0.03,
                 position:
                     'center',
-                color: COLORS.text,
+                color: COLORS.neutral_base_dark,
             },
         loginLabel: {
-            color: COLORS.loginBordorColor,
+            fontFamily: FONTS.login_box_credential_font,
+            color: COLORS.dark_accent,
             marginBottom:
                 -9,
             position:
                 'absolute',
             backgroundColor:
-                COLORS.background,
+                COLORS.neutral_base_soft,
             top: -(
-                height *
-                0.01
+                height * 0.01
             ),
             left:
-                width *
-                0.04,
+                width * 0.04,
             paddingHorizontal:
-                width *
-                0.02,
+                width * 0.02,
             zIndex: 1,
-            fontSize: 13,
+            fontSize: 16,
             fontWeight:
                 'bold',
         },
         loginTextInput:
             {
+                fontFamily: FONTS.poppins_font,
                 borderWidth: 3,
                 borderColor:
-                    COLORS.loginBordorColor,
+                    COLORS.dark_accent,
                 borderRadius: 8,
                 padding: 10,
                 height:
-                    height *
-                    0.07,
+                    height * 0.07,
                 backgroundColor:
-                    COLORS.background,
+                    COLORS.neutral_base_soft,
                 fontSize: 13,
-                color: COLORS.placeholderTextSignUp,
+                color: COLORS.neutral_base_dark,
                 // fontFamily: 'PassionOne-Regular',
             },
         loginLogo: {
             width:
-                width *
-                0.6,
+                width * 0.6,
             height:
-                height *
-                0.2,
+                height * 0.2,
             top:
-                height *
-                0.02,
+                height * 0.02,
             alignSelf:
                 'center',
             resizeMode:
                 'contain',
             marginBottom:
-                height *
-                0.03,
+                height * 0.03,
         },
         loginButton: {
             backgroundColor:
-                COLORS.signUpLoginMainText,
+                COLORS.button_color,
             paddingHorizontal:
-                width *
-                0.08,
+                width * 0.08,
             paddingVertical:
                 height *
                 0.008,
@@ -167,44 +175,32 @@ export default StyleSheet.create(
                     0.01
                 ),
         },
-        loginButtonText:
-            {
-                color: COLORS.background,
-                fontSize: 16,
-                fontWeight:
-                    '500',
-            },
-        loginSignUpLink:
-            {
-                color: COLORS.signUpLoginMainText,
-                fontWeight:
-                    'bold',
-            },
-        loginDontHaveAccountText:
-            {
-                color: COLORS.placeholderTextSignUp,
-                textAlign:
-                    'center',
-            },
-        signUpContainer:
-            {
-                flexDirection:
-                    'row',
-                marginTop:
-                    height *
-                    0.03,
-                justifyContent:
-                    'center',
-                alignItems:
-                    'center',
-            },
+        loginButtonText: {
+            fontFamily: FONTS.poppins_font,
+            color: COLORS.soft_accent,
+            fontSize: 16,
+            fontWeight:
+                '500',
+        },
+        signUpContainer: {
+            flexDirection:
+                'row',
+            marginTop:
+                height *
+                0.03,
+            justifyContent:
+                'center',
+            alignItems:
+                'center',
+        },
         signUpText: {
+            fontFamily: FONTS.poppins_font,
             fontSize: 13,
-            color: COLORS.signUpLineText,
+            color: COLORS.button_color,
         },
         signUpLink: {
             fontSize: 13,
-            color: COLORS.signUpLineText,
+            color: COLORS.button_color,
             fontWeight:
                 'bold',
         },

@@ -54,12 +54,18 @@ const MainNavigator =
                 component={
                     BottomTabsNavigator
                 }
+                options={{
+                    headerShown: false,
+                    title: "",
+                    
+                }}
             />
             <Stack.Screen
                 name="Settings"
                 component={
                     SettingsPage
                 }
+                
             />
             <Stack.Screen
                 name="Authentication"

@@ -21,6 +21,7 @@ const {width, height} =
 
 export default StyleSheet.create({
     container: {
+        paddingTop: height * 0.1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -68,6 +69,12 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         color: '#FF5722',
         textAlignVertical: 'center',
+    },
+    streakBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        right: width * 0.06
     },
     notificationContainer: {
         position: 'relative',

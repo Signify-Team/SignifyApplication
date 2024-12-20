@@ -3,15 +3,16 @@
  * @description Shows the details of a course.
  *
  * @datecreated 19.12.2024
- * @lastmodified 19.12.2024
+ * @lastmodified 20.12.2024
  */
 
 import React, { useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Dimensions } from 'react-native';
 import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
+const { width } = Dimensions.get('window');
 
 const lessons = [
     { id: 1, type: 'multipleChoice', data: { question: 'What is the sign for Hello?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'], correctOption: 'Option 2' } },
@@ -58,7 +59,8 @@ const CourseDetailPage = () => {
                 />
                 {userAnswer !== null && (
                     <RectangularButton
-                        text="Continue"
+                        width={width * 0.87}
+                        text="CONTINUE"
                         color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
                         onPress={handleContinue}
                     />

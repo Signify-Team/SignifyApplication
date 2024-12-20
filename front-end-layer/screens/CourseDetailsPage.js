@@ -6,30 +6,39 @@
  * @lastmodified 19.12.2024
  */
 
-import React from 'react';
-import {
-    View,
-    Text,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView } from 'react-native';
+import Lesson from '../components/Question';
 import styles from '../styles/styles';
 
-// Course Details Page Layout
-const CourseDetailsPage =
-    () => {
-        return (
-            <View
-                style={
-                    styles.container
-                }>
-                <Text
-                    style={
-                        styles.text
-                    }>
-                    Course Details
-                    Page
-                </Text>
-            </View>
-        );
+const lessons = [
+    { id: 1, type: 'multipleChoice', data: { question: 'What is the sign for Hello?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'] } },
+    { id: 2, type: 'gesture', data: { prompt: 'Perform the gesture for "Hello".' } },
+];
+
+const CourseDetailPage = () => {
+    const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+
+    const handleAnswer = (answer) => {
+        console.log('User Answer:', answer);
+        if (currentLessonIndex < lessons.length - 1) {
+            setCurrentLessonIndex(currentLessonIndex + 1);
+        } else {
+            console.log('Course Completed');
+        }
     };
 
-export default CourseDetailsPage;
+    return (
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Lesson
+                    lessonType={lessons[currentLessonIndex].type}
+                    questionData={lessons[currentLessonIndex].data}
+                    onAnswer={handleAnswer}
+                />
+            </ScrollView>
+        </View>
+    );
+};
+
+export default CourseDetailPage;

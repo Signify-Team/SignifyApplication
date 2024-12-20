@@ -86,9 +86,10 @@ export default StyleSheet.create({
     memberSince: {
         fontSize: 16,
         color: COLORS.neutral_base_dark,
+    },
     userTitle: {
-        fontFamily: "Poppins-Bold",
-        fontWeight: "bold",
+        fontFamily: 'Poppins-Bold',
+        fontWeight: 'bold',
     },
     header: {
         fontFamily: FONTS.baloo_font,

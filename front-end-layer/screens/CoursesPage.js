@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
+import Svg, { Path } from 'react-native-svg'; 
 import styles from '../styles/styles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CircularButton from '../components/CircularButton';
@@ -47,6 +48,42 @@ const CoursesPage = ({ navigation }) => {
                 {/* Course Info Card */}
                 <CourseInfoCard icon={GreetingsIcon} title="Greetings" />
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Svg
+                        height="100%"
+                        width="100%"
+                        style={{ position: 'absolute', top: 0, left: 0 }}
+                    >
+                        {buttonData.slice(1).map((item, index) => {
+                            const prevButton = buttonData[index];
+                            const isLeft = prevButton.id % 2 === 0;
+                            const nextIsLeft = item.id % 2 === 0;
+
+                            const startX = isLeft ? 100 : 300;
+                            const startY = prevButton.id * 150 + 75; 
+                            const endX = nextIsLeft ? 100 : 300;
+                            const endY = item.id * 150 + 75;
+
+                            const controlX1 = startX + (endX - startX) * 0.25;
+                            const controlY1 = startY + 100;
+                            const controlX2 = endX - (endX - startX) * 0.25;
+                            const controlY2 = endY - 100; // Move up for larger curve
+
+                            return (
+                                <Path
+                                    key={item.id}
+                                    d={`M${startX},${startY} 
+                                        C${controlX1},${controlY1} 
+                                        ${controlX2},${controlY2} 
+                                        ${endX},${endY}`}
+                                        stroke="black"
+                                        strokeWidth="2"
+                                        strokeDasharray="4,4"
+                                        fill="none"
+                                />
+                            );
+                        })}
+                    </Svg>
+                    {/* Buttons */}
                     {buttonData.map((item) => (
                         <View
                             key={item.id}

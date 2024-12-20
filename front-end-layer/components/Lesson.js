@@ -1,5 +1,5 @@
 /**
- * @file Question.js
+ * @file Lesson.js
  * @description Handles rendering of different question types.
  *
  * @datecreated 19.12.2024

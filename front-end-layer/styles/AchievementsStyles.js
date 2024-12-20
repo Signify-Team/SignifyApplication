@@ -7,7 +7,7 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { COLORS } from '../utils/constants';
+import { COLORS, FONTS } from '../utils/constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -19,6 +19,7 @@ export default StyleSheet.create({
         paddingHorizontal: width * 0.05,
     },
     sectionTitle: {
+        fontFamily: FONTS.poppins_font,
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: height * 0.02,
@@ -27,7 +28,7 @@ export default StyleSheet.create({
     },
     rewardBox: {
         backgroundColor: COLORS.light_gray_2,
-        borderRadius: 10,
+        borderRadius: 12,
         padding: 10,
         flexDirection: 'row',
         justifyContent: 'space-around',
@@ -43,20 +44,22 @@ export default StyleSheet.create({
     activeReward: {
         borderColor: COLORS.highlight_color_2,
         borderWidth: 2,
-        borderRadius: 8,
+        borderRadius: 12,
     },
     dayNumber: {
+        fontFamily: FONTS.poppins_font,
         marginTop: 5,
         fontSize: 16,
         color: COLORS.neutral_base_dark,
     },
     activeDay: {
         color: COLORS.highlight_color_2,
-        fontWeight: 'bold',
+        fontFamily: FONTS.poppins_font,
     },
     
     achievementContent: {
-        backgroundColor: COLORS.white,
+        fontFamily: FONTS.poppins_font,
+        backgroundColor: COLORS.light_gray_2,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -64,7 +67,7 @@ export default StyleSheet.create({
     
     achievementCard: {
         backgroundColor: COLORS.light_gray_2,
-        borderRadius: 15,
+        borderRadius: 12,
         padding: 15,
         marginVertical: 8,
         elevation: 3,
@@ -74,15 +77,18 @@ export default StyleSheet.create({
         shadowRadius: 2,
     },
     achievementText: {
+        fontFamily: FONTS.poppins_font,
         flex: 1,
     },
     cardTitle: {
-        fontSize: 18,
+        fontFamily: FONTS.poppins_font,
+        fontSize: 20,
         fontWeight: 'bold',
         color: COLORS.neutral_base_dark,
     },
     cardDescription: {
-        fontSize: 14,
+        fontFamily: FONTS.poppins_font,
+        fontSize: 16,
         color: COLORS.dark_gray_1,
         marginTop: 5,
     },

@@ -7,13 +7,20 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
-import styles from '../styles/ProfileCardStyle.js';
+import { View, Text, Image } from 'react-native';
+import styles from '../styles/ProfileCardStyle';
 
-const ProfileCard = ({ profilePic, username, date }) => {
+const ProfileCard = ({ profilePic, username, handle, memberSince }) => {
     return (
         <View style={styles.profileCard}>
-            <Text style={styles.title}>{username}</Text>
+            <View style={styles.avatarContainer}>
+                <Image source={profilePic} style={styles.avatar} />
+            </View>
+            <View style={styles.infoContainer}>
+                <Text style={styles.userTitle}>{username}</Text>
+                <Text style={styles.handle}>{handle}</Text>
+                <Text style={styles.memberSince}>Member since {memberSince}</Text>
+            </View>
         </View>
     );
 };

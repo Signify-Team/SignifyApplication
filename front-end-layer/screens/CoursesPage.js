@@ -1,4 +1,10 @@
-// pages/CoursesPage.js
+/**
+ * @file CoursesPage.js
+ * @description Shows the courses available for the user.
+ *
+ * @datecreated 19.12.2024
+ * @lastmodified 19.12.2024
+ */
 
 import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
@@ -9,12 +15,12 @@ import GreetingsIcon from '../assets/icons/course-info/greetings.png';
 import KoalaIcon from '../assets/icons/header/koala-hand.png';
 import { COLORS } from '../utils/constants';
 import CourseInfoCard from '../components/CourseInfoCard';
+import VertCard from '../components/VertCard';
 
-const CoursesPage = () => {
+const CoursesPage = ({ navigation }) => {
     const [showCard, setShowCard] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
 
-    // Sample button data
     const buttonData = [
         { id: 0, icon: KoalaIcon, color: COLORS.primary, title: 'Course 1', description: 'This is Course 1' },
         { id: 1, icon: KoalaIcon, color: COLORS.secondary, title: 'Course 2', description: 'This is Course 2' },
@@ -26,17 +32,19 @@ const CoursesPage = () => {
         setShowCard(true);
     };
 
-    const handleCloseCard = () => {
-        setShowCard(false);
-        setSelectedCourse(null);
+    const handleNavigateToCourse = () => {
+        navigation.navigate('CourseDetails', {
+            title: selectedCourse.title,
+            description: selectedCourse.description,
+        });
     };
 
     return (
         <>
-            {/* Custom Top Bar */}
+            {/* Courses Top Bar */}
             <CoursesTopBar />
-            {/* Main Content */}
             <View style={styles.container}>
+                {/* Course Info Card */}
                 <CourseInfoCard icon={GreetingsIcon} title="Greetings" />
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     {buttonData.map((item) => (
@@ -56,10 +64,11 @@ const CoursesPage = () => {
                     ))}
                 </ScrollView>
                 {showCard && (
-                    <CourseInfoCard
+                    <VertCard
                         title={selectedCourse.title}
                         description={selectedCourse.description}
-                        onClose={handleCloseCard}
+                        buttonText="START"
+                        onPress={handleNavigateToCourse}
                     />
                 )}
             </View>

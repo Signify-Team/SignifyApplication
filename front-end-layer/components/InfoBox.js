@@ -1,18 +1,11 @@
 /**
  * @file InfoBox.js
- * @description Custom top bar for the courses page.
- *
- * @datecreated 16.12.2024
- * @lastmodified 16.12.2024
- */
-
-/**
- * @file InfoBox.js
  * @description Displays an info box with an image/icon, a number, and a label.
  *
  * @datecreated 19.12.2024
  * @lastmodified 19.12.2024
  */
+
 import React from 'react';
 import { View, Text, Image } from 'react-native';
 import styles from '../styles/InfoBoxStyles';

@@ -7,7 +7,7 @@
  */
 
 import { StyleSheet, Dimensions } from 'react-native';
-import { COLORS} from '../utils/constants';
+import { COLORS, FONTS} from '../utils/constants';
 
 const {width, height} =
     Dimensions.get(
@@ -16,14 +16,15 @@ const {width, height} =
 
 export default StyleSheet.create({
     header: {
-        fontSize: 20,
+        fontFamily: FONTS.baloo_font,
+        fontSize: 22,
         color: COLORS.dark_accent,
         marginBottom: height * 0.02,
     },
     container: {
         flex: 1,
         backgroundColor: COLORS.neutral_base_soft,
-        paddingTop: height * 0.005,
+        paddingTop: height * 0.1,
         paddingHorizontal: width * 0.05,
     },
     cardContainer: {
@@ -44,11 +45,13 @@ export default StyleSheet.create({
         marginBottom: height * 0.02,
     },
     cardTitle: {
+        fontFamily: FONTS.baloo_font,
         fontSize: 20,
         color: COLORS.dark_accent,
         marginBottom: height * 0.01,
     },
     timeRemaining: {
+        fontFamily: FONTS.poppins_font,
         fontSize: 17,
         color: COLORS.button_color,
         marginBottom: height * 0.01,
@@ -82,6 +85,7 @@ export default StyleSheet.create({
         position: 'absolute',
     },
     progressText: {
+        fontFamily: FONTS.baloo_font,
         color: COLORS.light_gray_2,
         fontSize: 17,
         textAlign: 'center',

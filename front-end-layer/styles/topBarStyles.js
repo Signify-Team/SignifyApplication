@@ -11,7 +11,7 @@ import {
     Dimensions,
 } from 'react-native';
 import {
-    COLORS,
+    COLORS, FONTS,
 } from '../utils/constants';
 
 const {width, height} =
@@ -21,6 +21,7 @@ const {width, height} =
 
 export default StyleSheet.create({
     container: {
+        paddingTop: height * 0.1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -63,10 +64,17 @@ export default StyleSheet.create({
         marginRight: width * 0.01,
     },
     streakText: {
+        fontFamily: FONTS.poppins_font,
         fontSize: width * 0.045,
         fontWeight: 'bold',
         color: '#FF5722',
         textAlignVertical: 'center',
+    },
+    streakBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        right: width * 0.06
     },
     notificationContainer: {
         position: 'relative',
@@ -83,6 +91,7 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     badgeText: {
+        fontFamily: FONTS.poppins_font,
         color: '#FFFFFF',
         fontSize: width * 0.025,
         fontWeight: 'bold',

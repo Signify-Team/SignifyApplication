@@ -5,6 +5,7 @@
  * @datecreated 19.12.2024
  * @lastmodified 19.12.2024
  */
+
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import styles from '../styles/CircularButtonStyle';
@@ -18,16 +19,24 @@ const CircularButton = ({
     onlyText = false,
     color = COLORS.bright_button_color,
     onPress,
+    disabled = false, // Added disabled prop
+    textColor = '#FFFFFF', // Added textColor prop
 }) => {
     const [isPressed, setIsPressed] = useState(false);
 
     const handlePressIn = () => {
-        setIsPressed(true);
+        if (!disabled) {
+            setIsPressed(true);
+        }
     };
 
     const handlePressOut = () => {
-        setIsPressed(false);
-        if (onPress) {onPress();}
+        if (!disabled) {
+            setIsPressed(false);
+            if (onPress) {
+                onPress();
+            }
+        }
     };
 
     return (
@@ -40,7 +49,7 @@ const CircularButton = ({
                     backgroundColor: darkenColor(color, 35),
                     borderRadius: size / 2,
                 },
-                isPressed && styles.outerWrapperPressed,
+                (isPressed || disabled) && styles.outerWrapperPressed,
             ]}
         >
             <TouchableOpacity
@@ -53,21 +62,23 @@ const CircularButton = ({
                         backgroundColor: color,
                         borderRadius: size / 2,
                         borderWidth: 2,
+                        opacity: disabled ? 0.8 : 1,
                     },
-                    isPressed && styles.buttonPressed,
+                    (isPressed || disabled) && styles.buttonPressed,
                 ]}
                 activeOpacity={0.9}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
+                disabled={disabled} // Disable touch events
             >
                 {onlyIcon && icon ? (
                     <Image source={icon} style={styles.icon} />
                 ) : onlyText ? (
-                    <Text style={styles.text}>{text}</Text>
+                    <Text style={[styles.text, { color: textColor }]}>{text}</Text>
                 ) : (
                     <View style={styles.contentWrapper}>
                         {icon && <Image source={icon} style={styles.icon} />}
-                        {text ? <Text style={styles.text}>{text}</Text> : null}
+                        {text ? <Text style={[styles.text, { color: textColor }]}>{text}</Text> : null}
                     </View>
                 )}
             </TouchableOpacity>

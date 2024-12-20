@@ -56,8 +56,7 @@ const MainNavigator =
                 }
                 options={{
                     headerShown: false,
-                    title: "",
-                    
+                    title: '',
                 }}
             />
             <Stack.Screen
@@ -65,7 +64,6 @@ const MainNavigator =
                 component={
                     SettingsPage
                 }
-                
             />
             <Stack.Screen
                 name="Authentication"

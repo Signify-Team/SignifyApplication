@@ -3,7 +3,7 @@
  * @description Includes constants for the application for consistency.
  *
  * @datecreated 05.11.2024
- * @lastmodified 16.12.2024
+ * @lastmodified 20.12.2024
  */
 
 export const COLORS = {
@@ -31,11 +31,11 @@ export const COLORS = {
 };
 
 export const FONTS = {
-    baloo_font: "Baloo2-Bold",
-    poppins_font: "Poppins-Regular",
-    login_box_credential_font: "PassionOne-Regular",
-    description_font: "Inter_28pt-Regular",
-    game_button_font: "Nunito-Black",
+    baloo_font: 'Baloo2-Bold',
+    poppins_font: 'Poppins-Regular',
+    login_box_credential_font: 'PassionOne-Regular',
+    description_font: 'Inter_28pt-Regular',
+    game_button_font: 'Nunito-Black',
     title: 24,
     body: 16,
 };

@@ -29,27 +29,16 @@ export default StyleSheet.create({
     },
     multContainer: {
         width: '100%',
-        alignItems: 'center',
     },
     question: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: COLORS.neutral_base_dark,
+        fontSize: 22,
+        marginBottom: height * 0.01,
+        textAlign: 'center',
     },
     optionsContainer: {
-        width: '100%',
-    },
-    optionButton: {
-        backgroundColor: COLORS.soft_pink_background,
-        padding: 16,
-        marginVertical: 8,
-        borderRadius: 12,
-        alignItems: 'center',
-    },
-    optionText: {
-        fontSize: 18,
-        color: COLORS.neutral_base_dark,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
     },
     gestContainer: {
         width: '100%',

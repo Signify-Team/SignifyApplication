@@ -6,7 +6,7 @@
  * @lastmodified 20.12.2024
  */
 
-import { COLORS } from '../utils/constants';
+import { COLORS, FONTS } from '../utils/constants';
 import { StyleSheet, Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
@@ -25,7 +25,7 @@ export default StyleSheet.create({
     },
     text: {
         fontSize: 20,
-        fontFamily: 'poppins',
+        fontFamily: FONTS.poppins_font,
         color: COLORS.neutral_base_dark,
     },
 });

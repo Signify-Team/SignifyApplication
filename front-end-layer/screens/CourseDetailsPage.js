@@ -7,9 +7,11 @@
  */
 
 import React, { useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import Lesson from '../components/Lesson';
+import RectangularButton from '../components/RectangularButton';
 import styles from '../styles/styles';
+import { COLORS } from '../utils/constants';
 
 const lessons = [
     { id: 1, type: 'multipleChoice', data: { question: 'What is the sign for Hello?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'], correctOption: 'Option 2' } },
@@ -21,7 +23,6 @@ const lessons = [
 const CourseDetailPage = () => {
     const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState(null);
-    const [correctAnswer, setCorrectAnswer] = useState(null);
     const [isCorrect, setIsCorrect] = useState(null);
 
     const handleAnswer = (answer) => {
@@ -30,10 +31,10 @@ const CourseDetailPage = () => {
 
         if (answer === correct || answer === 'gestureCaptured') {
             setIsCorrect(true);
-            setCorrectAnswer(correct);
+            console.log('Correct');
         } else {
             setIsCorrect(false);
-            setCorrectAnswer(correct);
+            console.log(`Incorrect. The correct answer was: ${correct}`);
         }
     };
 
@@ -41,7 +42,6 @@ const CourseDetailPage = () => {
         if (currentLessonIndex < lessons.length - 1) {
             setCurrentLessonIndex(currentLessonIndex + 1);
             setUserAnswer(null);
-            setCorrectAnswer(null);
             setIsCorrect(null);
         } else {
             console.log('Course Completed');
@@ -57,50 +57,15 @@ const CourseDetailPage = () => {
                     onAnswer={handleAnswer}
                 />
                 {userAnswer !== null && (
-                    <View style={localStyles.resultContainer}>
-                        <Text style={localStyles.resultText}>
-                            {isCorrect ? 'Correct!' : `Incorrect. The correct answer was: ${correctAnswer}`}
-                        </Text>
-                        <Text style={localStyles.userAnswerText}>Your Answer: {userAnswer}</Text>
-                        <TouchableOpacity style={localStyles.continueButton} onPress={handleContinue}>
-                            <Text style={localStyles.continueButtonText}>Continue</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <RectangularButton
+                        text="Continue"
+                        color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
+                        onPress={handleContinue}
+                    />
                 )}
             </ScrollView>
         </View>
     );
 };
-
-const localStyles = StyleSheet.create({
-    resultContainer: {
-        marginTop: 20,
-        padding: 15,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    resultText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 5,
-    },
-    userAnswerText: {
-        fontSize: 16,
-        color: '#555',
-        marginBottom: 15,
-    },
-    continueButton: {
-        backgroundColor: '#4A90E2',
-        paddingVertical: 12,
-        paddingHorizontal: 30,
-        borderRadius: 8,
-    },
-    continueButtonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-});
 
 export default CourseDetailPage;

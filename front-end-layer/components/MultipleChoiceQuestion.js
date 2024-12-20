@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import AnswerCard from './AnswerCard';
 import styles from '../styles/QuestionStyles';
+import DisplayVideo from './DisplayVideo';
 
 const MultipleChoiceQuestion = ({ data, onAnswer }) => {
     const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -26,6 +27,9 @@ const MultipleChoiceQuestion = ({ data, onAnswer }) => {
     return (
         <View style={styles.multContainer}>
             <Text style={styles.question}>{data.question}</Text>
+            <View style={styles.videoContainer}>
+                <DisplayVideo />
+            </View>
             <View style={styles.optionsContainer}>
                 {data.options.map((option, index) => (
                     <AnswerCard

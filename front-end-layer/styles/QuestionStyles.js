@@ -27,6 +27,16 @@ export default StyleSheet.create({
         alignItems: 'center',
         padding: 16,
     },
+    videoContainer: {
+        width: 150,
+        height: 300,
+        position: 'absolute',
+        marginBottom: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#333',
+        borderRadius: 10,
+    },
     multContainer: {
         width: '100%',
     },

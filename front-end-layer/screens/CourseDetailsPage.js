@@ -51,7 +51,7 @@ const CourseDetailPage = () => {
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <ScrollView contentContainerStyle={styles.scrollDetailsContainer}>
                 <Lesson
                     lessonType={lessons[currentLessonIndex].type}
                     questionData={lessons[currentLessonIndex].data}

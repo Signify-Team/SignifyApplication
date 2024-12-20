@@ -31,6 +31,10 @@ export default StyleSheet.create(
         scrollContainer: {
             paddingVertical: 20,
             width: '100%',
+            alignItems: 'flex-start',
+        },
+        scrollDetailsContainer: {
+            width: '100%',
             alignItems: 'center',
         },
         buttonRow: {

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import styles from '../styles/AchievementsStyles';
 import CircularButton from '../components/CircularButton';
+import AchievementCard from '../components/AchievementCard';
 import { COLORS } from '../utils/constants';
 import rewardIcon from '../assets/icons/course-info/rewardIcon.png';
 
 const AchievementsPage = () => {
-    const [currentDay, setCurrentDay] = useState(3); // Example: Day 2 is the current day
+    const [currentDay, setCurrentDay] = useState(3); // Example: Day 3 is the current day
     const [selectedDay, setSelectedDay] = useState(currentDay);
 
     const dailyRewards = [
@@ -16,12 +17,21 @@ const AchievementsPage = () => {
         { id: 4, day: 4 },
     ];
 
+    const achievements = [
+        { id: 1, title: "Fast Signer", description: "Complete 5 courses in less than 10 minutes.", isCollectable: true },
+        { id: 2, title: "Signifriend", description: "Add 10 friends.", isCollectable: false },
+        { id: 3, title: "Daily Devotee", description: "Log in and practice for 7 consecutive days.", isCollectable: true },
+        { id: 4, title: "Speed Learner", description: "Finish a course in under 2 minutes.", isCollectable: true },
+        { id: 5, title: "Perfect Streak", description: "Score 100% accuracy on 3 lessons in a row.", isCollectable: true },
+    ];
+
     const handlePress = (day) => {
         if (day === currentDay) {
             setSelectedDay(day);
         }
     };
-    //print the disabled rewards
+
+    // Print the disabled rewards
     console.log(dailyRewards.filter((reward) => reward.day < currentDay));
 
     return (
@@ -59,6 +69,17 @@ const AchievementsPage = () => {
                         ))}
                     </View>
                 </View>
+
+                {/* Achievements Section */}
+                <Text style={styles.sectionTitle}>Achievements</Text>
+                {achievements.map((achievement) => (
+                    <AchievementCard
+                        key={achievement.id}
+                        title={achievement.title}
+                        description={achievement.description}
+                        isCollectable={achievement.isCollectable}
+                    />
+                ))}
             </ScrollView>
         </View>
     );

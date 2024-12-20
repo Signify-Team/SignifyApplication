@@ -1,3 +1,11 @@
+/**
+ * @file AchievementsPage.js
+ * @description Displays the achievements and daily rewards of the user.
+ *
+ * @datecreated 20.12.2024
+ * @lastmodified 20.12.2024
+ */
+
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import styles from '../styles/AchievementsStyles';
@@ -18,11 +26,11 @@ const AchievementsPage = () => {
     ];
 
     const achievements = [
-        { id: 1, title: "Fast Signer", description: "Complete 5 courses in less than 10 minutes.", isCollectable: true },
-        { id: 2, title: "Signifriend", description: "Add 10 friends.", isCollectable: false },
-        { id: 3, title: "Daily Devotee", description: "Log in and practice for 7 consecutive days.", isCollectable: true },
-        { id: 4, title: "Speed Learner", description: "Finish a course in under 2 minutes.", isCollectable: true },
-        { id: 5, title: "Perfect Streak", description: "Score 100% accuracy on 3 lessons in a row.", isCollectable: true },
+        { id: 1, title: 'Fast Signer', description: 'Complete 5 courses in less than 10 minutes.', isCollectable: true },
+        { id: 2, title: 'Signifriend', description: 'Add 10 friends.', isCollectable: false },
+        { id: 3, title: 'Daily Devotee', description: 'Log in and practice for 7 consecutive days.', isCollectable: true },
+        { id: 4, title: 'Speed Learner', description: 'Finish a course in under 2 minutes.', isCollectable: true },
+        { id: 5, title: 'Perfect Streak', description: 'Score 100% accuracy on 3 lessons in a row.', isCollectable: true },
     ];
 
     const handlePress = (day) => {

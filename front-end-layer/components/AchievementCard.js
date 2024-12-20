@@ -7,8 +7,10 @@
  */
 
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image } from 'react-native';
+import { COLORS } from '../utils/constants';
 import styles from '../styles/AchievementCardStyle';
+import RectangularButton from './RectangularButton';
 
 const AchievementCard = ({ title, description, isCollectable }) => {
     return (
@@ -23,15 +25,16 @@ const AchievementCard = ({ title, description, isCollectable }) => {
                     style={styles.trophyImage}
                 />
             </View>
-            <TouchableOpacity
-                style={[
-                    styles.collectButton,
-                    !isCollectable && styles.collectButtonDisabled,
-                ]}
-                disabled={!isCollectable}
-            >
-                <Text style={styles.collectButtonText}>COLLECT</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+                <RectangularButton
+                    width={120}
+                    text="COLLECT"
+                    color={isCollectable ? COLORS.secondary : COLORS.gray}
+                    onPress={() => {}}
+                    onlyText={true}
+                    disabled={!isCollectable}
+                />
+            </View>
         </View>
     );
 };

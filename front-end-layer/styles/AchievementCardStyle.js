@@ -32,9 +32,9 @@ export default {
         color: '#555555',
     },
     trophyImage: {
-        width: 50,
-        height: 50,
-        marginLeft: 12,
+        width: 40,
+        height: 40,
+        marginTop: -20,
     },
     collectButton: {
         backgroundColor: '#FF6B6B',
@@ -50,5 +50,9 @@ export default {
     },
     collectButtonDisabled: {
         backgroundColor: '#FFCFCF',
+    },
+    buttonContainer: {
+        paddingTop: 16,
+        alignItems: 'center',
     },
 };

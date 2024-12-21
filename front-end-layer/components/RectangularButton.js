@@ -3,8 +3,9 @@
  * @description Rectangular Button component with input and icon.
  *
  * @datecreated 19.12.2024
- * @lastmodified 19.12.2024
+ * @lastmodified 20.12.2024
  */
+
 import React, { useState } from 'react';
 import styles from '../styles/RectangularButtonStyle';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
@@ -18,29 +19,49 @@ const RectangularButton = ({
     onlyText = false,
     color = COLORS.bright_button_color,
     onPress,
+    disabled = false,
 }) => {
     const [isPressed, setIsPressed] = useState(false);
 
     const handlePressIn = () => {
-        setIsPressed(true);
+        if (!disabled) {
+            setIsPressed(true);
+        }
     };
 
     const handlePressOut = () => {
-        setIsPressed(false);
-        if (onPress) {onPress();}
+        if (!disabled) {
+            setIsPressed(false);
+            if (onPress) {
+                onPress();
+            }
+        }
     };
 
     return (
-        <View style={[styles.outerWrapper, { width: buttonWidth, backgroundColor: darkenColor(color, 30) }, isPressed && styles.outerWrapperPressed]}>
+        <View
+            style={[
+                styles.outerWrapper,
+                {
+                    width: buttonWidth,
+                    backgroundColor: darkenColor(color, 30),
+                },
+                (isPressed || disabled) && styles.outerWrapperPressed,
+            ]}
+        >
             <TouchableOpacity
                 style={[
                     styles.button,
-                    { width: buttonWidth, backgroundColor: color },
-                    isPressed && styles.buttonPressed,
+                    {
+                        width: buttonWidth,
+                        backgroundColor: disabled ? darkenColor(color, 30) : color,
+                    },
+                    (isPressed || disabled) && styles.buttonPressed,
                 ]}
                 activeOpacity={0.9}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
+                disabled={disabled}
             >
                 {onlyIcon && icon ? (
                     <Image source={icon} style={styles.icon} />

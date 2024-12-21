@@ -15,7 +15,7 @@ import { COLORS } from '../utils/constants';
 
 const lessons = [
     { id: 1, type: 'multipleChoice', data: { question: 'What is the sign for Hello?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'], correctOption: 'Option 2' } },
-    { id: 2, type: 'gesture', data: { prompt: 'Perform the gesture for "Hello".' } },
+    { id: 2, type: 'gesture', data: { prompt: 'Hello' } },
     { id: 3, type: 'multipleChoice', data: { question: 'What is the sign for Goodbye?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'], correctOption: 'Option 4' } },
     { id: 4, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
 ];

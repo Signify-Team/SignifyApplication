@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
-import Svg, { Path } from 'react-native-svg'; 
+import Svg, { Path } from 'react-native-svg';
 import styles from '../styles/styles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CircularButton from '../components/CircularButton';
@@ -51,6 +51,7 @@ const CoursesPage = ({ navigation }) => {
                 <Svg
                         height="100%"
                         width="100%"
+                        // eslint-disable-next-line react-native/no-inline-styles
                         style={{ position: 'absolute', top: 0, left: 0 }}
                     >
                         {buttonData.slice(1).map((item, index) => {
@@ -59,7 +60,7 @@ const CoursesPage = ({ navigation }) => {
                             const nextIsLeft = item.id % 2 === 0;
 
                             const startX = isLeft ? 100 : 300;
-                            const startY = prevButton.id * 150 + 75; 
+                            const startY = prevButton.id * 150 + 75;
                             const endX = nextIsLeft ? 100 : 300;
                             const endY = item.id * 150 + 75;
 

@@ -7,14 +7,16 @@
  */
 
 import React, { useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Dimensions } from 'react-native';
 import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 
+const {width} = Dimensions.get('window');
+
 const lessons = [
-    { id: 1, type: 'multipleChoice', data: { question: 'What is the sign for Hello?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'], correctOption: 'Option 2' } },
+    { id: 1, type: 'multipleChoice', data: { video: require('../assets/videos/thank_you.mp4'), options: ['Hello', 'Thank You', 'Are', 'Yours'], correctOption: 'Thank You' } },
     { id: 2, type: 'gesture', data: { prompt: 'Hello' } },
     { id: 3, type: 'multipleChoice', data: { question: 'What is the sign for Goodbye?', options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'], correctOption: 'Option 4' } },
     { id: 4, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
@@ -50,7 +52,7 @@ const CourseDetailPage = () => {
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <ScrollView contentContainerStyle={styles.questionsContainer}>
                 <Lesson
                     lessonType={lessons[currentLessonIndex].type}
                     questionData={lessons[currentLessonIndex].data}
@@ -59,6 +61,7 @@ const CourseDetailPage = () => {
                 {userAnswer !== null && (
                     <RectangularButton
                         text="Continue"
+                        width={width * 0.85}
                         color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
                         onPress={handleContinue}
                     />

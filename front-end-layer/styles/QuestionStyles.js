@@ -14,7 +14,7 @@ import {
     COLORS,
 } from '../utils/constants';
 
-const {width, height} =
+const {height} =
     Dimensions.get(
         'window',
     );
@@ -36,6 +36,7 @@ export default StyleSheet.create({
         textAlign: 'center',
     },
     optionsContainer: {
+        marginVertical: height * 0.02,
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',

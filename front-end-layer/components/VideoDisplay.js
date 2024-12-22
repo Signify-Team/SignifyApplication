@@ -11,11 +11,11 @@ import { View } from 'react-native';
 import Video from 'react-native-video';
 import styles from '../styles/VideoDisplayStyles';
 
-const VideoDisplay = () => {
+const VideoDisplay = ({sourceVid}) => {
   return (
     <View style={styles.container}>
       <Video
-        source={require('./thank_you.mp4')}
+        source={sourceVid}
         style={styles.video}
         controls
         onError={(error) => console.error('Video error:', error)}

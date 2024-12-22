@@ -33,6 +33,9 @@ export default StyleSheet.create(
             width: '100%',
             alignItems: 'flex-start',
         },
+        questionsContainer: {
+            alignItems: 'center',
+        },
         buttonRow: {
             width: '100%',
             marginVertical: height * 0.01,

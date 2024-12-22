@@ -10,6 +10,8 @@ const CustomTextInput =
     ({
         label,
         placeholder,
+        onChangeText, 
+        secureTextEntry
     }) => {
         return (
             <View
@@ -33,6 +35,8 @@ const CustomTextInput =
                     }
                     placeholderTextColor="#A9A9A9"
                     keyboardType="default"
+                    secureTextEntry={secureTextEntry}
+                    onChangeText={onChangeText}
                 />
             </View>
         );

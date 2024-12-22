@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {
     COLORS,
+    FONTS,
 } from '../utils/constants';
 
 const {width, height} =
@@ -54,6 +55,7 @@ export default StyleSheet.create({
     },
     title: {
         fontSize: 30,
+        fontFamily: FONTS.baloo_font,
         color: COLORS.neutral_base_dark,
     },
 });

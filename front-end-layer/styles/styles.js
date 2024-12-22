@@ -24,24 +24,41 @@ export default StyleSheet.create(
     {
         container: {
             flex: 1,
-            padding: 16,
-            justifyContent:
-                'center',
-            alignItems:
-                'center',
-            backgroundColor:
-                COLORS.neutral_base_soft,
+            paddingVertical: height * 0.02,
+            backgroundColor: COLORS.neutral_base_soft,
+            alignItems: 'center',
+        },
+        scrollContainer: {
+            paddingVertical: 20,
+            width: '100%',
+            alignItems: 'flex-start',
+        },
+        buttonRow: {
+            width: '100%',
+            marginVertical: height * 0.01,
+            flexDirection: 'row',
+        },
+        leftButton: {
+            justifyContent: 'flex-start',
+            flex: 1,
+            paddingLeft: width * 0.1,
+        },
+        rightButton: {
+            justifyContent: 'flex-end',
+            flex: 1,
+            paddingRight: width * 0.1,
         },
         textTitle: {
             fontSize:
                 FONTS.title,
+            fontFamily: FONTS.baloo_font,
             fontWeight:
                 'bold',
             color: COLORS.neutral_base_dark,
         },
         button: {
             backgroundColor:
-                COLORS.neutral_base_soft,
+                COLORS.primary,
             padding: 10,
             borderRadius: 5,
             alignItems:
@@ -53,6 +70,7 @@ export default StyleSheet.create(
             {
                 fontSize:
                     FONTS.title,
+                    fontFamily: FONTS.baloo_font,
                 fontWeight:
                     'bold',
                 color: COLORS.neutral_base_dark,
@@ -65,6 +83,7 @@ export default StyleSheet.create(
             },
         forgotPasswordText:
             {
+                fontFamily: FONTS.poppins_font,
                 color: COLORS.neutral_base_dark,
                 textAlign:
                     'center',
@@ -75,6 +94,7 @@ export default StyleSheet.create(
             },
         loginInputContainer:
             {
+                fontFamily: FONTS.poppins_font,
                 width: '75%',
                 marginBottom:
                     height * 0.03,
@@ -83,6 +103,7 @@ export default StyleSheet.create(
                 color: COLORS.neutral_base_dark,
             },
         loginLabel: {
+            fontFamily: FONTS.login_box_credential_font,
             color: COLORS.dark_accent,
             marginBottom:
                 -9,
@@ -98,12 +119,13 @@ export default StyleSheet.create(
             paddingHorizontal:
                 width * 0.02,
             zIndex: 1,
-            fontSize: 13,
+            fontSize: 16,
             fontWeight:
                 'bold',
         },
         loginTextInput:
             {
+                fontFamily: FONTS.poppins_font,
                 borderWidth: 3,
                 borderColor:
                     COLORS.dark_accent,
@@ -154,6 +176,7 @@ export default StyleSheet.create(
                 ),
         },
         loginButtonText: {
+            fontFamily: FONTS.poppins_font,
             color: COLORS.soft_accent,
             fontSize: 16,
             fontWeight:
@@ -171,6 +194,7 @@ export default StyleSheet.create(
                 'center',
         },
         signUpText: {
+            fontFamily: FONTS.poppins_font,
             fontSize: 13,
             color: COLORS.button_color,
         },
@@ -179,27 +203,6 @@ export default StyleSheet.create(
             color: COLORS.button_color,
             fontWeight:
                 'bold',
-        },
-
-        // Bottom Bar Styles
-        bottomBarStyle: {
-            backgroundColor: COLORS.neutral_base_soft,
-            borderTopWidth: 0,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 6,
-            height: height * 0.11,
-        },
-        bottomBarIcon: {
-            width: width * 0.1,
-            height: height * 0.1,
-            resizeMode: 'contain',
-            marginTop: height * 0.02,
-        },
-        bottomBarIconContainer: {
-            alignItems: 'center',
-            justifyContent: 'center',
         },
     },
 );

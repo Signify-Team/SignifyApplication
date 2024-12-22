@@ -16,6 +16,7 @@ import LoginPage from '../screens/LoginPage';
 import SettingsPage from '../screens/SettingsPage';
 import AuthenticationPage from '../screens/AuthenticationPage';
 import BottomTabsNavigator from './BottomTabsNavigator';
+import CourseDetailsPage from '../screens/CourseDetailsPage';
 
 const Stack =
     createStackNavigator();
@@ -53,6 +54,10 @@ const MainNavigator =
                 component={
                     BottomTabsNavigator
                 }
+                options={{
+                    headerShown: false,
+                    title: '',
+                }}
             />
             <Stack.Screen
                 name="Settings"
@@ -68,6 +73,12 @@ const MainNavigator =
                 options={{
                     headerShown: false,
                 }}
+            />
+            <Stack.Screen
+                name="CourseDetails"
+                component={
+                    CourseDetailsPage
+                }
             />
         </Stack.Navigator>
     );

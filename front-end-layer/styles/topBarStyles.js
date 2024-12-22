@@ -11,7 +11,7 @@ import {
     Dimensions,
 } from 'react-native';
 import {
-    COLORS,
+    COLORS, FONTS,
 } from '../utils/constants';
 
 const {width, height} =
@@ -21,16 +21,28 @@ const {width, height} =
 
 export default StyleSheet.create({
     container: {
+        paddingTop: height * 0.1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: width * 0.02,
         paddingVertical: height * 0.005,
-        backgroundColor: COLORS.primary_color,
+        backgroundColor: COLORS.neutral_base_soft,
+        shadowColor: COLORS.neutral_base_dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
+        zIndex: 1,
     },
     flagIcon: {
-        width:   47,
-        height:  33,
+        width:   width * 0.15,
+        height:  height * 0.03,
+    },
+    settingsIcon: {
+        width: width * 0.12,
+        height: height * 0.04,
+        marginLeft: width * 0.85,
     },
     notifIcon: {
         width: width * 0.1,
@@ -52,10 +64,17 @@ export default StyleSheet.create({
         marginRight: width * 0.01,
     },
     streakText: {
+        fontFamily: FONTS.poppins_font,
         fontSize: width * 0.045,
         fontWeight: 'bold',
         color: '#FF5722',
         textAlignVertical: 'center',
+    },
+    streakBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        right: width * 0.06
     },
     notificationContainer: {
         position: 'relative',
@@ -72,6 +91,7 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     badgeText: {
+        fontFamily: FONTS.poppins_font,
         color: '#FFFFFF',
         fontSize: width * 0.025,
         fontWeight: 'bold',

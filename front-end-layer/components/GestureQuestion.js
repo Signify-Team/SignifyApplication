@@ -55,31 +55,61 @@ const GestureQuestion = ({ data }) => {
         }
     };
 
-
     const submitGesture = async () => {
-        // save the video and send the video url to the backend
-        if (videoPath) {
-            console.log('Video saved:', videoPath);
+        if (!videoPath) {
+            console.error("No video path available.");
+            return;
         }
-
+    
+        const formData = new FormData();
+        formData.append('file', {
+            uri: videoPath,
+            name: 'gesture.mp4',
+            type: 'video/mp4',
+        });
+    
         console.log('Sending gesture to backend...');
         console.log('Video path:', videoPath);
-        // send the gesture to the backend
-        const response = await fetch('http://192.168.1.134:8000/process-video', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ videoPath }),
-        });
-
-        const data = await response.json();
-        console.log('Response:', data);
-    };
-
-        
     
+        try {
+            const response = await fetch('http://192.168.1.134:8000/upload-video', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                body: formData,
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+    
+            const { video_server_path } = await response.json();
+            console.log('Video uploaded to:', video_server_path);
+    
+            // Proceed to process the video after uploading
+            const processResponse = await fetch('http://192.168.1.134:8000/process-video', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ video_url: video_server_path }),
+            });
+    
+            const result = await processResponse.json();
+            console.log('Processed result:', result);
 
+            // if the gpt response contains the word "yes", the gesture is correct, so we can display a success message on the screen
+            if (result.includes("yes")) {
+                console.log("Gesture is correct!");
+            } else {
+                console.log("Gesture is incorrect.");
+            }
+        } catch (error) {
+            console.error('Error during gesture submission:', error);
+        }
+    };
+    
     if (hasPermission === null) {
         return <Text style={styles.permissionText}>Requesting camera permission...</Text>;
     }

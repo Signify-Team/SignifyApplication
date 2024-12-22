@@ -1,0 +1,1 @@
+from .real_time_hand_detection import process_frames

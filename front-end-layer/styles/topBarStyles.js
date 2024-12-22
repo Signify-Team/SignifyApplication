@@ -27,7 +27,7 @@ export default StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: width * 0.02,
         paddingVertical: height * 0.005,
-        backgroundColor: COLORS.neutral_base_soft,
+        backgroundColor: COLORS.primary,
         shadowColor: COLORS.neutral_base_dark,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,

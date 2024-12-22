@@ -58,10 +58,15 @@ const tabBarIcon = ({ route }) => ({ focused }) => {
 };
 
 const BottomTabsNavigator = () => (
-    <Tab.Navigator screenOptions={({ route }) => ({
+    
+    <Tab.Navigator 
+        screenOptions={({ route }) => ({
         tabBarIcon: tabBarIcon({ route }),
         tabBarShowLabel: false,
-    })}>
+        tabBarStyle: styles.bottomBarContainer,
+        
+        })}
+        >
         <Tab.Screen
             name="Courses"
             component={Courses}

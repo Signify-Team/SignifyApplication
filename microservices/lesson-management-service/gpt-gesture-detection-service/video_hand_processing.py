@@ -10,6 +10,13 @@ import base64
 import time
 from pathlib import Path
 from openai import OpenAI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from fastapi import FastAPI, File, UploadFile
+import shutil
+
+# Initialize the app
+app = FastAPI()
 
 # Add the parent directory of the current script to sys.path
 parent_directory = Path(__file__).resolve().parent.parent  # lesson-management-service
@@ -28,8 +35,28 @@ GPT_API_KEY = os.getenv("GPT_API_KEY")
 
 client = OpenAI(api_key=GPT_API_KEY)
 
+# Define input model
+class VideoRequest(BaseModel):
+    video_url: str  # Path or URL to the video file
+
+@app.post("/upload-video")
+async def upload_video(file: UploadFile = File(...)):
+    try:
+        print("Uploading video...")
+        file_path = f"uploads/{file.filename}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {"video_server_path": file_path}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 def extract_frames(video_path, interval=4):
+    print("Extracting frames from video...", video_path)
+
+    if(video_path.startswith("file://")):
+        video_path = video_path[7:]
+
     cap = cv2.VideoCapture(video_path)
     frame_id = 0
 
@@ -57,8 +84,9 @@ def encode_image_as_base64(image_path):
 def send_frames_to_gpt(frames):
     print("Sending frames to GPT...")
 
-    context_words = "GREETINGS - HELLO"
-    # Prepare the message content with all images
+    
+    context_words = "GREETINGS-HELLO"
+
     message_content = [
         {
             "type": "text",
@@ -93,7 +121,6 @@ def send_frames_to_gpt(frames):
         max_tokens=300,
     )
 
-    # Process and return the response
     return response.choices[0].message.content
 
 def reduce_image_size_before_sending_to_gpt(frames):
@@ -107,17 +134,29 @@ def reduce_image_size_before_sending_to_gpt(frames):
 
 
 # Main Workflow
+@app.post("/process-video")
+def process_user_video(request: VideoRequest):
+    try:
+        frames = extract_frames(request.video_url)
+        selected_frames = process_with_detection(frames)
+        reduced_frames = reduce_image_size_before_sending_to_gpt(selected_frames)
+        gpt_results = send_frames_to_gpt(reduced_frames)
+        print (gpt_results)
+        # remove the extracted frames and selected frames in the directory without removing the directory
+        for file in os.listdir(EXTRACTED_FRAMES_DIR):
+            os.remove(os.path.join(EXTRACTED_FRAMES_DIR, file))
+        for file in os.listdir(SELECTED_FRAMES_DIR):
+            os.remove(os.path.join(SELECTED_FRAMES_DIR, file))
+        return gpt_results
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
 if __name__ == "__main__":
     # capture the time spent on the process
+    import uvicorn
     start_time = time.time()
-    video_path = "videos/hello_deniz.mp4"  # Replace with your video file
-    frames = extract_frames(video_path)
-    selected_frames = process_with_detection(frames)
-    reduced_frames = reduce_image_size_before_sending_to_gpt(selected_frames)
-    gpt_results = send_frames_to_gpt(reduced_frames)
-    print("GPT Results:", gpt_results)
-    print("Time taken:", time.time() - start_time)
-
-    #delete the extracted frames and selected frames
-    os.system(f"rm -rf {EXTRACTED_FRAMES_DIR}")
-    #os.system(f"rm -rf {SELECTED_FRAMES_DIR}")
+    # Run the server on all network interfaces
+    print(f"Time elapsed: {time.time() - start_time}")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

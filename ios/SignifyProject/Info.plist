@@ -31,12 +31,12 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos and record videos.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
-	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to display the video feed.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We need access to your microphone for audio recording.</string>
+	<string>We need access to your microphone to record videos.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PassionOne-Black.ttf</string>

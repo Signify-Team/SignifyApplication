@@ -1,3 +1,13 @@
+/**
+ * @file A component that displays a question prompt and a camera view for the user to record a gesture.
+ * @description Asks the user to open up the camera and asks a gesture question.
+ *
+ * @datecreated 19.12.2024
+ * @lastmodified 22.12.2024
+ * 
+ * @param {Object} data - The data object containing the question prompt.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
@@ -105,6 +115,7 @@ const GestureQuestion = ({ data }) => {
             } else {
                 console.log("Gesture is incorrect.");
             }
+
         } catch (error) {
             console.error('Error during gesture submission:', error);
         }

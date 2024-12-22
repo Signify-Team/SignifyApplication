@@ -10,6 +10,14 @@ import base64
 import time
 from pathlib import Path
 from openai import OpenAI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse, FileResponse
+
+
+# Initialize the app
+app = FastAPI()
 
 # Add the parent directory of the current script to sys.path
 parent_directory = Path(__file__).resolve().parent.parent  # lesson-management-service
@@ -28,21 +36,41 @@ GPT_API_KEY = os.getenv("GPT_API_KEY")
 
 client = OpenAI(api_key=GPT_API_KEY)
 
+# Define input model
+class VideoRequest(BaseModel):
+    video_url: str  # Path or URL to the video file
 
 def extract_frames(video_path, interval=4):
+    # Strip the "file://" prefix if it exists
+    if video_path.startswith("file://"):
+        video_path = video_path.replace("file://", "")
+
+    print(f"Processing video file: {video_path}")
+    
+    # Check if the file exists
+    if not os.path.exists(video_path):
+        raise FileNotFoundError(f"File does not exist: {video_path}")
+
+    # Attempt to open the video
     cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise ValueError(f"Could not open video file: {video_path}")
+    
     frame_id = 0
+    extracted_frames = []
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
-        output_path = os.path.join(EXTRACTED_FRAMES_DIR, f"frame_{frame_id}.jpg")
-        cv2.imwrite(output_path, frame)
+        if frame_id % interval == 0:
+            output_path = os.path.join(EXTRACTED_FRAMES_DIR, f"frame_{frame_id}.jpg")
+            cv2.imwrite(output_path, frame)
+            extracted_frames.append(output_path)
         frame_id += 1
 
     cap.release()
-    return sorted(os.listdir(EXTRACTED_FRAMES_DIR))
+    return extracted_frames
 
 def process_with_detection(frames):
     print("Processing frames with hand detection...")
@@ -107,17 +135,24 @@ def reduce_image_size_before_sending_to_gpt(frames):
 
 
 # Main Workflow
+@app.post("/process-video")
+def process_user_video(request: VideoRequest):
+    print("Processing video...")
+    try:
+        print("Processing video...")
+        frames = extract_frames(request.video_url)
+        selected_frames = process_with_detection(frames)
+        reduced_frames = reduce_image_size_before_sending_to_gpt(selected_frames)
+        gpt_results = send_frames_to_gpt(reduced_frames)
+        return gpt_results
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     # capture the time spent on the process
+    import uvicorn
     start_time = time.time()
-    video_path = "videos/hello_deniz.mp4"  # Replace with your video file
-    frames = extract_frames(video_path)
-    selected_frames = process_with_detection(frames)
-    reduced_frames = reduce_image_size_before_sending_to_gpt(selected_frames)
-    gpt_results = send_frames_to_gpt(reduced_frames)
-    print("GPT Results:", gpt_results)
-    print("Time taken:", time.time() - start_time)
-
-    #delete the extracted frames and selected frames
-    os.system(f"rm -rf {EXTRACTED_FRAMES_DIR}")
-    #os.system(f"rm -rf {SELECTED_FRAMES_DIR}")
+    # Run the server on all network interfaces
+    print(f"Time elapsed: {time.time() - start_time}")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

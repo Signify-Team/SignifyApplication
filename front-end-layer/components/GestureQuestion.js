@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Modal } from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import RectangularButton from './RectangularButton';
 import { COLORS, FONTS } from '../utils/constants';
@@ -17,13 +17,16 @@ import Video from 'react-native-video';
 
 const { width, height } = Dimensions.get('window');
 
-const GestureQuestion = ({ data }) => {
+const GestureQuestion = ({ data, onSubmit, onComplete }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [videoPath, setVideoPath] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
     const devices = useCameraDevices();
     const device = devices.find((dev) => dev.position === 'front');
     const cameraRef = React.useRef(null);
     let isRecording = false;
+    const [isCorrect, setIsCorrect] = useState(false); 
 
     useEffect(() => {
         (async () => {
@@ -82,7 +85,7 @@ const GestureQuestion = ({ data }) => {
         console.log('Video path:', videoPath);
     
         try {
-            const response = await fetch('http://192.168.1.134:8000/upload-video', {
+            const response = await fetch('http://192.168.0.16:8000/upload-video', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -98,7 +101,7 @@ const GestureQuestion = ({ data }) => {
             console.log('Video uploaded to:', video_server_path);
     
             // Proceed to process the video after uploading
-            const processResponse = await fetch('http://192.168.1.134:8000/process-video', {
+            const processResponse = await fetch('http://192.168.0.16:8000/process-video', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -111,13 +114,26 @@ const GestureQuestion = ({ data }) => {
 
             // if the gpt response contains the word "yes", the gesture is correct, so we can display a success message on the screen
             if (result.includes("yes")) {
+                setIsCorrect(true);
+                setIsModalVisible(true);
+                setModalMessage("Gesture is correct!");
                 console.log("Gesture is correct!");
             } else {
+                setIsCorrect(false);
+                setIsModalVisible(true);
+                setModalMessage("Gesture is incorrect.");
                 console.log("Gesture is incorrect.");
             }
 
         } catch (error) {
             console.error('Error during gesture submission:', error);
+        }
+    };
+
+    const closeModal = () => {
+        setIsModalVisible(false);
+        if (onComplete) {
+            onComplete(); // Notify parent component to proceed to the next lesson
         }
     };
     
@@ -174,6 +190,24 @@ const GestureQuestion = ({ data }) => {
                 text="SUBMIT"
                 onPress={submitGesture}
             />
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalText}>{modalMessage}</Text>
+                        <RectangularButton
+                            width={width * 0.4}
+                            text="Continue"
+                            color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
+                            onPress={closeModal}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </>
     );
 };
@@ -208,6 +242,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginVertical: height * 0.02,
         gap: width * 0.05,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: width * 0.8,
+        padding: 20,
+        backgroundColor: COLORS.light_gray_1,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    modalText: {
+        fontSize: 18,
+        marginBottom: 20,
+        fontFamily: FONTS.poppins_font,
+        textAlign: 'center',
+        color: COLORS.neutral_base_dark,
+    },
+    permissionText: {
+        fontSize: 18,
+        textAlign: 'center',
+        color: COLORS.neutral_base_dark,
+        marginTop: height * 0.4,
     },
 });
 

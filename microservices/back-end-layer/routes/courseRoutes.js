@@ -7,18 +7,20 @@
  */
 
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const Course = require('../models/CourseDB');
-const RateLimit = require('express-rate-limit');
 
-// Set up rate limiter: maximum of 100 requests per 15 minutes
-const limiter = RateLimit({
+// rate limiter 
+const courseLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // max 100 requests per windowMs
+    max: 100, // Limit each IP to 100 requests per window
+    message: { error: 'Too many requests. Please try again later.' },
+    statusCode: 429,
 });
 
-// Apply rate limiter to all requests
-router.use(limiter);
+// Apply rate limiter to all course routes
+router.use(courseLimiter);
 
 // Get all courses
 router.get('/', async (req, res) => {

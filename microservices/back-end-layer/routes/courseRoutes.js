@@ -9,7 +9,16 @@
 const express = require('express');
 const router = express.Router();
 const Course = require('../models/CourseDB');
+const RateLimit = require('express-rate-limit');
 
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // max 100 requests per windowMs
+});
+
+// Apply rate limiter to all requests
+router.use(limiter);
 
 // Get all courses
 router.get('/', async (req, res) => {

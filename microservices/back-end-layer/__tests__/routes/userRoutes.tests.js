@@ -1,3 +1,11 @@
+/**
+ * @file userRoutes.test.js
+ * @description Tests for userRoutes API endpoints.
+ *
+ * @datecreated 12.12.2024
+ * @lastmodified 16.02.2025
+ */
+
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
@@ -114,11 +122,11 @@ describe('User Routes Tests', () => {
 
         const response = await request(app).put('/api/users/update').send({
             userId: registerResponse.body.user._id,
-            languagePreference: 'Spanish',
+            languagePreference: 'ASL',
         });
 
         expect(response.statusCode).toBe(200);
-        expect(response.body.user).toHaveProperty('languagePreference', 'Spanish');
+        expect(response.body.user).toHaveProperty('languagePreference', 'ASL');
     });
 
     test('GET /test - Confirm the test route works', async () => {

@@ -6,7 +6,6 @@
  * @lastmodified 17.12.2024
  */
 
-
 const express = require('express'); // Express web server framework
 const bcrypt = require('bcrypt'); // For password hashing
 const mongoose = require('mongoose'); // For MongoDB ObjectId validation
@@ -22,20 +21,20 @@ const registerLimiter = rateLimit({
     message: { message: 'Too many requests, please try again later.' },
 });
 const loginLimiter = rateLimit({
-    windowMs: MINUTES_15, 
-    max: 100, 
+    windowMs: MINUTES_15,
+    max: 100,
     message: { message: 'Too many requests, please try again later.' },
 });
 
 const profileLimiter = rateLimit({
     windowMs: MINUTES_15,
-    max: 100, 
+    max: 100,
     message: { message: 'Too many requests, please try again later.' },
 });
 
 const updateLimiter = rateLimit({
     windowMs: MINUTES_15,
-    max: 100, 
+    max: 100,
     message: { message: 'Too many requests, please try again later.' },
 });
 
@@ -50,7 +49,7 @@ router.post('/register', registerLimiter, async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email: { $eq: email } });
         if (existingUser) {
-            return res.status(409).json({ message: 'Email is already registered' });
+            return res.status(400).json({ message: 'Email is already registered' }); // Change status code to 400
         }
 
         // Hash the password
@@ -65,17 +64,15 @@ router.post('/register', registerLimiter, async (req, res) => {
 
         await user.save();
         return res.status(201).json({ message: 'User registered successfully', user: {
-            id: user._id,
+            _id: user._id, // Ensure _id is included in the response
             username: user.username,
             email: user.email,
-        }, 
-    });
+        }});
     } catch (error) {
         console.error('Registration Error:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 // Route: Login an existing user
 router.post('/login', loginLimiter, async (req, res) => {
@@ -101,7 +98,7 @@ router.post('/login', loginLimiter, async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             user: {
-                id: user._id,
+                _id: user._id, // Ensure _id is included in the response
                 username: user.username,
                 email: user.email,
             },
@@ -115,7 +112,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 // Route: Get user profile
 router.get('/profile', profileLimiter, async (req, res) => {
     const { userId } = req.query;
-    
+
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({ message: 'Invalid user ID' });
     }
@@ -153,7 +150,8 @@ router.put('/update', updateLimiter, async (req, res) => {
         await user.save();
         res.status(200).json({ message: 'User updated successfully', user });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Update Error:', error);
+        res.status(400).json({ message: 'Failed to update user preferences' }); // Improved error message
     }
 });
 
@@ -161,4 +159,5 @@ router.put('/update', updateLimiter, async (req, res) => {
 router.get('/test', (req, res) => {
     res.status(200).send('User route is working!');
 });
+
 module.exports = router;

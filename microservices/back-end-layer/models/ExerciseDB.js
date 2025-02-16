@@ -11,7 +11,6 @@ const mongoose = require('mongoose');
 // Exercise Schema
 const ExerciseSchema = new mongoose.Schema({
     exerciseId: { type: String, required: true, unique: true }, // Unique identifier
-    courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true }, // Related course
     type: { type: String, enum: ['SignToWord', 'WordToSign'], required: true }, // Exercise type
     signVideoUrl: { type: String }, // URL for the sign video (for `SignToWord` type)
     word: { type: String }, // The displayed word (for `WordToSign` type)
@@ -19,4 +18,5 @@ const ExerciseSchema = new mongoose.Schema({
     options: [{ type: String }], // Possible answers (for `SignToWord` type)
 });
 
-module.exports = mongoose.model('Exercise', ExerciseSchema);
+const Exercise = mongoose.model('Exercise', ExerciseSchema); 
+module.exports = Exercise;

@@ -67,7 +67,7 @@ router.post('/:id/start', exerciseLimiter, async (req, res) => {
 });
 
 // Finish an exercise by username
-router.post('/:id/finish', async (req, res) => {
+router.post('/:id/finish', exerciseLimiter, async (req, res) => {
     try {
         const { answer } = req.body;
         const exercise = await Exercise.findById(req.params.id);
@@ -100,11 +100,11 @@ router.post('/', exerciseLimiter, [
         const { exerciseId, question, correctAnswer, courseId } = req.body;
 
         // Check if the course exists
-        const course = await Course.findById(courseId);
+        const course = await Course.findOne({ _id: { $eq: courseId } });
         if (!course) return res.status(404).json({ message: 'Course not found' });
 
         // Check for duplicate exerciseId
-        const existingExercise = await Exercise.findOne({ exerciseId });
+        const existingExercise = await Exercise.findOne({ exerciseId: { $eq: exerciseId } });
         if (existingExercise) {
             return res.status(400).json({ message: 'Exercise ID already exists' });
         }

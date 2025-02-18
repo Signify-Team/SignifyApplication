@@ -78,7 +78,7 @@ router.post(
 
         try {
             // Check if wordId already exists
-            const existingWord = await Word.findOne({ wordId: req.body.wordId });
+            const existingWord = await Word.findOne({ wordId: { $eq: req.body.wordId } });
             if (existingWord) {
                 return res.status(400).json({ error: 'wordId must be unique. This wordId already exists.' });
             }

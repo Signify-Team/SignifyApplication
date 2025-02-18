@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const Achievement = require('../models/AchievementDB');
 const User = require('../models/UserDB'); // Assuming users are stored in UserDB
+const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
@@ -65,16 +66,42 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+const updateAchievementValidation = [
+    body('title').optional().isString().withMessage('Title must be a string.'),
+    body('description').optional().isString().withMessage('Description must be a string.'),
+    body('points').optional().isNumeric().withMessage('Points must be a number.'),
+];
+
 // Update an achievement
-router.put('/:id', async (req, res) => {
+router.put('/:id', updateAchievementValidation, async (req, res) => {
+    // Validate request data
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
-        const achievement = await Achievement.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!achievement) {
+        const { title, description, points } = req.body;
+        
+        // Create an object for the fields that can be updated
+        const updateFields = {};
+        if (title !== undefined) updateFields.title = title;
+        if (description !== undefined) updateFields.description = description;
+        if (points !== undefined) updateFields.points = points;
+
+        const updatedAchievement = await Achievement.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+
+        if (!updatedAchievement) {
             return res.status(404).json({ message: 'Achievement not found' });
         }
-        res.json(achievement);
+
+        return res.status(200).json(updatedAchievement);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error updating achievement:', error);
+        return res.status(500).json({
+            message: 'Error updating achievement',
+            error: error,
+        });
     }
 });
 

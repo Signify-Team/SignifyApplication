@@ -11,6 +11,11 @@ const RateLimit = require('express-rate-limit');
 const router = express.Router();
 const Quest = require('../models/QuestDB'); // Adjust the path as necessary
 const User = require('../models/UserDB');
+const { body, validationResult } = require('express-validator');
+
+const completeQuestValidation = [
+    body('userId').isMongoId().withMessage('Invalid user ID.'),
+];
 
 // Set up rate limiter: maximum of 100 requests per 15 minutes
 const limiter = RateLimit({
@@ -71,21 +76,41 @@ router.get('/:questId', async (req, res) => {
 });
 
 // Update a quest by questId
-router.put('/:questId', async (req, res) => {
-    try {
-        const updatedQuest = await Quest.findOneAndUpdate(
-            { questId: req.params.questId },
-            req.body,
-            { new: true }
-        );
+router.post('/:questId/complete', completeQuestValidation, async (req, res) => {
+    // Validate request data
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
 
-        if (!updatedQuest) {
+    const userId = req.body.userId;
+    const questId = req.params.questId;
+
+    try {
+        // Find the user and quest
+        const user = await User.findById(userId);
+        const quest = await Quest.findById(questId);
+
+        // Check if user and quest exist
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (!quest) {
             return res.status(404).json({ message: 'Quest not found' });
         }
 
-        res.status(200).json(updatedQuest);
+        // Implement logic to mark the quest as completed for the user
+        // This might involve adding the quest to a list of completed quests for the user
+        user.completedQuests.push(questId); // Assuming you have a completedQuests field in your User model
+        await user.save();
+
+        return res.status(200).json({ message: 'Quest completed successfully', quest });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating quest', error });
+        console.error('Error completing quest:', error);
+        return res.status(500).json({
+            message: 'Error completing quest',
+            error: error,
+        });
     }
 });
 

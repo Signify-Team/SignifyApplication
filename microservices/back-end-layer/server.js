@@ -42,6 +42,18 @@ app.use('/api/exercises', exerciseRoutes)
 const wordRoutes = require('./routes/wordRoutes')
 app.use('/api/word', wordRoutes)
 
+const achievementRoutes = require('./routes/achievementRoutes')
+app.use('/api/achievements', achievementRoutes)
+
+const badgeRoutes = require('./routes/badgeRoutes')
+app.use('/api/badges', badgeRoutes)
+
+const notificationRoutes = require('./routes/notificationRoutes');
+app.use('/api/notifications', notificationRoutes);
+
+const questRoutes = require('./routes/questRoutes');
+app.use('/api/quests', questRoutes);
+
 module.exports = app;
 
 // Start the server

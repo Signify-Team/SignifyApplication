@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 
 // Notification Schema
 const NotificationSchema = new mongoose.Schema({
-    notificationId: { type: String, required: true, unique: true },
+    notificationId: { type: String, required: true,unique: true,},
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     message: { type: String, required: true }, // Notification message
     isRead: { type: Boolean, default: false }, // Read status

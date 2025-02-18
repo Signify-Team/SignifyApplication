@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 
 // Quest Schema
 const QuestSchema = new mongoose.Schema({
-    questId: { type: String, required: true, unique: true }, // Unique identifier
+    questId: { type: String, unique: true }, // Unique identifier
     title: { type: String, required: true }, // Quest title
     description: { type: String }, // Detailed description
     rewardPoints: { type: Number, default: 0 }, // Points rewarded upon completion

@@ -26,6 +26,15 @@ const limiter = RateLimit({
 // Apply rate limiter to all requests
 router.use(limiter);
 
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // max 100 requests per windowMs
+});
+
+// Apply rate limiter to all requests
+router.use(limiter);
+
 // Create a new quest
 router.post('/', async (req, res) => {
     try {

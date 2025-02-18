@@ -7,9 +7,19 @@
  */
 
 const express = require('express');
+const RateLimit = require('express-rate-limit');
 const router = express.Router();
 const Quest = require('../models/QuestDB'); // Adjust the path as necessary
 const User = require('../models/UserDB');
+
+// Set up rate limiter: maximum of 100 requests per 15 minutes
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // max 100 requests per windowMs
+});
+
+// Apply rate limiter to all requests
+router.use(limiter);
 
 // Create a new quest
 router.post('/', async (req, res) => {
@@ -96,7 +106,7 @@ router.delete('/:questId', async (req, res) => {
 
 // Complete a quest by user
 router.post('/:questId/complete', async (req, res) => {
-    const userId = req.body.userId; // Assuming the user ID is passed in the body
+    const userId = req.body.userId;
 
     try {
         const user = await User.findById(userId);

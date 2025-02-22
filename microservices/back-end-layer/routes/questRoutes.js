@@ -128,7 +128,7 @@ router.post('/:questId/complete', async (req, res) => {
     const userId = req.body.userId;
 
     try {
-        const user = await User.findOne({ _id: userId });
+        const user = await User.findOne({ _id: { $eq: userId } });
         const quest = await Quest.findOne({ questId: req.params.questId });
 
         if (!user || !quest) {

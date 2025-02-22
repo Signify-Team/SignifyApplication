@@ -78,7 +78,8 @@ def process_with_detection(frames):
 
 def encode_image_as_base64(image_path):
     with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+        result = base64.b64encode(image_file.read()).decode('utf-8')
+        return result
 
 
 def send_frames_to_gpt(frames):

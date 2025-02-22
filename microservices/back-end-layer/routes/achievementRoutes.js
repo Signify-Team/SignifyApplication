@@ -89,7 +89,7 @@ router.put('/:id', updateAchievementValidation, async (req, res) => {
         if (description !== undefined) updateFields.description = description;
         if (points !== undefined) updateFields.points = points;
 
-        const updatedAchievement = await Achievement.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+        const updatedAchievement = await Achievement.findByIdAndUpdate(req.params.id, { $set: updateFields }, { new: true });
 
         if (!updatedAchievement) {
             return res.status(404).json({ message: 'Achievement not found' });

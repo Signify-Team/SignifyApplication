@@ -26,12 +26,6 @@ const limiter = RateLimit({
 // Apply rate limiter to all requests
 router.use(limiter);
 
-// Set up rate limiter: maximum of 100 requests per 15 minutes
-const limiter = RateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // max 100 requests per windowMs
-});
-
 // Apply rate limiter to all requests
 router.use(limiter);
 
@@ -97,8 +91,8 @@ router.post('/:questId/complete', completeQuestValidation, async (req, res) => {
 
     try {
         // Find the user and quest
-        const user = await User.findById(userId);
-        const quest = await Quest.findById(questId);
+        const user = await User.findOne({ _id: { $eq: userId } });
+        const quest = await Quest.findOne({ _id: { $eq: questId } });
 
         // Check if user and quest exist
         if (!user) {

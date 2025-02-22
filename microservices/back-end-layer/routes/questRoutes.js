@@ -17,14 +17,11 @@ const completeQuestValidation = [
     body('userId').isMongoId().withMessage('Invalid user ID.'),
 ];
 
-// Set up rate limiter: maximum of 100 requests per 15 minutes
+// Rate limiter: maximum of 100 requests per 15 minutes
 const limiter = RateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // max 100 requests per windowMs
 });
-
-// Apply rate limiter to all requests
-router.use(limiter);
 
 // Apply rate limiter to all requests
 router.use(limiter);
@@ -34,7 +31,7 @@ router.post('/', async (req, res) => {
     try {
         const { title, description, rewardPoints, deadline } = req.body;
         
-        // Create a new quest instance without questId
+        // Create a new quest instance without questId (quest Id is assigned automatically)
         const newQuest = new Quest({
             title,
             description,
@@ -45,7 +42,7 @@ router.post('/', async (req, res) => {
         // Save the quest to the database
         await newQuest.save();
         
-        // Assign _id to questId
+        // Assign _id to questId (automatically generated quest ID)
         newQuest.questId = newQuest._id;
         await newQuest.save();
 
@@ -80,39 +77,33 @@ router.get('/:questId', async (req, res) => {
 
 // Update a quest by questId
 router.post('/:questId/complete', completeQuestValidation, async (req, res) => {
-    // Validate request data
+    // Validate request data (error message for possible ID errors)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const userId = req.body.userId;
     const questId = req.params.questId;
 
     try {
-        // Find the user and quest
-        const user = await User.findOne({ _id: { $eq: userId } });
-        const quest = await Quest.findOne({ _id: { $eq: questId } });
+        // Find the quest
+        const quest = await Quest.findOne({ _id: questId });
 
-        // Check if user and quest exist
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        // Check if the quest exists
         if (!quest) {
             return res.status(404).json({ message: 'Quest not found' });
         }
 
-        // Implement logic to mark the quest as completed for the user
-        // This might involve adding the quest to a list of completed quests for the user
-        user.completedQuests.push(questId); // Assuming you have a completedQuests field in your User model
-        await user.save();
+        // Mark the quest as completed 
+        quest.completed = true;
+        await quest.save();
 
-        return res.status(200).json({ message: 'Quest completed successfully', quest });
+        return res.status(200).json({ message: 'Quest marked as completed successfully', quest });
     } catch (error) {
         console.error('Error completing quest:', error);
         return res.status(500).json({
             message: 'Error completing quest',
-            error: error,
+            error: error.message,
         });
     }
 });
@@ -137,7 +128,7 @@ router.post('/:questId/complete', async (req, res) => {
     const userId = req.body.userId;
 
     try {
-        const user = await User.findById(userId);
+        const user = await User.findOne({ _id: userId });
         const quest = await Quest.findOne({ questId: req.params.questId });
 
         if (!user || !quest) {

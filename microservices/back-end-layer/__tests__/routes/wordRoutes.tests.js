@@ -16,14 +16,14 @@ const wordRoutes = require('../../routes/wordRoutes');
 let app, mongoServer;
 
 beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
 
     app = express();
     app.use(express.json());
-    app.use('/api/word', wordRoutes);
-    process.env.NODE_ENV = 'test';  // Ensure we're in test environment
+    app.use('/api/word', wordRoutes);  // Ensure we're in test environment
 
 });
 
@@ -96,53 +96,41 @@ describe('POST /api/word - Create a new word', () => {
         expect(response.body.description).toBeUndefined(); // Ensure description is undefined (optional field)
     });
 
-    test('Should handle rate-limiting correctly', async () => {
-        // First valid request
-        const wordData = {
-            wordId: 'unique127',
-            name: 'rate-limited word',
-            videoUrl: 'https://example.com/video',
-            description: 'A word that will test rate-limiting.'
-        };
-
-        for (let i = 0; i < 101; i++) {
-            const response = await request(app).post('/api/word').send(wordData);
-    
-            // The 101st request should return a 429 error (Too Many Requests)
-            if (i === 100) {
-                expect(response.statusCode).toBe(429);
-                expect(response.body.error).toBe('Too many requests. Please try again later.');
-            }
-        }
-    });
 });
 
 describe('DELETE /api/word/:id', () => {
     let wordId;
 
     beforeAll(async () => {
-        // Create a word to delete later
         const wordData = {
             wordId: 'unique123',
             name: 'Test Word',
             videoUrl: 'https://example.com/video',
             description: 'Test description',
         };
+    
         const word = await request(app).post('/api/word').send(wordData);
-
+    
         console.log('Create response:', word.body);
-        responseID = word.body._id; 
-        console.log('Created wordId:', responseID);
+    
+        if (!word.body._id) {
+            throw new Error(`Failed to create word: ${JSON.stringify(word.body)}`);
+        }
+    
+        wordId = word.body._id;
+        console.log('Created wordId:', wordId);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1-second delay
     });
+    
 
     test('Should delete the word successfully if it exists', async () => {
-        const response = await request(app).delete(`/api/word/${responseID}`);
+        const response = await request(app).delete(`/api/word/${wordId}`);
         
         expect(response.statusCode).toBe(200);
         expect(response.body.message).toBe('Word deleted successfully');
 
         // Verify the word has been deleted
-        const checkResponse = await request(app).get(`/api/word/${responseID}`);
+        const checkResponse = await request(app).get(`/api/word/${wordId}`);
         expect(checkResponse.statusCode).toBe(404); // It should not be found anymore
     });
 

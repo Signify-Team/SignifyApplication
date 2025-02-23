@@ -10,7 +10,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const Achievement = require('../models/AchievementDB');
-const User = require('../models/UserDB'); // Assuming users are stored in UserDB
+const User = require('../models/UserDB');
 const { body, validationResult } = require('express-validator');
 
 const router = express.Router();

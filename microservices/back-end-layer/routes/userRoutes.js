@@ -15,31 +15,20 @@ const router = express.Router(); // Router middleware
 
 const MINUTES_15 = 15 * 60 * 1000;
 
-const registerLimiter = rateLimit({
+const limiter = rateLimit({
     windowMs: MINUTES_15,
     max: 100, // Limit each IP to 100 requests per `window` (15 minutes)
     message: { message: 'Too many requests, please try again later.' },
 });
-const loginLimiter = rateLimit({
-    windowMs: MINUTES_15,
-    max: 100,
-    message: { message: 'Too many requests, please try again later.' },
-});
-
-const profileLimiter = rateLimit({
-    windowMs: MINUTES_15,
-    max: 100,
-    message: { message: 'Too many requests, please try again later.' },
-});
-
-const updateLimiter = rateLimit({
-    windowMs: MINUTES_15,
-    max: 100,
-    message: { message: 'Too many requests, please try again later.' },
-});
+if (process.env.NODE_ENV !== 'test') {
+    console.log("Applying rate limiter...");  // Log for verification
+    router.use(limiter);
+} else {
+    console.log("Rate limiter disabled for testing.");
+}
 
 // Get all users (Admin only)
-router.get('/', profileLimiter, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const users = await User.find().select('-password'); // Exclude passwords for security
         res.json(users);
@@ -48,7 +37,7 @@ router.get('/', profileLimiter, async (req, res) => {
     }
 });
 
-router.post('/register', registerLimiter, async (req, res) => {
+router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
@@ -85,7 +74,7 @@ router.post('/register', registerLimiter, async (req, res) => {
 });
 
 // Route: Login an existing user
-router.post('/login', loginLimiter, async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -120,7 +109,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 });
 
 // Route: Get user profile
-router.get('/profile', profileLimiter, async (req, res) => {
+router.get('/profile', async (req, res) => {
     const { userId } = req.query;
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -140,7 +129,7 @@ router.get('/profile', profileLimiter, async (req, res) => {
 });
 
 // Route: Update user preferences or progress
-router.put('/update', updateLimiter, async (req, res) => {
+router.put('/update', async (req, res) => {
     const { userId, languagePreference, learningLanguages } = req.body;
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {

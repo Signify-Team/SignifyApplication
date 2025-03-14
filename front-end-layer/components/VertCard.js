@@ -1,4 +1,10 @@
-// components/VertCard.js
+/**
+ * @file VertCard.js
+ * @description Vertical card component with title, description and button.
+ *
+ * @datecreated 19.12.2024
+ * @lastmodified 19.12.2024
+ */
 
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';

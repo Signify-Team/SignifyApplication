@@ -33,6 +33,9 @@ export default StyleSheet.create(
             width: '100%',
             alignItems: 'flex-start',
         },
+        questionsContainer: {
+            alignItems: 'center',
+        },
         buttonRow: {
             width: '100%',
             marginVertical: height * 0.01,
@@ -64,6 +67,19 @@ export default StyleSheet.create(
             alignItems:
                 'center',
         },
+
+        bottomBarIcon: {
+            paddingTop: height * 0.01,
+        },
+
+
+        bottomBarContainer: {
+            backgroundColor: COLORS.neutral_base_soft,
+            borderTopWidth: 1 ,
+            borderTopColor: "#95A3AA", 
+            
+        },
+
 
         // Login Page styles
         loginWelcomeText:

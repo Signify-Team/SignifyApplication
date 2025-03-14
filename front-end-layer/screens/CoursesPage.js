@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
-import Svg, { Path } from 'react-native-svg'; 
+import Svg, { Path } from 'react-native-svg';
 import styles from '../styles/styles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CircularButton from '../components/CircularButton';
@@ -23,9 +23,10 @@ const CoursesPage = ({ navigation }) => {
     const [selectedCourse, setSelectedCourse] = useState(null);
 
     const buttonData = [
-        { id: 0, icon: KoalaIcon, color: COLORS.primary, title: 'Course 1', description: 'This is Course 1' },
+        { id: 0, icon: KoalaIcon, color: COLORS.primary, title: 'Greetings Course 1', description: 'In this module, you are going to learn different greeting signs.' },
         { id: 1, icon: KoalaIcon, color: COLORS.secondary, title: 'Course 2', description: 'This is Course 2' },
         { id: 2, icon: KoalaIcon, color: COLORS.tertiary, title: 'Course 3', description: 'This is Course 3' },
+        { id: 3, icon: KoalaIcon, color: COLORS.primary, title: 'Greetings Course 4', description: 'In this module, you are going to learn different greeting signs.' },
     ];
 
     const handleButtonPress = (course) => {
@@ -51,6 +52,7 @@ const CoursesPage = ({ navigation }) => {
                 <Svg
                         height="100%"
                         width="100%"
+                        // eslint-disable-next-line react-native/no-inline-styles
                         style={{ position: 'absolute', top: 0, left: 0 }}
                     >
                         {buttonData.slice(1).map((item, index) => {
@@ -59,9 +61,9 @@ const CoursesPage = ({ navigation }) => {
                             const nextIsLeft = item.id % 2 === 0;
 
                             const startX = isLeft ? 100 : 300;
-                            const startY = prevButton.id * 150 + 75; 
+                            const startY = prevButton.id * 150 + 55;
                             const endX = nextIsLeft ? 100 : 300;
-                            const endY = item.id * 150 + 75;
+                            const endY = item.id * 150 + 20;
 
                             const controlX1 = startX + (endX - startX) * 0.25;
                             const controlY1 = startY + 100;

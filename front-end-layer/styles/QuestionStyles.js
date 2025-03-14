@@ -14,7 +14,7 @@ import {
     COLORS,
 } from '../utils/constants';
 
-const {width, height} =
+const {height, width} =
     Dimensions.get(
         'window',
     );
@@ -25,7 +25,7 @@ export default StyleSheet.create({
         backgroundColor: COLORS.neutral_base_soft,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 16,
+        padding: width * 0.03,
     },
     multContainer: {
         width: '100%',
@@ -36,6 +36,7 @@ export default StyleSheet.create({
         textAlign: 'center',
     },
     optionsContainer: {
+        marginVertical: height * 0.02,
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',

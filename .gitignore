@@ -78,8 +78,9 @@ Pods/
 
 # ASL Dataset
 microservices/lesson-management-service/asl_dataset/
-microservices/lesson-management-service/hand-detection-service/TEST_SCRIPTS/egohands_dataset
-microservices/lesson-management-service/hand-detection-service/TEST_SCRIPTS/processed_dataset
+microservices/lesson-management-service/hand_detection_service/TEST_SCRIPTS/egohands_dataset
+microservices/lesson-management-service/hand_detection_service/TEST_SCRIPTS/processed_dataset
+microservices/lesson-management-service/gpt-gesture-detection-service/videos/
 
 # Environment
 venv/
@@ -105,3 +106,8 @@ ios/SignifyProject.xcodeproj/project.pbxproj
 
 # Ignore key
 microservices/back-end-layer/.env
+
+# Ignore gpt-service keyframes and video
+microservices/lesson-management-service/gpt-gesture-detection-service/keyframes/*
+microservices/lesson-management-service/gpt-gesture-detection-service/video.webm
+microservices/lesson-management-service/gpt-gesture-detection-service/.env

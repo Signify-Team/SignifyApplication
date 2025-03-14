@@ -1,4 +1,10 @@
-// AchievementsStyles.js
+/**
+ * @file AchievementCardStyles.js
+ * @description Styling for the achievement card component
+ *
+ * @datecreated 21.12.2024
+ * @lastmodified 21.12.2024
+ */
 
 export default {
     achievementCard: {

@@ -24,6 +24,7 @@
 		72BFF62D0B7D4DA89E3C02A6 /* Poppins-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4DA43A31029E43B99B3DF4E9 /* Poppins-Italic.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8B07A8E827DF4639A9421E9B /* Poppins-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3F9EBF0CC54461CA40846CF /* Poppins-MediumItalic.ttf */; };
+		9BB30B0135E336CCBF71B7DB /* libPods-SignifyProject-SignifyProjectTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BDD43F355EDDA5169E65845 /* libPods-SignifyProject-SignifyProjectTests.a */; };
 		9C80FA3FD8114FDAA3E669F2 /* PassionOne-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B53D28392A447C4B48F5811 /* PassionOne-Regular.ttf */; };
 		B8A1BACAA0094D0EAE4FD96E /* Poppins-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1D0AF65C413C4CB686F1DD16 /* Poppins-Black.ttf */; };
 		BB4046FDC37FC2390FE0ECE1 /* libPods-SignifyProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9487B36AF664F514DD2DC79 /* libPods-SignifyProject.a */; };
@@ -34,6 +35,7 @@
 		C6A3B7FCB8C5472DB783CF69 /* Poppins-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 016BAA37ACA44D0F8259E2BA /* Poppins-LightItalic.ttf */; };
 		D7A3BC77947B42DAB47FF947 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7C02417B96C24EDB9EA6AA85 /* Poppins-Medium.ttf */; };
 		DAC28C19C6524BBFA55117A9 /* Poppins-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D2A21ADD7F842CDB03009AD /* Poppins-BoldItalic.ttf */; };
+		EE0D9D988C343DD98B53C8E9 /* libPods-SignifyProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA466FF9EE95F9937E8DAB48 /* libPods-SignifyProject.a */; };
 		FC73E11EA63B4B35A235E953 /* Poppins-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 26AF3ACEE2B24E1B9A3EA0A3 /* Poppins-ThinItalic.ttf */; };
 		FDEA7232FC83447ABE5638A4 /* Poppins-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA542B404EA242CC94B8D38E /* Poppins-ExtraBold.ttf */; };
 /* End PBXBuildFile section */
@@ -62,13 +64,16 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SignifyProject/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = SignifyProject/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		1D0AF65C413C4CB686F1DD16 /* Poppins-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Black.ttf"; path = "../front-end-layer/assets/fonts/Poppins-Black.ttf"; sourceTree = "<group>"; };
-		1E3E2C541B80198BE18F569E /* Pods-SignifyProject-SignifyProjectTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignifyProject-SignifyProjectTests.release.xcconfig"; path = "Target Support Files/Pods-SignifyProject-SignifyProjectTests/Pods-SignifyProject-SignifyProjectTests.release.xcconfig"; sourceTree = "<group>"; };
 		26AF3ACEE2B24E1B9A3EA0A3 /* Poppins-ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-ThinItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-ThinItalic.ttf"; sourceTree = "<group>"; };
 		2B53D28392A447C4B48F5811 /* PassionOne-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PassionOne-Regular.ttf"; path = "../front-end-layer/assets/fonts/PassionOne-Regular.ttf"; sourceTree = "<group>"; };
+		3739BE0078F7AED6093DD257 /* Pods-SignifyProject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignifyProject.debug.xcconfig"; path = "Target Support Files/Pods-SignifyProject/Pods-SignifyProject.debug.xcconfig"; sourceTree = "<group>"; };
 		49DB8C30CC7D4FA08005E1CC /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-SemiBold.ttf"; path = "../front-end-layer/assets/fonts/Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
+		4BDD43F355EDDA5169E65845 /* libPods-SignifyProject-SignifyProjectTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SignifyProject-SignifyProjectTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DA43A31029E43B99B3DF4E9 /* Poppins-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Italic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-Italic.ttf"; sourceTree = "<group>"; };
+		66497CA2DCED04B3237DD310 /* Pods-SignifyProject.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignifyProject.release.xcconfig"; path = "Target Support Files/Pods-SignifyProject/Pods-SignifyProject.release.xcconfig"; sourceTree = "<group>"; };
 		670D954E19D84D13AA71A6B7 /* PassionOne-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PassionOne-Black.ttf"; path = "../front-end-layer/assets/fonts/PassionOne-Black.ttf"; sourceTree = "<group>"; };
 		6AF502D4DE4A4EB9BA8EDE1B /* Poppins-ExtraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-ExtraLightItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
+		6EEF73212C9EBE292EB17F79 /* Pods-SignifyProject-SignifyProjectTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignifyProject-SignifyProjectTests.release.xcconfig"; path = "Target Support Files/Pods-SignifyProject-SignifyProjectTests/Pods-SignifyProject-SignifyProjectTests.release.xcconfig"; sourceTree = "<group>"; };
 		706E0DAE46634BA493914C7C /* PassionOne-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PassionOne-Bold.ttf"; path = "../front-end-layer/assets/fonts/PassionOne-Bold.ttf"; sourceTree = "<group>"; };
 		7955ECB7546B407AAA59B124 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Regular.ttf"; path = "../front-end-layer/assets/fonts/Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		7C02417B96C24EDB9EA6AA85 /* Poppins-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Medium.ttf"; path = "../front-end-layer/assets/fonts/Poppins-Medium.ttf"; sourceTree = "<group>"; };
@@ -362,6 +367,7 @@
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
 		09E79D8A7F9344D9A622C702 /* [CP] Check Pods Manifest.lock */ = {
+		031FEC94E46F0D1D22284887 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -384,6 +390,18 @@
 			showEnvVarsInLog = 0;
 		};
 		54C87C75116CC76B2448D8CC /* [CP] Embed Pods Frameworks */ = {
+				"${PODS_ROOT}/Target Support Files/Pods-SignifyProject/Pods-SignifyProject-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SignifyProject/Pods-SignifyProject-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SignifyProject/Pods-SignifyProject-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		0E1D82237BC735B0C39A4D3C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -401,6 +419,7 @@
 			showEnvVarsInLog = 0;
 		};
 		92BE2A68B8F12209541A1016 /* [CP] Copy Pods Resources */ = {
+		4366293466B6058B871999BF /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -435,6 +454,7 @@
 			showEnvVarsInLog = 0;
 		};
 		CFD917639E343D4F2131161E /* [CP] Check Pods Manifest.lock */ = {
+		BB885B10A9F2453340DF8498 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -576,7 +596,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.deniz;
 				PRODUCT_NAME = SignifyProject;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -604,7 +624,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.deniz;
 				PRODUCT_NAME = SignifyProject;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

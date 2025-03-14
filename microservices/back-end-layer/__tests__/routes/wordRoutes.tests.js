@@ -6,12 +6,12 @@
  * @lastmodified 16.02.2025
  */
 
-const request = require('supertest');
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const express = require('express');
-const Word = require('../../models/WordDB');
-const wordRoutes = require('../../routes/wordRoutes'); 
+import request from 'supertest';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import express from 'express';
+import Word from '../../models/WordDB.js';
+import wordRoutes from '../../routes/wordRoutes.js';
 
 let app, mongoServer;
 

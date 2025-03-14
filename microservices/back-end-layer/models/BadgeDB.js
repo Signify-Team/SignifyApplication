@@ -6,7 +6,7 @@
  * @lastmodified 14.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Badge Schema
 const BadgeSchema = new mongoose.Schema({
@@ -16,4 +16,4 @@ const BadgeSchema = new mongoose.Schema({
     iconUrl: { type: String }, // URL for badge icon
 });
 
-module.exports = mongoose.model('Badge', BadgeSchema);
+export default mongoose.model('Badge', BadgeSchema);

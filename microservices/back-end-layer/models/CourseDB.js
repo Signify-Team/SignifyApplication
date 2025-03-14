@@ -6,7 +6,7 @@
  * @lastmodified 13.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Course Schema
 const CourseSchema = new mongoose.Schema({
@@ -19,4 +19,4 @@ const CourseSchema = new mongoose.Schema({
     totalLessons: { type: Number, default: 0 }, // Total number of lessons
 });
 
-module.exports = mongoose.model('Course', CourseSchema);
+export default mongoose.model('Course', CourseSchema);

@@ -6,25 +6,23 @@
  * @lastmodified 19.02.2025
  */
 
-const express = require('express');
-const RateLimit = require('express-rate-limit');
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import Quest from '../models/QuestDB.js';
+import User from '../models/UserDB.js';
+import { body, validationResult } from 'express-validator';
+
 const router = express.Router();
-const Quest = require('../models/QuestDB'); // Adjust the path as necessary
-const User = require('../models/UserDB');
-const { body, validationResult } = require('express-validator');
 
 const completeQuestValidation = [
     body('userId').isMongoId().withMessage('Invalid user ID.'),
 ];
 
 // Rate limiter: maximum of 100 requests per 15 minutes
-const limiter = RateLimit({
+const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // max 100 requests per windowMs
 });
-
-// Apply rate limiter to all requests
-router.use(limiter);
 
 // Create a new quest
 router.post('/', async (req, res) => {
@@ -164,4 +162,4 @@ router.get('/users/:userId/completed-quests', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

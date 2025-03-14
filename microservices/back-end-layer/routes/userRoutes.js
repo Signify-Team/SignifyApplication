@@ -6,14 +6,14 @@
  * @lastmodified 17.12.2024
  */
 
-const express = require('express'); // Express web server framework
-const bcrypt = require('bcrypt'); // For password hashing
-const mongoose = require('mongoose'); // For MongoDB ObjectId validation
-const User = require('../models/UserDB'); // User model
-const rateLimit = require('express-rate-limit');
+import express from 'express'; // Express web server framework
+import bcrypt from 'bcrypt'; // For password hashing
+import mongoose from 'mongoose'; // For MongoDB ObjectId validation
+import User from '../models/UserDB.js'; // User model
+import rateLimit from 'express-rate-limit';
 const router = express.Router(); // Router middleware
 
-const MINUTES_15 = 15 * 60 * 1000;
+const MINUTES_15 = 15000 * 60 * 1000;
 
 const limiter = rateLimit({
     windowMs: MINUTES_15,
@@ -159,4 +159,4 @@ router.get('/test', (req, res) => {
     res.status(200).send('User route is working!');
 });
 
-module.exports = router;
+export default router;

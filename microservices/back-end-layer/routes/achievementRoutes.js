@@ -6,12 +6,12 @@
  * @lastmodified 18.02.2025
  */
 
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const mongoose = require('mongoose');
-const Achievement = require('../models/AchievementDB');
-const User = require('../models/UserDB');
-const { body, validationResult } = require('express-validator');
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
+import Achievement from '../models/AchievementDB.js';
+import User from '../models/UserDB.js';
+import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
 
@@ -155,4 +155,4 @@ router.post('/users/:userId/:achievementId', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

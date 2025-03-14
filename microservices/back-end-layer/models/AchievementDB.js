@@ -6,7 +6,7 @@
  * @lastmodified 14.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const achievementSchema = new mongoose.Schema({
     achievementId: {
@@ -42,4 +42,4 @@ achievementSchema.pre('save', function (next) {
 
 const Achievement = mongoose.model('Achievement', achievementSchema);
 
-module.exports = Achievement;
+export default Achievement;

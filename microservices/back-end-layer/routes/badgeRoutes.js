@@ -6,12 +6,13 @@
  * @lastmodified 18.02.2025
  */
 
-const express = require('express');
-const Badge = require('../models/BadgeDB');
-const User = require('../models/UserDB');
-const validator = require('validator');
-const rateLimit = require('express-rate-limit'); // Import rate limiter
-const mongoose = require('mongoose');
+import express from 'express';
+import Badge from '../models/BadgeDB.js';
+import User from '../models/UserDB.js';
+import validator from 'validator';
+import rateLimit from 'express-rate-limit'; // Import rate limiter
+import mongoose from 'mongoose';
+
 const router = express.Router();
 
 const badgeRateLimiter = rateLimit({
@@ -206,5 +207,4 @@ router.post('/users/:userId/:badgeId', async (req, res) => {
     }
 });
 
-
-module.exports = router;
+export default router;

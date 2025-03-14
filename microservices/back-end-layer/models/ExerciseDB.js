@@ -6,7 +6,7 @@
  * @lastmodified 13.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Exercise Schema
 const ExerciseSchema = new mongoose.Schema({
@@ -18,5 +18,4 @@ const ExerciseSchema = new mongoose.Schema({
     options: [{ type: String }], // Possible answers (for `SignToWord` type)
 });
 
-const Exercise = mongoose.model('Exercise', ExerciseSchema); 
-module.exports = Exercise;
+export default mongoose.model('Exercise', ExerciseSchema);

@@ -6,10 +6,11 @@
  * @lastmodified 16.02.2025
  */
 
-const express = require('express');
-const rateLimit = require('express-rate-limit');
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import Course from '../models/CourseDB.js';
+
 const router = express.Router();
-const Course = require('../models/CourseDB');
 
 // rate limiter 
 const courseLimiter = rateLimit({
@@ -88,4 +89,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

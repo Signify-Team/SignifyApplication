@@ -6,11 +6,12 @@
  * @lastmodified 18.02.2025
  */
 
-const express = require('express');
-const Notification = require('../models/NotificationDB');
-const User = require('../models/UserDB'); // Make sure User model is imported
-const rateLimit = require('express-rate-limit'); // Import rate limiter
-const mongoose = require('mongoose');
+import express from 'express';
+import Notification from '../models/NotificationDB.js';
+import User from '../models/UserDB.js'; // Make sure User model is imported
+import rateLimit from 'express-rate-limit'; // Import rate limiter
+import mongoose from 'mongoose';
+
 const router = express.Router();
 
 // Rate limiter for notification routes
@@ -123,4 +124,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

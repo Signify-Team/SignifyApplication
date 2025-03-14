@@ -6,7 +6,7 @@
  * @lastmodified 14.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Notification Schema
 const NotificationSchema = new mongoose.Schema({
@@ -17,4 +17,4 @@ const NotificationSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Notification', NotificationSchema);
+export default mongoose.model('Notification', NotificationSchema);

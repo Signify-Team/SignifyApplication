@@ -6,13 +6,13 @@
  * @lastmodified 16.02.2025
  */
 
+import express from 'express';
+import { body, validationResult } from 'express-validator';
+import rateLimit from 'express-rate-limit';
+import Exercise from '../models/ExerciseDB.js';
+import Course from '../models/CourseDB.js';
 
-const express = require('express');
-const { body, validationResult } = require('express-validator');
-const rateLimit = require('express-rate-limit');
 const router = express.Router();
-const Exercise = require('../models/ExerciseDB');
-const Course = require('../models/CourseDB');
 
 // Rate limiter (100 requests per 15 minutes)
 const exerciseLimiter = rateLimit({
@@ -139,4 +139,4 @@ router.delete('/:id', exerciseLimiter, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

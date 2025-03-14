@@ -6,12 +6,13 @@
  * @lastmodified 16.02.2025
  */
 
-const express = require('express');
-const mongoose = require('mongoose');
+import express from 'express';
+import mongoose from 'mongoose';
+import Word from '../models/WordDB.js';
+import { body, validationResult } from 'express-validator';
+import rateLimit from 'express-rate-limit';
+
 const router = express.Router();
-const Word = require('../models/WordDB');
-const { body, validationResult } = require('express-validator');
-const rateLimit = require('express-rate-limit');
 
 // rate limiter 
 const wordLimiter = rateLimit({
@@ -116,4 +117,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

@@ -6,17 +6,18 @@
  * @lastmodified 16.02.2025
  */
 
-const request = require('supertest');
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const express = require('express');
-const User = require('../../models/UserDB');
-const userRoutes = require('../../routes/userRoutes'); 
+import request from 'supertest';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import express from 'express';
+import User from '../../models/UserDB.js';
+import userRoutes from '../../routes/userRoutes.js';
 
 let app, mongoServer;
 
 beforeAll(async () => {
     // Start an in-memory MongoDB server
+    process.env.NODE_ENV = 'test';
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
     await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });

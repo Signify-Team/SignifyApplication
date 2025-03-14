@@ -6,7 +6,7 @@
  * @lastmodified 13.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Quest Schema
 const QuestSchema = new mongoose.Schema({
@@ -17,4 +17,4 @@ const QuestSchema = new mongoose.Schema({
     deadline: { type: Date }, // Optional deadline for the quest
 });
 
-module.exports = mongoose.model('Quest', QuestSchema);
+export default mongoose.model('Quest', QuestSchema);

@@ -6,8 +6,8 @@
  * @lastmodified 14.12.2024
  */
 
-const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid'); // Import UUID generator
+import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -70,4 +70,4 @@ UserSchema.pre('save', function (next) {
     next();
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

@@ -13,6 +13,16 @@ import User from '../models/UserDB.js';
 import { body, validationResult } from 'express-validator';
 
 const router = express.Router();
+// rate limiter 
+const questLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per window
+    message: { error: 'Too many requests. Please try again later.' },
+    statusCode: 429,
+});
+
+// Apply rate limiter to all course routes
+router.use(questLimiter);
 
 const completeQuestValidation = [
     body('userId').isMongoId().withMessage('Invalid user ID.'),

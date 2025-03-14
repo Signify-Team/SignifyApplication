@@ -6,12 +6,12 @@
  * @lastmodified 13.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Course Schema
 const CourseSchema = new mongoose.Schema({
     courseId: { type: String, required: true, unique: true }, // Unique identifier for the course
-    name: { type: String, required: true }, // Course name (e.g., "ASL Basics")
+    name: { type: String, required: true }, // Course name
     description: { type: String }, // Course description
     level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], required: true },
     exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }], // List of exercises in the course
@@ -19,4 +19,4 @@ const CourseSchema = new mongoose.Schema({
     totalLessons: { type: Number, default: 0 }, // Total number of lessons
 });
 
-module.exports = mongoose.model('Course', CourseSchema);
+export default mongoose.model('Course', CourseSchema);

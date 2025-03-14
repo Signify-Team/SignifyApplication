@@ -6,7 +6,7 @@
  * @lastmodified 14.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Word Schema
 const WordSchema = new mongoose.Schema({
@@ -17,4 +17,4 @@ const WordSchema = new mongoose.Schema({
     description: { type: String }, // Optional description or usage of the word
 });
 
-module.exports = mongoose.model('Word', WordSchema);
+export default mongoose.model('Word', WordSchema);

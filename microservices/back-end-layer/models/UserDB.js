@@ -3,22 +3,23 @@
  * @description This file defines the User model for MongoDB.
  *
  * @datecreated 04.12.2024
- * @lastmodified 13.12.2024
+ * @lastmodified 14.12.2024
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
 
 // User Schema
 const UserSchema = new mongoose.Schema({
-    userId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true, unique: true, default: uuidv4 }, // Generate userId automatically
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profilePicture: { type: String },
-    languagePreference: { type: String },
+    languagePreference: { type: String, enum: ['ASL', 'TID']},
     learningLanguages: [
         {
-            languageId: { type: String, required: true }, // ID of the language being learned
+            languageId: { type: String,required: true, enum: ['ASL', 'TID'],}, 
             progress: { type: Number, default: 0 }, // Progress percentage in the language
             level: { type: Number, default: 1 }, // Level in the language
         },
@@ -63,9 +64,10 @@ const UserSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now },
 });
 
+// Update the `updatedAt` field before saving
 UserSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

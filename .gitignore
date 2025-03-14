@@ -85,6 +85,7 @@ microservices/lesson-management-service/gpt-gesture-detection-service/videos/
 # Environment
 venv/
 myenv/
+.env
 
 # Ignore compiled Python files
 *.pyc
@@ -97,6 +98,7 @@ __pycache__/
 # cocoapods
 ios/Podfile.lock
 ios/Pods/
+ios/SignifyProject.xcodeproj/project.pbxproj
 
 # xcode temporary files 
 *.xcworkspace

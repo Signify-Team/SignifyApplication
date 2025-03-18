@@ -24,6 +24,7 @@ const UserSchema = new mongoose.Schema({
             level: { type: Number, default: 1 }, // Level in the language
         },
     ],
+    progress: { type: mongoose.Schema.Types.ObjectId, ref: 'UserProgress' },
     streakCount: { type: Number, default: 0 },
     totalPoints: { type: Number, default: 0 },
     achievements: [

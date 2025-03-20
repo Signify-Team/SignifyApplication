@@ -3,7 +3,7 @@
  * @description Includes styles for the texts, buttons, etc.
  *
  * @datecreated 05.11.2024
- * @lastmodified 17.12.2024
+ * @lastmodified 20.03.2024
  */
 
 import {

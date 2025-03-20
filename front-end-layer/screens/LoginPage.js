@@ -99,7 +99,7 @@ const LoginPage = () => {
                 onChangeText={(text) => setPassword(text)}
                 value={password}
             />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                 <Text style={styles.forgotPasswordText}>
                     Forgot Your Password?
                 </Text>

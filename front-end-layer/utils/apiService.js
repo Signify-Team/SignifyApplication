@@ -145,3 +145,57 @@ export const fetchUserBadges = async (badgeIds) => {
         throw new Error(error.response?.data?.message || 'Failed to fetch user badges');
     }
 };
+
+export const forgotPassword = async (email) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/users/send-reset-password`,
+      { email: email },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      throw new Error('Unable to find an account with this email. Please check if the email is correct or try signing up.');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error. Please try again later');
+    } else if (!error.response) {
+      throw new Error('Network error. Please check your internet connection and try again.');
+    } else {
+      throw new Error(error.response?.data?.message || 'Failed to process forgot password request');
+    }
+  }
+};
+
+export const resetPassword = async (token, newPassword) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/users/reset-password`,
+      { token, newPassword },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 400) {
+      throw new Error('Invalid or expired reset token');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error. Please try again later');
+    } else if (!error.response) {
+      throw new Error('Network error. Please check your internet connection and try again.');
+    } else {
+      throw new Error(error.response?.data?.message || 'Failed to reset password');
+    }
+  }
+};

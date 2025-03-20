@@ -8,6 +8,7 @@
 
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
+import { linking } from '../utils/linking';
 
 // Screen Links
 import SplashScreen from '../screens/SplashScreen';
@@ -22,6 +23,8 @@ import CourseDetailsPage from '../screens/CourseDetailsPage';
 import CoursesPage from '../screens/CoursesPage';
 import LanguagePreferencePage from '../screens/LanguagePreferencePage';
 import NotificationsPage from '../screens/NotificationsPage';
+import ForgotPasswordPage from '../screens/ForgotPasswordPage';
+import ResetPasswordPage from '../screens/ResetPasswordPage';
 
 const Stack = 
 createStackNavigator();
@@ -32,7 +35,8 @@ const MainNavigator = () => (
         initialRouteName="Splash"
         screenOptions={{
             headerShown: false,
-        }}>
+        }}
+        linking={linking}>
         <Stack.Screen
             name="Splash"
             component={SplashScreen}
@@ -106,6 +110,20 @@ const MainNavigator = () => (
         <Stack.Screen
             name="Notifications"
             component={NotificationsPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPasswordPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="ResetPassword"
+            component={ResetPasswordPage}
             options={{
                 headerShown: false,
             }}

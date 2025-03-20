@@ -28,12 +28,13 @@ export default StyleSheet.create({
         backgroundColor: COLORS.tertiary,
         borderRadius: 12,
         width: width * 0.95,
-        height: height * 0.09,
+        height: height * 0.08,
         elevation: 3,
         shadowColor: COLORS.neutral_base_dark,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 3,
+        paddingHorizontal: width * 0.001,
     },
     innerShadow: {
         position: 'absolute',
@@ -50,11 +51,11 @@ export default StyleSheet.create({
     icon: {
         width: width * 0.35,
         height: height * 0.2,
-        marginRight: width * 0.05,
+        marginRight: width * 0.00,
         resizeMode: 'contain',
     },
     title: {
-        fontSize: 30,
+        fontSize: 24,
         fontFamily: FONTS.baloo_font,
         color: COLORS.neutral_base_dark,
     },

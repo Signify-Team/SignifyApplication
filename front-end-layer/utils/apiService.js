@@ -74,3 +74,11 @@ export const registerUser = async (username, email, password) => {
     return response.data;
   });
 };
+
+export const fetchSections = async () => {
+  console.log('Fetching sections...');
+  return tryRequest(async () => {
+    const response = await axios.get(`${API_BASE_URL}/sections/`);
+    return response.data;
+  });
+};

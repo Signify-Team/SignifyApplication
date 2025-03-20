@@ -17,6 +17,7 @@ const CourseSchema = new mongoose.Schema({
     exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }], // List of exercises in the course
     dictionary: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Word' }], // Words associated with the course
     totalLessons: { type: Number, default: 0 }, // Total number of lessons
+    isPremium: { type: Boolean, default: false }, // Whether this is a premium course
 });
 
 export default mongoose.model('Course', CourseSchema);

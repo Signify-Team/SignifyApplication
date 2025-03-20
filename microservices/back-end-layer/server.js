@@ -6,7 +6,7 @@
  * @lastmodified 06.12.2024
  */
 
-import express from 'express'; // can no longer use require so changed all to import .. from ..
+import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import connectDB from './config/db.js';
@@ -19,6 +19,7 @@ import achievementRoutes from './routes/achievementRoutes.js';
 import badgeRoutes from './routes/badgeRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import questRoutes from './routes/questRoutes.js';
+import sectionRoutes from './routes/sectionRoutes.js';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use('/api/achievements', achievementRoutes);
 app.use('/api/badges', badgeRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/quests', questRoutes);
+app.use('/api/sections', sectionRoutes);
 
 // Start the server
 if (process.env.NODE_ENV !== 'test') {

@@ -25,7 +25,7 @@ const lessons = [
         id: 3,
         type: 'multipleChoice',
         data: {
-            video: require('../assets/videos/5_share_1.mp4'),
+            video: require('../assets/videos/thank_you.mp4'),
             options: ['Collect', 'Give', 'Gift', 'Share'],
             correctOption: 'Share',
         },

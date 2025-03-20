@@ -27,10 +27,20 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
 
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
     const handleLogin = async () => {
         // Basic validation
         if (!email || !password) {
             Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            Alert.alert('Error', 'Please enter a valid email address');
             return;
         }
 

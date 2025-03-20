@@ -84,7 +84,10 @@ router.post('/', async (req, res) => {
         if (!sectionId || !name) {
             return res.status(400).json({ error: 'Section ID and name are required' });
         }
-
+        // Validate sectionId
+        if (!mongoose.Types.ObjectId.isValid(sectionId)) {
+            return res.status(400).json({ error: 'Invalid Section ID' });
+        }
         // Check if section with same ID already exists
         const existingSection = await Section.findOne({ sectionId });
         if (existingSection) {

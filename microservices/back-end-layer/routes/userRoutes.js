@@ -170,7 +170,7 @@ router.post('/send-verification', async (req, res) => {
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         
         // Store the code in the user document with expiration
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: { $eq: email } });
         if (!user) {
             // Create a new user document with provided credentials
             if (!password) {
@@ -213,8 +213,8 @@ router.post('/verify-code', async (req, res) => {
 
     try {
         const user = await User.findOne({ 
-            email,
-            verificationCode: code,
+            email: { $eq: email },
+            verificationCode: { $eq: code },
             verificationCodeExpires: { $gt: Date.now() }
         });
 
@@ -241,6 +241,10 @@ router.post('/update-language', async (req, res) => {
 
     if (!userId || !language) {
         return res.status(400).json({ message: 'User ID and language are required' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
     }
 
     if (!['ASL', 'TID'].includes(language)) {
@@ -272,7 +276,7 @@ router.post('/send-reset-password', async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: { $eq: email } });
         if (!user) {
             return res.status(404).json({ message: 'No account found with this email address' });
         }
@@ -306,7 +310,7 @@ router.post('/reset-password', async (req, res) => {
 
     try {
         const user = await User.findOne({
-            resetPasswordToken: token,
+            resetPasswordToken: { $eq: token },
             resetPasswordExpires: { $gt: Date.now() }
         });
 

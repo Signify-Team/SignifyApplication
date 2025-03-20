@@ -86,8 +86,6 @@ export const fetchUserProfile = async () => {
 
 export const sendVerificationCode = async (email, username, password) => {
   try {
-    console.log('Making API request to:', `${API_BASE_URL}/users/send-verification`);
-    console.log('Request payload:', { email, username, password });
     
     const response = await axios.post(`${API_BASE_URL}/users/send-verification`, {
       email,

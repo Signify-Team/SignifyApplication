@@ -72,6 +72,25 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get multiple badges by their IDs
+router.get('/batch', async (req, res) => {
+    try {
+        const { badgeIds } = req.query;
+        if (!badgeIds) {
+            return res.status(400).json({ error: 'No badge IDs provided' });
+        }
+
+        const ids = badgeIds.split(',').map(id => id.trim());
+        const badges = await Badge.find({
+            _id: { $in: ids }
+        });
+
+        res.status(200).json(badges);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // Get a badge by its ID with ID validation
 router.get('/:id', async (req, res) => {
     const { id } = req.params;

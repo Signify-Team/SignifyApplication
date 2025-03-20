@@ -6,13 +6,22 @@
  * @lastmodified 06.12.2024
  */
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const connectDB = require('./config/db');
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import connectDB from './config/db.js';
+import dotenv from 'dotenv';
+import userRoutes from './routes/userRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import exerciseRoutes from './routes/exerciseRoutes.js';
+import wordRoutes from './routes/wordRoutes.js';
+import achievementRoutes from './routes/achievementRoutes.js';
+import badgeRoutes from './routes/badgeRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import questRoutes from './routes/questRoutes.js';
+import sectionRoutes from './routes/sectionRoutes.js';
 
-require('dotenv').config();
-
+dotenv.config();
 
 // Initialize Express app
 const app = express();
@@ -26,35 +35,20 @@ connectDB();
 
 // Default route
 app.get('/', (req, res) => {
+    console.log('GET /', { body: req.body });
     res.send('Backend is running!');
 });
 
 // Routes
-const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
-
-const courseRoutes = require('./routes/courseRoutes');
 app.use('/api/courses', courseRoutes);
-
-const exerciseRoutes = require('./routes/exerciseRoutes')
-app.use('/api/exercises', exerciseRoutes)
-
-const wordRoutes = require('./routes/wordRoutes')
-app.use('/api/word', wordRoutes)
-
-const achievementRoutes = require('./routes/achievementRoutes')
-app.use('/api/achievements', achievementRoutes)
-
-const badgeRoutes = require('./routes/badgeRoutes')
-app.use('/api/badges', badgeRoutes)
-
-const notificationRoutes = require('./routes/notificationRoutes');
+app.use('/api/exercises', exerciseRoutes);
+app.use('/api/word', wordRoutes);
+app.use('/api/achievements', achievementRoutes);
+app.use('/api/badges', badgeRoutes);
 app.use('/api/notifications', notificationRoutes);
-
-const questRoutes = require('./routes/questRoutes');
 app.use('/api/quests', questRoutes);
-
-module.exports = app;
+app.use('/api/sections', sectionRoutes);
 
 // Start the server
 if (process.env.NODE_ENV !== 'test') {
@@ -62,4 +56,5 @@ if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
-  }
+}
+export default app;

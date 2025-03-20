@@ -16,7 +16,9 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profilePicture: { type: String },
-    languagePreference: { type: String, enum: ['ASL', 'TID']},
+    followerCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
+    languagePreference: { type: String, enum: ['ASL', 'TID'] },
     learningLanguages: [
         {
             languageId: { type: String,required: true, enum: ['ASL', 'TID'],}, 
@@ -48,6 +50,7 @@ const UserSchema = new mongoose.Schema({
             dateCompleted: { type: Date }, // When the quest was completed
         },
     ],
+    unreadNotifications: { type: Number, required: true, default: 0 },
     notifications: [
         {
             notificationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Notification' },
@@ -61,6 +64,11 @@ const UserSchema = new mongoose.Schema({
     },
     isPremium: { type: Boolean, default: false },
     premiumExpiry: { type: Date },
+    verificationCode: { type: String },
+    verificationCodeExpires: { type: Date },
+    isEmailVerified: { type: Boolean, default: false },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

@@ -40,10 +40,19 @@ const VertCard = ({
 
 const styles = StyleSheet.create({
     cardWrapper: {
+        position: 'absolute', // to center the vert car perfectly
+        bottom: 0,
+        left: width * 0.05,
+        right: width * 0.05,
         borderRadius: 12,
         paddingBottom: height * 0.008,
         alignItems: 'center',
-        width: '90%',
+        zIndex: 1000,
+        elevation: 5,
+        shadowColor: COLORS.neutral_base_dark,
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
     },
     card: {
         width: '100%',

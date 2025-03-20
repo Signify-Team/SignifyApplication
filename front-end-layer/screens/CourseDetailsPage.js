@@ -25,7 +25,7 @@ const lessons = [
         id: 3,
         type: 'multipleChoice',
         data: {
-            video: require('../assets/videos/thank_you.mp4'),
+            video: require('../assets/videos/thank_you.mp4'), // to fix error because non existing video
             options: ['Collect', 'Give', 'Gift', 'Share'],
             correctOption: 'Share',
         },

@@ -23,15 +23,16 @@ const {width, height} =
 export default StyleSheet.create(
     {
         container: {
-            flex: 1,
+            flexGrow: 1,
             paddingVertical: height * 0.02,
             backgroundColor: COLORS.neutral_base_soft,
             alignItems: 'center',
+            paddingBottom: height * 0.1,
         },
         scrollContainer: {
-            paddingVertical: 20,
+            flex: 1,
             width: '100%',
-            alignItems: 'flex-start',
+            paddingBottom: height * 0.1,
         },
         questionsContainer: {
             alignItems: 'center',
@@ -108,53 +109,54 @@ export default StyleSheet.create(
                 marginBottom:
                     height * 0.03,
             },
-        loginInputContainer:
-            {
-                fontFamily: FONTS.poppins_font,
-                width: '75%',
-                marginBottom:
-                    height * 0.03,
-                position:
-                    'center',
-                color: COLORS.neutral_base_dark,
-            },
+        loginInputContainer: {
+            fontFamily: FONTS.poppins_font,
+            width: '75%',
+            marginBottom: height * 0.03,
+            position: 'center',
+            color: COLORS.neutral_base_dark,
+        },
+        inputContainer: {
+            position: 'relative',
+            width: '100%',
+        },
         loginLabel: {
             fontFamily: FONTS.login_box_credential_font,
             color: COLORS.dark_accent,
-            marginBottom:
-                -9,
-            position:
-                'absolute',
-            backgroundColor:
-                COLORS.neutral_base_soft,
-            top: -(
-                height * 0.01
-            ),
-            left:
-                width * 0.04,
-            paddingHorizontal:
-                width * 0.02,
+            marginBottom: -9,
+            position: 'absolute',
+            backgroundColor: COLORS.neutral_base_soft,
+            top: -(height * 0.01),
+            left: width * 0.04,
+            paddingHorizontal: width * 0.02,
             zIndex: 1,
             fontSize: 16,
-            fontWeight:
-                'bold',
+            fontWeight: 'bold',
         },
-        loginTextInput:
-            {
-                fontFamily: FONTS.poppins_font,
-                borderWidth: 3,
-                borderColor:
-                    COLORS.dark_accent,
-                borderRadius: 8,
-                padding: 10,
-                height:
-                    height * 0.07,
-                backgroundColor:
-                    COLORS.neutral_base_soft,
-                fontSize: 13,
-                color: COLORS.neutral_base_dark,
-                // fontFamily: 'PassionOne-Regular',
-            },
+        loginTextInput: {
+            fontFamily: FONTS.poppins_font,
+            borderWidth: 3,
+            borderColor: COLORS.dark_accent,
+            borderRadius: 8,
+            padding: 10,
+            height: height * 0.07,
+            backgroundColor: COLORS.neutral_base_soft,
+            fontSize: 13,
+            color: COLORS.neutral_base_dark,
+            width: '100%',
+        },
+        showPasswordButton: {
+            position: 'absolute',
+            right: 10,
+            top: '50%',
+            transform: [{ translateY: -10 }],
+            padding: 5,
+        },
+        showPasswordText: {
+            color: COLORS.button_color,
+            fontSize: 12,
+            fontFamily: FONTS.poppins_font,
+        },
         loginLogo: {
             width:
                 width * 0.6,
@@ -219,6 +221,25 @@ export default StyleSheet.create(
             color: COLORS.button_color,
             fontWeight:
                 'bold',
+        },
+        welcomeDescription: {
+            fontFamily: FONTS.poppins_font,
+            fontSize: 16,
+            color: COLORS.neutral_base_dark,
+            textAlign: 'center',
+            marginTop: -height * 0.02,
+            marginBottom: height * 0.05,
+            width: '75%',
+            lineHeight: 24,
+        },
+        errorMessage: {
+            fontFamily: FONTS.poppins_font,
+            fontSize: 12,
+            color: '#FF0000',
+            textAlign: 'center',
+            marginTop: -height * 0.01,
+            marginBottom: height * 0.02,
+            width: '75%',
         },
     },
 );

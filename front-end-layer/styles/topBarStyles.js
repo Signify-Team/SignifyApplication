@@ -21,7 +21,7 @@ const {width, height} =
 
 export default StyleSheet.create({
     container: {
-        paddingTop: height * 0.1,
+        paddingTop: height * 0.07, 
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -56,7 +56,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        width: width * 0.2,
+        width: width * 0.25,
     },
     smallIcon: {
         width: width * 0.06,
@@ -74,7 +74,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        right: width * 0.06
+        right: width * 0.04
     },
     notificationContainer: {
         position: 'relative',

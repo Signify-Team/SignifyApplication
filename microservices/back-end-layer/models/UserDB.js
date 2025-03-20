@@ -48,6 +48,7 @@ const UserSchema = new mongoose.Schema({
             dateCompleted: { type: Date }, // When the quest was completed
         },
     ],
+    unreadNotifications: { type: Number, required: true, default: 0 },
     notifications: [
         {
             notificationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Notification' },
@@ -61,6 +62,9 @@ const UserSchema = new mongoose.Schema({
     },
     isPremium: { type: Boolean, default: false },
     premiumExpiry: { type: Date },
+    verificationCode: { type: String },
+    verificationCodeExpires: { type: Date },
+    isEmailVerified: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

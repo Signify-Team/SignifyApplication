@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, SectionList, ActivityIndicator } from 'react-native';
+import { View, SectionList, ActivityIndicator, RefreshControl } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import styles from '../styles/styles';
 import CoursesTopBar from '../components/CoursesTopBar';
@@ -24,6 +24,8 @@ const CoursesPage = ({ navigation }) => {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false); // to be able to refresh the page
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     useEffect(() => {
         loadSections();
@@ -37,12 +39,25 @@ const CoursesPage = ({ navigation }) => {
             console.error('Error loading sections:', error);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        setRefreshTrigger(prev => prev + 1);
+        loadSections();
+    }, []);
+
     const handleButtonPress = (course) => {
-        setSelectedCourse(course);
-        setShowCard(true);
+        if (selectedCourse?.courseId === course.courseId) {
+            // If clicking the same button, toggle the card
+            setShowCard(!showCard);
+        } else {
+            // If clicking a different button, show the card with new course
+            setSelectedCourse(course);
+            setShowCard(true);
+        }
     };
 
     const handleNavigateToCourse = () => {
@@ -71,7 +86,7 @@ const CoursesPage = ({ navigation }) => {
             >
                 <CircularButton
                     icon={KoalaIcon}
-                    color={item.isPremium ? COLORS.gold : (index % 3 === 0 ? COLORS.primary : index % 3 === 1 ? COLORS.secondary : COLORS.tertiary)}
+                    color={item.isPremium ? COLORS.neutral_base_dark : (index % 3 === 0 ? COLORS.primary : index % 3 === 1 ? COLORS.secondary : COLORS.tertiary)}
                     onPress={() => handleButtonPress(item)}
                 />
             </View>
@@ -130,7 +145,7 @@ const CoursesPage = ({ navigation }) => {
                         >
                             <CircularButton
                                 icon={KoalaIcon}
-                                color={course.isPremium ? COLORS.gold : (index % 3 === 0 ? COLORS.primary : index % 3 === 1 ? COLORS.secondary : COLORS.tertiary)}
+                                color={course.isPremium ? COLORS.neutral_base_dark : (index % 3 === 0 ? COLORS.primary : index % 3 === 1 ? COLORS.secondary : COLORS.tertiary)}
                                 onPress={() => handleButtonPress(course)}
                             />
                         </View>
@@ -149,9 +164,9 @@ const CoursesPage = ({ navigation }) => {
     }
 
     return (
-        <>
-            <CoursesTopBar />
-            <View style={styles.container}>
+        <View style={{ flex: 1, backgroundColor: COLORS.neutral_base_soft }}>
+            <CoursesTopBar refreshTrigger={refreshTrigger} />
+            <View style={{ flex: 1, backgroundColor: COLORS.neutral_base_soft, paddingTop: 20 }}>
                 <SectionList
                     sections={sections.map(section => ({
                         ...section,
@@ -161,6 +176,14 @@ const CoursesPage = ({ navigation }) => {
                     renderSectionHeader={renderSectionHeader}
                     stickySectionHeadersEnabled={true}
                     keyExtractor={item => item._id}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            colors={[COLORS.primary]}
+                            tintColor={COLORS.primary}
+                        />
+                    }
                 />
                 {showCard && selectedCourse && (
                     <VertCard
@@ -172,7 +195,7 @@ const CoursesPage = ({ navigation }) => {
                     />
                 )}
             </View>
-        </>
+        </View>
     );
 };
 

@@ -14,7 +14,7 @@ const SectionSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String },
     courses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
-    order: { type: Number, default: 0 },
+    sectionNumber: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

@@ -1,84 +1,136 @@
 import axios from 'axios';
-import { Platform, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Tried multiple IP addresses in case one doesn't work
-const API_URLS = [
-  'http://172.20.10.6:3000/api', // change to you own local ip address
-  'http://169.254.238.213:3000/api',
-  'http://localhost:3000/api'
-];
+const API_BASE_URL = 'http://172.20.10.6:3000/api';
 
-let currentUrlIndex = 0;
-let API_BASE_URL = API_URLS[currentUrlIndex];
+// User session management
+const USER_ID_KEY = '@user_id';
 
-const showError = (message, details) => {
-  Alert.alert(
-    'Network Error',
-    `${message}\n\nDetails: ${JSON.stringify(details, null, 2)}`,
-    [{ text: 'OK' }]
-  );
-};
-
-const switchToNextUrl = () => {
-  currentUrlIndex = (currentUrlIndex + 1) % API_URLS.length;
-  API_BASE_URL = API_URLS[currentUrlIndex];
-  console.log('Switching to next API URL:', API_BASE_URL);
-  Alert.alert('Switching API URL', `Trying next URL: ${API_BASE_URL}`);
-  return API_BASE_URL;
-};
-
-const tryRequest = async (requestFn, maxRetries = API_URLS.length) => {
-  let lastError;
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      Alert.alert('Attempting Connection', `Trying URL: ${API_BASE_URL}`);
-      console.log('Attempting request with URL:', API_BASE_URL);
-      const result = await requestFn();
-      console.log('Request successful');
-      return result;
-    } catch (error) {
-      console.error('Request failed with URL:', API_BASE_URL);
-      const errorDetails = {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      };
-      console.error('Error details:', errorDetails);
-      showError(`Failed to connect to ${API_BASE_URL}`, errorDetails);
-      lastError = error;
-      switchToNextUrl();
-    }
+export const setUserId = async (userId) => {
+  try {
+    await AsyncStorage.setItem(USER_ID_KEY, userId);
+  } catch (error) {
+    console.error('Error saving user ID:', error);
   }
-  throw lastError;
+};
+
+export const getUserId = async () => {
+  try {
+    return await AsyncStorage.getItem(USER_ID_KEY);
+  } catch (error) {
+    console.error('Error getting user ID:', error);
+    return null;
+  }
+};
+
+export const clearUserId = async () => {
+  try {
+    await AsyncStorage.removeItem(USER_ID_KEY);
+  } catch (error) {
+    console.error('Error clearing user ID:', error);
+  }
 };
 
 export const loginUser = async (email, password) => {
-  console.log('Attempting to log in user:', email);
-  return tryRequest(async () => {
+  try {
     const response = await axios.post(`${API_BASE_URL}/users/login`, {
       email,
       password,
     });
+    if (response.data.user?._id) {
+      await setUserId(response.data.user._id);
+    }
     return response.data;
-  });
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Login failed');
+  }
 };
 
 export const registerUser = async (username, email, password) => {
-  console.log('Attempting to register user:', username);
-  return tryRequest(async () => {
+  try {
     const response = await axios.post(`${API_BASE_URL}/users/register`, {
       username,
       email,
       password,
     });
+    if (response.data.user?._id) {
+      await setUserId(response.data.user._id);
+    }
     return response.data;
-  });
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Registration failed');
+  }
 };
 
 export const fetchSections = async () => {
-  console.log('Fetching sections...');
-  return tryRequest(async () => {
+  try {
     const response = await axios.get(`${API_BASE_URL}/sections/`);
     return response.data;
-  });
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch sections');
+  }
+};
+
+export const fetchUserProfile = async () => {
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      throw new Error('No user ID found. Please log in again.');
+    }
+    const response = await axios.get(`${API_BASE_URL}/users/profile?userId=${userId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch user profile');
+  }
+};
+
+export const sendVerificationCode = async (email, username, password) => {
+  try {
+    console.log('Making API request to:', `${API_BASE_URL}/users/send-verification`);
+    console.log('Request payload:', { email, username, password });
+    
+    const response = await axios.post(`${API_BASE_URL}/users/send-verification`, {
+      email,
+      username,
+      password
+    });
+    
+    console.log('API Response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+    throw new Error(error.response?.data?.message || 'Failed to send verification code');
+  }
+};
+
+export const verifyCode = async (email, code) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/users/verify-code`, {
+      email,
+      code
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Invalid verification code');
+  }
+};
+
+export const updateLanguagePreference = async (language) => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await axios.post(`${API_BASE_URL}/users/update-language`, {
+            userId,
+            language
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to update language preference');
+    }
 };

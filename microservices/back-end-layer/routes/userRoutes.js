@@ -11,6 +11,7 @@ import bcrypt from 'bcrypt'; // For password hashing
 import mongoose from 'mongoose'; // For MongoDB ObjectId validation
 import User from '../models/UserDB.js'; // User model
 import rateLimit from 'express-rate-limit';
+import { sendVerificationEmail } from '../config/emailService.js';
 const router = express.Router(); // Router middleware
 
 const MINUTES_15 = 15000 * 60 * 1000;
@@ -151,6 +152,112 @@ router.put('/update', async (req, res) => {
     } catch (error) {
         console.error('Update Error:', error);
         res.status(400).json({ message: 'Failed to update user preferences' }); // Improved error message
+    }
+});
+
+// Send verification code
+router.post('/send-verification', async (req, res) => {
+    const { email, username, password } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        // Generate a 6-digit code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Store the code in the user document with expiration
+        const user = await User.findOne({ email });
+        if (!user) {
+            // Create a new user document with provided credentials
+            if (!password) {
+                return res.status(400).json({ message: 'Password is required for new users' });
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = new User({
+                email,
+                username,
+                password: hashedPassword,
+                verificationCode,
+                verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
+                isEmailVerified: false
+            });
+            await newUser.save();
+        } else {
+            // Update existing user's verification code
+            user.verificationCode = verificationCode;
+            user.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+            await user.save();
+        }
+
+        // Send verification email
+        await sendVerificationEmail(email, verificationCode);
+        
+        res.status(200).json({ message: 'Verification code sent successfully' });
+    } catch (error) {
+        console.error('Send Verification Error:', error);
+        res.status(500).json({ message: error.message || 'Failed to send verification code' });
+    }
+});
+
+// Verify code
+router.post('/verify-code', async (req, res) => {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+        return res.status(400).json({ message: 'Email and verification code are required' });
+    }
+
+    try {
+        const user = await User.findOne({ 
+            email,
+            verificationCode: code,
+            verificationCodeExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired verification code' });
+        }
+
+        // Clear the verification code and mark as verified
+        user.verificationCode = undefined;
+        user.verificationCodeExpires = undefined;
+        user.isEmailVerified = true;
+        await user.save();
+
+        res.status(200).json({ message: 'Email verified successfully' });
+    } catch (error) {
+        console.error('Verify Code Error:', error);
+        res.status(500).json({ message: 'Failed to verify code' });
+    }
+});
+
+// Update language preference
+router.post('/update-language', async (req, res) => {
+    const { userId, language } = req.body;
+
+    if (!userId || !language) {
+        return res.status(400).json({ message: 'User ID and language are required' });
+    }
+
+    if (!['ASL', 'TID'].includes(language)) {
+        return res.status(400).json({ message: 'Invalid language selection' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.languagePreference = language;
+        await user.save();
+
+        res.status(200).json({ message: 'Language preference updated successfully' });
+    } catch (error) {
+        console.error('Update Language Error:', error);
+        res.status(500).json({ message: 'Failed to update language preference' });
     }
 });
 

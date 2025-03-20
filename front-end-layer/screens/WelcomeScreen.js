@@ -1,104 +1,121 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     View,
     Text,
     Image,
     TouchableOpacity,
     StyleSheet,
+    SafeAreaView,
+    Dimensions,
+    Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONTS } from '../utils/constants';
+import styles from '../styles/styles';
+
+const {width, height} = Dimensions.get('window');
 
 const WelcomeScreen = () => {
     const navigation = useNavigation();
+    const bounceAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(bounceAnim, {
+                    toValue: 1,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(bounceAnim, {
+                    toValue: 0,
+                    duration: 1000,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, []);
+
+    const translateY = bounceAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, -10],
+    });
 
     return (
-        <View style={styles.container}>
-            {/* Logo */}
-            <Image
-                source={require('../assets/images/Signify-Logo.png')}
-                style={styles.logo}
-            />
+        <SafeAreaView style={styles.container}>
+            <View style={welcomeStyles.contentContainer}>
+                {/* Animated Koala */}
+                <Animated.View style={[welcomeStyles.koalaContainer, { transform: [{ translateY }] }]}>
+                    <Image
+                        source={require('../assets/icons/course-info/greetings.png')}
+                        style={welcomeStyles.koala}
+                    />
+                </Animated.View>
 
-            {/* Welcome Text */}
-            <Text style={styles.welcomeText}>
-                Welcome to Signify!
-            </Text>
-            <Text style={styles.subtitleText}>
-                Learn sign language in a fun and interactive way
-            </Text>
+                {/* Welcome Text */}
+                <Text style={styles.loginWelcomeText}>
+                    Welcome to Signify!
+                </Text>
+                <Text style={styles.welcomeDescription}>
+                    Learn sign language in a fun and interactive way
+                </Text>
 
-            {/* Buttons Container */}
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={[styles.button, styles.registerButton]}
-                    onPress={() => navigation.navigate('SignUp')}>
-                    <Text style={styles.buttonText}>
-                        Register
-                    </Text>
-                </TouchableOpacity>
+                {/* Buttons Container */}
+                <View style={welcomeStyles.buttonContainer}>
+                    <TouchableOpacity
+                        style={[welcomeStyles.button]}
+                        onPress={() => navigation.navigate('SignUp')}>
+                        <Text style={styles.loginButtonText}>
+                            Sign Up
+                        </Text>
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.button, styles.loginButton]}
-                    onPress={() => navigation.navigate('Login')}>
-                    <Text style={styles.buttonText}>
-                        Login
-                    </Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[welcomeStyles.button]}
+                        onPress={() => navigation.navigate('Login')}>
+                        <Text style={styles.loginButtonText}>
+                            Sign In
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
+const welcomeStyles = StyleSheet.create({
+    contentContainer: {
         flex: 1,
-        backgroundColor: COLORS.neutral_base_soft,
-        padding: 20,
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
-    },
-    logo: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain',
-        marginBottom: 30,
-    },
-    welcomeText: {
-        fontSize: 32,
-        fontFamily: FONTS.baloo_font,
-        color: COLORS.neutral_base_dark,
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    subtitleText: {
-        fontSize: 16,
-        color: COLORS.neutral_base_dark,
-        marginBottom: 40,
-        textAlign: 'center',
-        opacity: 0.8,
+        width: '100%',
+        paddingVertical: height * 0.05,
     },
     buttonContainer: {
         width: '100%',
-        gap: 15,
+        alignItems: 'center',
+        paddingBottom: height * 0.05,
     },
     button: {
-        width: '100%',
-        height: 50,
-        borderRadius: 25,
+        width: width * 0.7,
+        backgroundColor: COLORS.button_color,
+        paddingHorizontal: width * 0.08,
+        paddingVertical: height * 0.008,
+        alignItems: 'center',
+        borderRadius: 10,
+        justifyContent: 'center',
+        marginBottom: height * 0.02, // Negative margin to reduce space
+    },
+    koalaContainer: {
         justifyContent: 'center',
         alignItems: 'center',
+        width: '100%',
+        paddingTop: height * 0.05,
     },
-    registerButton: {
-        backgroundColor: COLORS.primary,
-    },
-    loginButton: {
-        backgroundColor: COLORS.secondary,
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontFamily: FONTS.baloo_font,
+    koala: {
+        width: width * 0.8,
+        height: width * 0.8,
+        resizeMode: 'contain',
     },
 });
 

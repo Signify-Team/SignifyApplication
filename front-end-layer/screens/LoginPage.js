@@ -12,7 +12,6 @@ import {
     Text,
     TouchableOpacity,
     Image,
-    Alert,
     ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -25,6 +24,7 @@ const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const navigation = useNavigation();
 
     const validateEmail = (email) => {
@@ -33,9 +33,16 @@ const LoginPage = () => {
     };
 
     const handleLogin = async () => {
+        setErrorMessage('');
+        
         // Basic validation
         if (!email || !password) {
-            Alert.alert('Error', 'Please fill in all fields');
+            setErrorMessage('Please fill in all fields');
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            setErrorMessage('Please enter a valid email address');
             return;
         }
 
@@ -48,14 +55,14 @@ const LoginPage = () => {
 
         try {
             const data = await loginUser(email, password);
-            Alert.alert('Success', 'Login successful');
-            navigation.replace('Home');
+            // Check if this is the user's first login (no language preference set)
+            if (!data.user.languagePreference) {
+                navigation.replace('LanguagePreference', { userId: data.user._id });
+            } else {
+                navigation.replace('Home');
+            }
         } catch (error) {
-            console.error('Login error:', error);
-            Alert.alert(
-                'Error',
-                error.message || 'Unable to connect to the server. Please check your internet connection.'
-            );
+            setErrorMessage(error.message || 'Unable to connect to the server');
         } finally {
             setIsLoading(false);
         }
@@ -95,6 +102,12 @@ const LoginPage = () => {
                     Forgot Your Password?
                 </Text>
             </TouchableOpacity>
+
+            {errorMessage ? (
+                <Text style={styles.errorMessage}>
+                    {errorMessage}
+                </Text>
+            ) : null}
 
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}

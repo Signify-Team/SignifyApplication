@@ -20,6 +20,7 @@ import AuthenticationPage from '../screens/AuthenticationPage';
 import BottomTabsNavigator from './BottomTabsNavigator';
 import CourseDetailsPage from '../screens/CourseDetailsPage';
 import CoursesPage from '../screens/CoursesPage';
+import LanguagePreferencePage from '../screens/LanguagePreferencePage';
 
 const Stack = 
 createStackNavigator();
@@ -80,6 +81,13 @@ const MainNavigator = () => (
             component={
                 AuthenticationPage
             }
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="LanguagePreference"
+            component={LanguagePreferencePage}
             options={{
                 headerShown: false,
             }}

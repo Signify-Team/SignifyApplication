@@ -30,8 +30,10 @@ const ResetPasswordPage = () => {
 
     useEffect(() => {
         // Log the token when the component mounts
-        console.log('ResetPasswordPage mounted with token:', token);
-    }, [token]);
+        console.log('ResetPasswordPage mounted');
+        console.log('Route params:', route.params);
+        console.log('Token:', token);
+    }, [token, route.params]);
 
     const validatePassword = (password) => {
         // At least 8 characters

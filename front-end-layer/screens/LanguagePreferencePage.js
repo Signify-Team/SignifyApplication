@@ -2,8 +2,8 @@
  * @file LanguagePreferencePage.js
  * @description Allows users to select their preferred sign language (TID or ASL).
  *
- * @datecreated 14.03.2025
- * @lastmodified 14.03.2025
+ * @datecreated 14.12.2024
+ * @lastmodified 14.12.2024
  */
 
 import React, { useState } from 'react';
@@ -17,6 +17,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles';
 import { updateLanguagePreference } from '../utils/apiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserId } from '../utils/apiService';
 
 const LanguagePreferencePage = () => {
     const [selectedLanguage, setSelectedLanguage] = useState(null);
@@ -30,7 +32,12 @@ const LanguagePreferencePage = () => {
         setErrorMessage('');
 
         try {
+            const userId = await getUserId();
+            if (!userId) {
+                throw new Error('User ID not found');
+            }
             await updateLanguagePreference(language);
+            await AsyncStorage.setItem('@language_preference', language);
             navigation.replace('Home');
         } catch (error) {
             setErrorMessage(error.message || 'Failed to update language preference');

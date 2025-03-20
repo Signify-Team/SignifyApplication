@@ -17,7 +17,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
-import { loginUser } from '../utils/apiService';
+import { loginUser, fetchUserProfile } from '../utils/apiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Login Page layout
 const LoginPage = () => {
@@ -25,6 +26,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [statusMessage, setStatusMessage] = useState('');
     const navigation = useNavigation();
 
     const validateEmail = (email) => {
@@ -34,6 +36,7 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         setErrorMessage('');
+        setStatusMessage('');
         
         // Basic validation
         if (!email || !password) {
@@ -46,17 +49,16 @@ const LoginPage = () => {
             return;
         }
 
-        if (!validateEmail(email)) {
-            Alert.alert('Error', 'Please enter a valid email address');
-            return;
-        }
-
         setIsLoading(true);
 
         try {
             const data = await loginUser(email, password);
-            // Check if this is the user's first login (no language preference set)
-            if (!data.user.languagePreference) {
+            
+            const serverLanguagePreference = data.user?.languagePreference;
+            
+            setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
+                    
+            if (!serverLanguagePreference) {
                 navigation.replace('LanguagePreference', { userId: data.user._id });
             } else {
                 navigation.replace('Home');

@@ -3,7 +3,7 @@
  * @description Includes main navigations of the pages.
  *
  * @datecreated 05.11.2024
- * @lastmodified 16.12.2024
+ * @lastmodified 23.12.2024
  */
 
 import React from 'react';
@@ -21,6 +21,7 @@ import BottomTabsNavigator from './BottomTabsNavigator';
 import CourseDetailsPage from '../screens/CourseDetailsPage';
 import CoursesPage from '../screens/CoursesPage';
 import LanguagePreferencePage from '../screens/LanguagePreferencePage';
+import NotificationsPage from '../screens/NotificationsPage';
 
 const Stack = 
 createStackNavigator();
@@ -101,6 +102,13 @@ const MainNavigator = () => (
         <Stack.Screen
             name="Courses"
             component={CoursesPage}
+        />
+        <Stack.Screen
+            name="Notifications"
+            component={NotificationsPage}
+            options={{
+                headerShown: false,
+            }}
         />
     </Stack.Navigator>
 );

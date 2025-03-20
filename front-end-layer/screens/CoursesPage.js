@@ -3,7 +3,7 @@
  * @description Shows the courses available for the user.
  *
  * @datecreated 19.12.2024
- * @lastmodified 19.12.2024
+ * @lastmodified 23.12.2024
  */
 
 import React, { useState, useEffect } from 'react';
@@ -165,7 +165,7 @@ const CoursesPage = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.neutral_base_soft }}>
-            <CoursesTopBar refreshTrigger={refreshTrigger} />
+            <CoursesTopBar refreshTrigger={refreshTrigger} navigation={navigation} />
             <View style={{ flex: 1, backgroundColor: COLORS.neutral_base_soft, paddingTop: 20 }}>
                 <SectionList
                     sections={sections.map(section => ({

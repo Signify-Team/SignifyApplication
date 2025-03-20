@@ -16,7 +16,9 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     profilePicture: { type: String },
-    languagePreference: { type: String, enum: ['ASL', 'TID']},
+    followerCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
+    languagePreference: { type: String, enum: ['ASL', 'TID'] },
     learningLanguages: [
         {
             languageId: { type: String,required: true, enum: ['ASL', 'TID'],}, 

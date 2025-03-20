@@ -134,3 +134,14 @@ export const updateLanguagePreference = async (language) => {
         throw new Error(error.response?.data?.message || 'Failed to update language preference');
     }
 };
+
+export const fetchUserBadges = async (badgeIds) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/badges/batch`, {
+            params: { badgeIds: badgeIds.join(',') }
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch user badges');
+    }
+};

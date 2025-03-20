@@ -3,24 +3,26 @@
  * @description Custom top bar for the courses page.
  *
  * @datecreated 16.12.2024
- * @lastmodified 16.12.2024
+ * @lastmodified 23.12.2024
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Image, Text } from 'react-native';
+import { View, Image, Text, TouchableOpacity } from 'react-native';
 import styles from '../styles/topBarStyles';
 import TurkishFlagIcon from '../assets/icons/header/turkish-flag.png';
 import AmericanFlagIcon from '../assets/icons/header/american-flag.png';
 import StreaksIcon from '../assets/icons/header/streak.png';
 import NotificationsIcon from '../assets/icons/header/notifications.png';
-import { fetchUserProfile } from '../utils/apiService';
+import { fetchUserProfile, updateLanguagePreference } from '../utils/apiService';
+import LanguageDropdown from './LanguageDropdown';
 
-const CoursesTopBar = ({ refreshTrigger }) => {
+const CoursesTopBar = ({ refreshTrigger, navigation }) => {
     const [userData, setUserData] = useState({
         streakCount: 0,
         unreadNotifications: 0,
         languagePreference: 'TID'
     }); // the default top bar if the needed information cannot be found
+    const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
     useEffect(() => {
         loadUserData(); //load the data from the userId stored from login or register
@@ -35,7 +37,11 @@ const CoursesTopBar = ({ refreshTrigger }) => {
                 languagePreference: userProfile.languagePreference || 'TID'
             }); // set to default values in case of empty data
         } catch (error) {
-            console.error('Error loading user data:', error);
+            console.error('Error loading user data:', error.message);
+            console.error('Full error:', error);
+            if (error.message.includes('No user ID found')) {
+                console.log('User needs to log in again');
+            }
         }
     };
 
@@ -50,12 +56,30 @@ const CoursesTopBar = ({ refreshTrigger }) => {
         }
     };
 
+    const handleLanguageSelect = async (language) => {
+        try {
+            await updateLanguagePreference(language);
+            setUserData(prev => ({
+                ...prev,
+                languagePreference: language
+            }));
+        } catch (error) {
+            console.error('Error updating language preference:', error);
+        }
+    };
+
+    const handleNotificationPress = () => {
+        navigation.navigate('Notifications');
+    };
+
     return (
         <View style={styles.container}>
-            <Image 
-                source={getLanguageFlag(userData.languagePreference)} 
-                style={styles.flagIcon} 
-            />
+            <TouchableOpacity onPress={() => setShowLanguageDropdown(true)}>
+                <Image 
+                    source={getLanguageFlag(userData.languagePreference)} 
+                    style={styles.flagIcon} 
+                />
+            </TouchableOpacity>
 
             <View style={styles.center}>
                 <View style={styles.streakBox}>
@@ -63,15 +87,25 @@ const CoursesTopBar = ({ refreshTrigger }) => {
                     <Text style={styles.streakText}>{userData.streakCount}</Text>
                 </View>
 
-                <View style={styles.notificationContainer}>
+                <TouchableOpacity 
+                    style={styles.notificationContainer}
+                    onPress={handleNotificationPress}
+                >
                     <Image source={NotificationsIcon} style={styles.notifIcon} />
                     {userData.unreadNotifications > 0 && (
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>{userData.unreadNotifications}</Text>
                         </View>
                     )}
-                </View>
+                </TouchableOpacity>
             </View>
+
+            <LanguageDropdown
+                visible={showLanguageDropdown}
+                onClose={() => setShowLanguageDropdown(false)}
+                currentLanguage={userData.languagePreference}
+                onLanguageSelect={handleLanguageSelect}
+            />
         </View>
     );
 };

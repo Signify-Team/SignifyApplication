@@ -98,9 +98,10 @@ router.post('/login', async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             user: {
-                _id: user._id, // Ensure _id is included in the response
+                _id: user._id,
                 username: user.username,
                 email: user.email,
+                languagePreference: user.languagePreference
             },
         });
     } catch (error) {

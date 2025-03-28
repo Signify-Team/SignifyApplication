@@ -15,7 +15,7 @@ const CourseInfoCard = ({ icon, title }) => {
         <View style={styles.card}>
             <View style={styles.innerShadow}/>
             <Image source={icon} style={styles.icon} />
-            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.title} numberOfLines={1}>{title}</Text>
         </View>
     );
 };

@@ -12,25 +12,40 @@ import {
     Text,
     TouchableOpacity,
     Image,
-    Alert,
     ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
-import { loginUser } from '../utils/apiService';
+import { loginUser, fetchUserProfile } from '../utils/apiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Login Page layout
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [statusMessage, setStatusMessage] = useState('');
     const navigation = useNavigation();
 
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
     const handleLogin = async () => {
+        setErrorMessage('');
+        setStatusMessage('');
+        
         // Basic validation
         if (!email || !password) {
-            Alert.alert('Error', 'Please fill in all fields');
+            setErrorMessage('Please fill in all fields');
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            setErrorMessage('Please enter a valid email address');
             return;
         }
 
@@ -38,14 +53,18 @@ const LoginPage = () => {
 
         try {
             const data = await loginUser(email, password);
-            Alert.alert('Success', 'Login successful');
-            navigation.replace('Home');
+            
+            const serverLanguagePreference = data.user?.languagePreference;
+            
+            setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
+                    
+            if (!serverLanguagePreference) {
+                navigation.replace('LanguagePreference', { userId: data.user._id });
+            } else {
+                navigation.replace('Home');
+            }
         } catch (error) {
-            console.error('Login error:', error);
-            Alert.alert(
-                'Error',
-                error.message || 'Unable to connect to the server. Please check your internet connection.'
-            );
+            setErrorMessage(error.message || 'Unable to connect to the server');
         } finally {
             setIsLoading(false);
         }
@@ -80,11 +99,17 @@ const LoginPage = () => {
                 onChangeText={(text) => setPassword(text)}
                 value={password}
             />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                 <Text style={styles.forgotPasswordText}>
                     Forgot Your Password?
                 </Text>
             </TouchableOpacity>
+
+            {errorMessage ? (
+                <Text style={styles.errorMessage}>
+                    {errorMessage}
+                </Text>
+            ) : null}
 
             <TouchableOpacity
                 style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}

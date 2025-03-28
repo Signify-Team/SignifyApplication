@@ -11,6 +11,8 @@ import bcrypt from 'bcrypt'; // For password hashing
 import mongoose from 'mongoose'; // For MongoDB ObjectId validation
 import User from '../models/UserDB.js'; // User model
 import rateLimit from 'express-rate-limit';
+import { sendVerificationEmail, sendResetPasswordEmail } from '../config/emailService.js';
+import crypto from 'crypto';
 const router = express.Router(); // Router middleware
 
 const MINUTES_15 = 15000 * 60 * 1000;
@@ -97,9 +99,10 @@ router.post('/login', async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             user: {
-                _id: user._id, // Ensure _id is included in the response
+                _id: user._id,
                 username: user.username,
                 email: user.email,
+                languagePreference: user.languagePreference
             },
         });
     } catch (error) {
@@ -151,6 +154,183 @@ router.put('/update', async (req, res) => {
     } catch (error) {
         console.error('Update Error:', error);
         res.status(400).json({ message: 'Failed to update user preferences' }); // Improved error message
+    }
+});
+
+// Send verification code
+router.post('/send-verification', async (req, res) => {
+    const { email, username, password } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        // Generate a 6-digit code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Store the code in the user document with expiration
+        const user = await User.findOne({ email: { $eq: email } });
+        if (!user) {
+            // Create a new user document with provided credentials
+            if (!password) {
+                return res.status(400).json({ message: 'Password is required for new users' });
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = new User({
+                email,
+                username,
+                password: hashedPassword,
+                verificationCode,
+                verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
+                isEmailVerified: false
+            });
+            await newUser.save();
+        } else {
+            // Update existing user's verification code
+            user.verificationCode = verificationCode;
+            user.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+            await user.save();
+        }
+
+        // Send verification email
+        await sendVerificationEmail(email, verificationCode);
+        
+        res.status(200).json({ message: 'Verification code sent successfully' });
+    } catch (error) {
+        console.error('Send Verification Error:', error);
+        res.status(500).json({ message: error.message || 'Failed to send verification code' });
+    }
+});
+
+// Verify code
+router.post('/verify-code', async (req, res) => {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+        return res.status(400).json({ message: 'Email and verification code are required' });
+    }
+
+    try {
+        const user = await User.findOne({ 
+            email: { $eq: email },
+            verificationCode: { $eq: code },
+            verificationCodeExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired verification code' });
+        }
+
+        // Clear the verification code and mark as verified
+        user.verificationCode = undefined;
+        user.verificationCodeExpires = undefined;
+        user.isEmailVerified = true;
+        await user.save();
+
+        res.status(200).json({ message: 'Email verified successfully' });
+    } catch (error) {
+        console.error('Verify Code Error:', error);
+        res.status(500).json({ message: 'Failed to verify code' });
+    }
+});
+
+// Update language preference
+router.post('/update-language', async (req, res) => {
+    const { userId, language } = req.body;
+
+    if (!userId || !language) {
+        return res.status(400).json({ message: 'User ID and language are required' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
+    }
+
+    if (!['ASL', 'TID'].includes(language)) {
+        return res.status(400).json({ message: 'Invalid language selection' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.languagePreference = language;
+        await user.save();
+
+        res.status(200).json({ message: 'Language preference updated successfully' });
+    } catch (error) {
+        console.error('Update Language Error:', error);
+        res.status(500).json({ message: 'Failed to update language preference' });
+    }
+});
+
+// Send reset password email
+router.post('/send-reset-password', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        const user = await User.findOne({ email: { $eq: email } });
+        if (!user) {
+            return res.status(404).json({ message: 'No account found with this email address' });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpires = Date.now() + 3600000; // 1 hour
+
+        // Save reset token to user
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = resetTokenExpires;
+        await user.save();
+
+        // Send reset password email
+        await sendResetPasswordEmail(email, resetToken);
+        
+        res.status(200).json({ message: 'Password reset email sent successfully' });
+    } catch (error) {
+        console.error('Send Reset Password Error:', error);
+        res.status(500).json({ message: 'Failed to send reset password email' });
+    }
+});
+
+// Reset password with token
+router.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Token and new password are required' });
+    }
+
+    try {
+        const user = await User.findOne({
+            resetPasswordToken: { $eq: token },
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired reset token' });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        // Update password and clear reset token
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+        console.error('Reset Password Error:', error);
+        res.status(500).json({ message: 'Failed to reset password' });
     }
 });
 

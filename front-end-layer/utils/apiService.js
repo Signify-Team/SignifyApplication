@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://172.20.10.6:3000/api';
+const API_BASE_URL = 'http://172.20.10.3:3000/api';
 
 // User session management
 const USER_ID_KEY = '@user_id';
@@ -86,13 +86,12 @@ export const fetchUserProfile = async () => {
 
 export const sendVerificationCode = async (email, username, password) => {
   try {
-    
     const response = await axios.post(`${API_BASE_URL}/users/send-verification`, {
       email,
       username,
-      password
+      password,
     });
-    
+
     console.log('API Response:', response.data);
     return response.data;
   } catch (error) {
@@ -109,7 +108,7 @@ export const verifyCode = async (email, code) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/users/verify-code`, {
       email,
-      code
+      code,
     });
     return response.data;
   } catch (error) {
@@ -125,7 +124,7 @@ export const updateLanguagePreference = async (language) => {
         }
         const response = await axios.post(`${API_BASE_URL}/users/update-language`, {
             userId,
-            language
+            language,
         });
         return response.data;
     } catch (error) {
@@ -136,7 +135,7 @@ export const updateLanguagePreference = async (language) => {
 export const fetchUserBadges = async (badgeIds) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/badges/batch`, {
-            params: { badgeIds: badgeIds.join(',') }
+            params: { badgeIds: badgeIds.join(',') },
         });
         return response.data;
     } catch (error) {
@@ -152,11 +151,11 @@ export const forgotPassword = async (email) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+        },
       }
     );
-    
+
     return response.data;
   } catch (error) {
     if (error.response?.status === 404) {
@@ -179,11 +178,11 @@ export const resetPassword = async (token, newPassword) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+        },
       }
     );
-    
+
     return response.data;
   } catch (error) {
     if (error.response?.status === 400) {

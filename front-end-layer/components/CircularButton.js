@@ -3,7 +3,7 @@
  * @description Circular Button component with input and icon.
  *
  * @datecreated 19.12.2024
- * @lastmodified 19.12.2024
+ * @lastmodified 31.03.2025
  */
 
 import React, { useState } from 'react';
@@ -49,28 +49,38 @@ const CircularButton = ({
                     backgroundColor: darkenColor(color, 35),
                     borderRadius: size / 2,
                 },
-                (isPressed || disabled) && styles.outerWrapperPressed,
+                isPressed && styles.outerWrapperPressed,
             ]}
         >
             <TouchableOpacity
                 style={[
                     styles.button,
-                    // eslint-disable-next-line react-native/no-inline-styles
                     {
                         width: size,
                         height: size,
                         backgroundColor: color,
                         borderRadius: size / 2,
-                        borderWidth: 2,
-                        opacity: disabled ? 0.8 : 1,
                     },
-                    (isPressed || disabled) && styles.buttonPressed,
+                    isPressed && styles.buttonPressed,
                 ]}
                 activeOpacity={0.9}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
-                disabled={disabled} // Disable touch events
+                disabled={disabled}
             >
+                {disabled && (
+                    <View
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            borderRadius: size / 2,
+                            backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                        }}
+                    />
+                )}
                 {onlyIcon && icon ? (
                     <Image source={icon} style={styles.icon} />
                 ) : onlyText ? (

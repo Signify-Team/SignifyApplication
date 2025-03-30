@@ -23,12 +23,19 @@ const sectionLimiter = rateLimit({
 
 router.use(sectionLimiter);
 
-// Get all sections with their courses
-router.get('/', async (req, res) => {
+// Get sections by language
+router.get('/language/:language', async (req, res) => {
     try {
-        const sections = await Section.find()
+        const { language } = req.params;
+        
+        // Validate language
+        if (!['ASL', 'TID'].includes(language)) {
+            return res.status(400).json({ error: 'Language must be either ASL or TID' });
+        }
+        
+        const sections = await Section.find({ language })
             .sort({ sectionNumber: 1 })
-            .populate('courses', 'courseId name description level totalLessons');
+            .populate('courses', 'courseId name description level totalLessons isPremium isLocked');
         res.json(sections);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -78,16 +85,18 @@ router.put('/:id/addCourse', async (req, res) => {
 // Create a new section
 router.post('/', async (req, res) => {
     try {
-        const { sectionId, name, description, sectionNumber, courses } = req.body;
+        const { sectionId, name, description, sectionNumber, courses, language } = req.body;
 
         // Validate required fields
-        if (!sectionId || !name) {
-            return res.status(400).json({ error: 'Section ID and name are required' });
+        if (!sectionId || !name || !language) {
+            return res.status(400).json({ error: 'Section ID, name, and language are required' });
         }
-        // Validate sectionId
-        if (!mongoose.Types.ObjectId.isValid(sectionId)) {
-            return res.status(400).json({ error: 'Invalid Section ID' });
+
+        // Validate language
+        if (!['ASL', 'TID'].includes(language)) {
+            return res.status(400).json({ error: 'Language must be either ASL or TID' });
         }
+
         // Check if section with same ID already exists
         const existingSection = await Section.findOne({ sectionId });
         if (existingSection) {
@@ -101,11 +110,17 @@ router.post('/', async (req, res) => {
                 return res.status(400).json({ error: 'Invalid course ID format' });
             }
 
-            // Check if all courses exist
+            // Check if all courses exist and match the section language
             const Course = mongoose.model('Course');
             const existingCourses = await Course.find({ _id: { $in: courses } });
             if (existingCourses.length !== courses.length) {
                 return res.status(400).json({ error: 'One or more courses not found' });
+            }
+
+            // Verify all courses have matching language
+            const mismatchedCourses = existingCourses.filter(course => course.language !== language);
+            if (mismatchedCourses.length > 0) {
+                return res.status(400).json({ error: 'All courses must have the same language as the section' });
             }
         }
 
@@ -114,6 +129,7 @@ router.post('/', async (req, res) => {
             sectionId,
             name,
             description,
+            language,
             sectionNumber: sectionNumber || 0,
             courses: courses || []
         });
@@ -122,7 +138,7 @@ router.post('/', async (req, res) => {
         
         // Populate the courses before sending response
         const populatedSection = await Section.findById(newSection._id)
-            .populate('courses', 'courseId name description level totalLessons');
+            .populate('courses', 'courseId name description level totalLessons language');
             
         res.status(201).json(populatedSection);
     } catch (err) {

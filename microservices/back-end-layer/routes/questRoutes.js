@@ -85,34 +85,48 @@ router.get('/:questId', async (req, res) => {
 
 // Update a quest by questId
 router.post('/:questId/complete', completeQuestValidation, async (req, res) => {
-    // Validate request data (error message for possible ID errors)
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    const questId = req.params.questId;
+    const userId = req.body.userId;
 
     try {
-        // Find the quest
-        const quest = await Quest.findOne({ _id: questId });
+        const user = await User.findOne({ _id: { $eq: userId } });
+        const quest = await Quest.findOne({ _id: req.params.questId });
 
-        // Check if the quest exists
-        if (!quest) {
-            return res.status(404).json({ message: 'Quest not found' });
+        if (!user || !quest) {
+            return res.status(404).json({ message: 'User or Quest not found' });
         }
 
-        // Mark the quest as completed 
-        quest.completed = true;
-        await quest.save();
+        // Find the quest in user's quests array
+        let userQuest = user.quests.find(q => q.questId.toString() === quest._id.toString());
+        
+        if (!userQuest) {
+            // If quest doesn't exist in user's quests, add it
+            user.quests.push({
+                questId: quest._id,
+                status: 'Completed',
+                dateAssigned: new Date(),
+                dateCompleted: new Date()
+            });
+        } else {
+            // If quest exists, check if it's already completed
+            if (userQuest.status === 'Completed') {
+                return res.status(400).json({ message: 'Quest already completed' });
+            }
+            // Mark existing quest as completed
+            userQuest.status = 'Completed';
+            userQuest.dateCompleted = new Date();
+        }
 
-        return res.status(200).json({ message: 'Quest marked as completed successfully', quest });
-    } catch (error) {
-        console.error('Error completing quest:', error);
-        return res.status(500).json({
-            message: 'Error completing quest',
-            error: error.message,
+        // Save the user document
+        const savedUser = await user.save();
+
+        res.status(200).json({ 
+            message: 'Quest completed successfully', 
+            user: savedUser,
+            quests: savedUser.quests 
         });
+    } catch (error) {
+        console.error('Error completing quest:', error); // Debug log
+        res.status(500).json({ message: 'Error completing quest', error: error.message });
     }
 });
 
@@ -131,44 +145,84 @@ router.delete('/:questId', async (req, res) => {
     }
 });
 
-// Complete a quest by user
-router.post('/:questId/complete', async (req, res) => {
-    const userId = req.body.userId;
+// Get completed quests for a user
+router.get('/users/:userId/completed-quests', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId)
+            .populate({
+                path: 'quests.questId',
+                select: 'title description rewardPoints deadline'
+            });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+
+        // Filter completed quests and format the response
+        const completedQuests = user.quests
+            .filter(q => q.status === 'Completed')
+            .map(q => {
+                return {
+                    questId: q.questId._id,
+                    title: q.questId.title,
+                    description: q.questId.description,
+                    rewardPoints: q.questId.rewardPoints,
+                    deadline: q.questId.deadline,
+                    dateCompleted: q.dateCompleted,
+                    status: q.status,
+                    collected: q.collected || false // Include collected status
+                };
+            });
+
+        res.status(200).json(completedQuests);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving completed quests', error });
+    }
+});
+
+// Collect quest reward
+router.post('/:questId/collect-reward', async (req, res) => {
+    const { userId } = req.body;
 
     try {
-        const user = await User.findOne({ _id: { $eq: userId } });
-        const quest = await Quest.findOne({ questId: req.params.questId });
+        const user = await User.findById(userId);
+        const quest = await Quest.findById(req.params.questId);
 
         if (!user || !quest) {
             return res.status(404).json({ message: 'User or Quest not found' });
         }
 
-        // Check if the user has already completed this quest
-        if (user.completedQuests.some(cq => cq.questId === quest.questId)) {
-            return res.status(400).json({ message: 'Quest already completed' });
+        // Find the quest in user's quests array
+        const userQuest = user.quests.find(q => q.questId.toString() === quest._id.toString());
+        
+        if (!userQuest) {
+            return res.status(404).json({ message: 'Quest not found in user quests' });
         }
 
-        // Mark quest as completed by adding it to the user's completed quests
-        user.completedQuests.push({ questId: quest.questId });
+        if (userQuest.status !== 'Completed') {
+            return res.status(400).json({ message: 'Quest must be completed before collecting reward' });
+        }
+
+        if (userQuest.collected) {
+            return res.status(400).json({ message: 'Reward already collected' });
+        }
+
+        // Update the quest to collected and add points to user
+        userQuest.collected = true;
+        user.totalPoints += quest.rewardPoints;
+
+        // Save the changes
         await user.save();
 
-        res.status(200).json({ message: 'Quest completed successfully', user });
+        res.status(200).json({ 
+            message: 'Reward collected successfully',
+            pointsAwarded: quest.rewardPoints,
+            totalPoints: user.totalPoints
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error completing quest', error });
-    }
-});
-
-// Get completed quests for a user
-router.get('/users/:userId/completed-quests', async (req, res) => {
-    try {
-        const user = await User.findById(req.params.userId).populate('completedQuests.questId');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.status(200).json(user.completedQuests);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving completed quests', error });
+        console.error('Error collecting reward:', error);
+        res.status(500).json({ message: 'Error collecting reward', error: error.message });
     }
 });
 

@@ -3,7 +3,7 @@
  * @description Custom top bar for the courses page.
  *
  * @datecreated 16.12.2024
- * @lastmodified 23.12.2024
+ * @lastmodified 31.03.2025
  */
 
 import React, { useState, useEffect } from 'react';
@@ -16,7 +16,7 @@ import NotificationsIcon from '../assets/icons/header/notifications.png';
 import { fetchUserProfile, updateLanguagePreference } from '../utils/apiService';
 import LanguageDropdown from './LanguageDropdown';
 
-const CoursesTopBar = ({ refreshTrigger, navigation }) => {
+const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
     const [userData, setUserData] = useState({
         streakCount: 0,
         unreadNotifications: 0,
@@ -59,10 +59,17 @@ const CoursesTopBar = ({ refreshTrigger, navigation }) => {
     const handleLanguageSelect = async (language) => {
         try {
             await updateLanguagePreference(language);
+            // Update local state first
             setUserData(prev => ({
                 ...prev,
                 languagePreference: language
             }));
+            // Close dropdown
+            setShowLanguageDropdown(false);
+            // Notify parent component last
+            if (onLanguageChange) {
+                onLanguageChange(language);
+            }
         } catch (error) {
             console.error('Error updating language preference:', error);
         }

@@ -62,12 +62,12 @@ export const registerUser = async (username, email, password) => {
   }
 };
 
-export const fetchSections = async () => {
+export const fetchSectionsByLanguage = async (language) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/sections/`);
+    const response = await axios.get(`${API_BASE_URL}/sections/language/${language}`);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to fetch sections');
+    throw new Error(error.response?.data?.message || 'Failed to fetch sections for language');
   }
 };
 
@@ -130,6 +130,19 @@ export const updateLanguagePreference = async (language) => {
         return response.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || 'Failed to update language preference');
+    }
+};
+
+export const getUserLanguagePreference = async () => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await axios.get(`${API_BASE_URL}/users/language-preference/${userId}`);
+        return response.data.language;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch language preference');
     }
 };
 
@@ -196,4 +209,163 @@ export const resetPassword = async (token, newPassword) => {
       throw new Error(error.response?.data?.message || 'Failed to reset password');
     }
   }
+};
+
+export const changePassword = async (currentPassword, newPassword) => {
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      throw new Error('No user ID found. Please log in again.');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/users/change-password`,
+      { userId, currentPassword, newPassword },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 400) {
+      throw new Error(error.response.data.message || 'Invalid password');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error. Please try again later');
+    } else if (!error.response) {
+      throw new Error('Network error. Please check your internet connection and try again.');
+    } else {
+      throw new Error(error.response?.data?.message || 'Failed to change password');
+    }
+  }
+};
+
+export const deleteAccount = async () => {
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      throw new Error('No user ID found. Please log in again.');
+    }
+
+    const response = await axios.delete(`${API_BASE_URL}/users/${userId}`);
+    await clearUserId(); // Clear the user session after successful deletion
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      throw new Error('Account not found');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error. Please try again later');
+    } else if (!error.response) {
+      throw new Error('Network error. Please check your internet connection and try again.');
+    } else {
+      throw new Error(error.response?.data?.message || 'Failed to delete account');
+    }
+  }
+};
+
+export const fetchQuests = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/quests`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch quests');
+  }
+};
+
+export const fetchCompletedQuests = async (userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/quests/users/${userId}/completed-quests`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch completed quests');
+  }
+};
+
+export const completeQuest = async (questId, userId) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/quests/${questId}/complete`, {
+      userId: userId
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to complete quest');
+  }
+};
+
+export const collectQuestReward = async (questId, userId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quests/${questId}/collect-reward`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to collect quest reward');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error collecting quest reward:', error);
+        throw error;
+    }
+};
+
+export const getUserPremiumStatus = async () => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await axios.get(`${API_BASE_URL}/users/premium-status/${userId}`);
+        console.log('Premium status API response:', {
+            status: response.status,
+            data: response.data,
+            userId: userId
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching premium status:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            userId: await getUserId()
+        });
+        return { isPremium: false };
+    }
+};
+
+export const fetchUserCourses = async () => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await axios.get(`${API_BASE_URL}/courses/user/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch user courses');
+    }
+};
+
+export const updateCourseProgress = async (courseId, progress, completed = false) => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await axios.post(`${API_BASE_URL}/courses/user/${userId}/progress`, {
+            courseId,
+            progress,
+            completed
+        });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to update course progress');
+    }
 };

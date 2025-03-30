@@ -26,6 +26,16 @@ const UserSchema = new mongoose.Schema({
             level: { type: Number, default: 1 }, // Level in the language
         },
     ],
+    courseProgress: [
+        {
+            courseId: { type: String, required: true },
+            isLocked: { type: Boolean, default: true },
+            progress: { type: Number, default: 0 },
+            completed: { type: Boolean, default: false },
+            lastAccessed: { type: Date },
+            unlockDate: { type: Date }
+        }
+    ],
     progress: { type: mongoose.Schema.Types.ObjectId, ref: 'UserProgress' },
     streakCount: { type: Number, default: 0 },
     totalPoints: { type: Number, default: 0 },
@@ -48,6 +58,7 @@ const UserSchema = new mongoose.Schema({
             dateAssigned: { type: Date, default: Date.now }, // When the quest was assigned
             lastDate: { type: Date }, // When the quest will no longer be available
             dateCompleted: { type: Date }, // When the quest was completed
+            collected: { type: Boolean, default: false }, // Whether the reward has been collected
         },
     ],
     unreadNotifications: { type: Number, required: true, default: 0 },
@@ -64,6 +75,7 @@ const UserSchema = new mongoose.Schema({
     },
     isPremium: { type: Boolean, default: false },
     premiumExpiry: { type: Date },
+    unlockedSections: [{ type: String }], // Array of unlocked section IDs
     verificationCode: { type: String },
     verificationCodeExpires: { type: Date },
     isEmailVerified: { type: Boolean, default: false },

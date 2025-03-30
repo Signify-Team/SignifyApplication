@@ -25,6 +25,7 @@ import LanguagePreferencePage from '../screens/LanguagePreferencePage';
 import NotificationsPage from '../screens/NotificationsPage';
 import ForgotPasswordPage from '../screens/ForgotPasswordPage';
 import ResetPasswordPage from '../screens/ResetPasswordPage';
+import ChangePasswordPage from '../screens/ChangePasswordPage';
 
 const Stack = 
 createStackNavigator();
@@ -124,6 +125,13 @@ const MainNavigator = () => (
         <Stack.Screen
             name="ResetPassword"
             component={ResetPasswordPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="ChangePassword"
+            component={ChangePasswordPage}
             options={{
                 headerShown: false,
             }}

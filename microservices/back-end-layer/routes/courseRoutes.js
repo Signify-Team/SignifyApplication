@@ -197,7 +197,11 @@ router.post('/user/:userId/progress', async (req, res) => {
         }
 
         // Find course by MongoDB _id
-        const course = await Course.findById(courseId);
+        if (typeof courseId !== "string") {
+            console.log('Invalid courseId:', courseId);
+            return res.status(400).json({ message: 'Invalid courseId' });
+        }
+        const course = await Course.findById({ _id: { $eq: courseId } });
         console.log('Found course:', course);
         
         if (!course) {

@@ -185,6 +185,10 @@ router.get('/users/:userId/completed-quests', async (req, res) => {
 router.post('/:questId/collect-reward', async (req, res) => {
     const { userId } = req.body;
 
+    if (typeof userId !== 'string') {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
     try {
         const user = await User.findById(userId);
         const quest = await Quest.findById(req.params.questId);

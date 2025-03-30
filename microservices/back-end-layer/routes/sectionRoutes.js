@@ -98,7 +98,7 @@ router.post('/', async (req, res) => {
         }
 
         // Check if section with same ID already exists
-        const existingSection = await Section.findOne({ sectionId });
+        const existingSection = await Section.findOne({ _id: { $eq: sectionId } });
         if (existingSection) {
             return res.status(400).json({ error: 'Section with this ID already exists' });
         }

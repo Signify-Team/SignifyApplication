@@ -104,81 +104,30 @@ router.get('/user/:userId', async (req, res) => {
 
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        console.log('User courseProgress:', JSON.stringify(user.courseProgress, null, 2));
-        
         // Map courses with user-specific status
         const coursesWithStatus = allCourses.map(course => {
             // Find user's progress for this course
             const userProgress = user.courseProgress.find(
-                progress => progress.courseId === course._id.toString()
-            );
-            
-            console.log(`\nProcessing course ${course.name} (${course._id}):`);
-            console.log('User progress found:', userProgress);
-            
-            // Check if this is the first course in its section
-            const isFirstInSection = !allCourses.find(c => 
-                c.language === course.language && 
-                c.sectionId === course.sectionId && 
-                c._id.toString() < course._id.toString()
+                progress => progress.courseId.toString() === course._id.toString()
             );
 
-            // Determine lock status:
-            // 1. If user has progress entry, use that status
-            // 2. If no progress entry but it's first in section, unlock it
-            // 3. Otherwise, lock it
-            let isLocked = true;
-            if (userProgress) {
-                isLocked = userProgress.isLocked;
-                console.log('Using user progress lock status:', isLocked);
-            } else if (isFirstInSection) {
-                isLocked = false;
-                console.log('First course in section - unlocking');
-                // Create progress entry for first course in section
-                user.courseProgress.push({
-                    courseId: course._id.toString(),
-                    isLocked: false,
-                    progress: 0,
-                    completed: false,
-                    lastAccessed: new Date(),
-                    unlockDate: new Date()
-                });
-            } else {
-                console.log('No user progress and not first in section - keeping locked');
-            }
+            // If there's user progress, use its lock status
+            // If no progress entry exists, check if it's the first course
+            const isFirstCourse = course._id.toString() === allCourses[0]._id.toString();
+            const isLocked = userProgress ? userProgress.isLocked : !isFirstCourse;
 
-            const result = {
+            return {
                 ...course.toObject(),
                 isLocked,
                 progress: userProgress ? userProgress.progress : 0,
                 completed: userProgress ? userProgress.completed : false,
                 lastAccessed: userProgress ? userProgress.lastAccessed : null
             };
-
-            console.log('Final course status:', {
-                courseId: course._id,
-                name: course.name,
-                sectionId: course.sectionId,
-                isLocked: result.isLocked,
-                hasUserProgress: !!userProgress
-            });
-
-            return result;
-        });
-
-        // Save user if we added any new course progress entries
-        await user.save();
-
-        // Sort courses by language, level, and courseId
-        coursesWithStatus.sort((a, b) => {
-            if (a.language !== b.language) return a.language.localeCompare(b.language);
-            if (a.sectionId !== b.sectionId) return a.sectionId.localeCompare(b.sectionId);
-            return a._id.toString().localeCompare(b._id.toString());
         });
 
         res.status(200).json(coursesWithStatus);
     } catch (err) {
-        console.error('Error in /user/:userId route:', err);
+        console.error('Error getting user courses:', err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -189,46 +138,20 @@ router.post('/user/:userId/progress', async (req, res) => {
         const { userId } = req.params;
         const { courseId, progress, completed } = req.body;
         
-        console.log('Updating progress for:', { userId, courseId, progress, completed });
-        
         const user = await User.findById(userId);
         if (!user) {
-            console.log('User not found:', userId);
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Find course by MongoDB _id
-        if (!mongoose.Types.ObjectId.isValid(courseId)) {
-            console.log('Invalid courseId format:', courseId);
-            return res.status(400).json({ message: 'Invalid courseId format' });
-        }
-
-        const course = await Course.findById(courseId);
-        console.log('Found course:', course);
-        
-        if (!course) {
-            console.log('Course not found with _id:', courseId);
-            return res.status(404).json({ message: 'Course not found' });
-        }
-
-        // Find or create course progress entry using MongoDB _id
+        // Find or create course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         if (!courseProgress) {
-            console.log('Creating new course progress entry');
-            // Check if this is the first course in its section
-            const isFirstInSection = !(await Course.findOne({ 
-                language: course.language,
-                sectionId: course.sectionId,
-                _id: { $lt: course._id }
-            }));
-
             user.courseProgress.push({
                 courseId: courseId,
-                isLocked: !isFirstInSection,
+                isLocked: true, // Keep locked by default
                 progress: 0,
                 completed: false,
-                lastAccessed: new Date(),
-                unlockDate: new Date()
+                lastAccessed: new Date()
             });
             courseProgress = user.courseProgress[user.courseProgress.length - 1];
         }
@@ -237,53 +160,6 @@ router.post('/user/:userId/progress', async (req, res) => {
         courseProgress.progress = progress;
         courseProgress.completed = completed;
         courseProgress.lastAccessed = new Date();
-
-        // If course is completed, unlock the next course in the same section
-        if (completed) {
-            const nextCourse = await Course.findOne({ 
-                language: course.language,
-                sectionId: course.sectionId,
-                _id: { $gt: course._id }
-            }).sort({ _id: 1 });
-            
-            if (nextCourse) {
-                let nextProgress = user.courseProgress.find(p => p.courseId === nextCourse._id.toString());
-                if (nextProgress) {
-                    nextProgress.isLocked = false;
-                } else {
-                    user.courseProgress.push({
-                        courseId: nextCourse._id.toString(),
-                        isLocked: false,
-                        progress: 0,
-                        completed: false,
-                        lastAccessed: new Date(),
-                        unlockDate: new Date()
-                    });
-                }
-            } else {
-                // If no next course in current section, try to unlock first course of next section
-                const nextSection = await Course.findOne({
-                    language: course.language,
-                    sectionId: { $gt: course.sectionId }
-                }).sort({ sectionId: 1, _id: 1 });
-
-                if (nextSection) {
-                    let nextSectionProgress = user.courseProgress.find(p => p.courseId === nextSection._id.toString());
-                    if (nextSectionProgress) {
-                        nextSectionProgress.isLocked = false;
-                    } else {
-                        user.courseProgress.push({
-                            courseId: nextSection._id.toString(),
-                            isLocked: false,
-                            progress: 0,
-                            completed: false,
-                            lastAccessed: new Date(),
-                            unlockDate: new Date()
-                        });
-                    }
-                }
-            }
-        }
 
         await user.save();
         res.status(200).json({ message: 'Progress updated successfully', user });

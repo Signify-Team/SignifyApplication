@@ -10,6 +10,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import Course from '../models/CourseDB.js';
 import User from '../models/UserDB.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -197,11 +198,12 @@ router.post('/user/:userId/progress', async (req, res) => {
         }
 
         // Find course by MongoDB _id
-        if (typeof courseId !== "string") {
-            console.log('Invalid courseId:', courseId);
-            return res.status(400).json({ message: 'Invalid courseId' });
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            console.log('Invalid courseId format:', courseId);
+            return res.status(400).json({ message: 'Invalid courseId format' });
         }
-        const course = await Course.findById({ _id: { $eq: courseId } });
+
+        const course = await Course.findById(courseId);
         console.log('Found course:', course);
         
         if (!course) {
@@ -210,7 +212,7 @@ router.post('/user/:userId/progress', async (req, res) => {
         }
 
         // Find or create course progress entry using MongoDB _id
-        let courseProgress = user.courseProgress.find(p => p.courseId === courseId);
+        let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         if (!courseProgress) {
             console.log('Creating new course progress entry');
             // Check if this is the first course in its section

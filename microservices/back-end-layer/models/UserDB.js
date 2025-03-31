@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema({
     ],
     courseProgress: [
         {
-            courseId: { type: String, required: true },
+            courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
             isLocked: { type: Boolean, default: true },
             progress: { type: Number, default: 0 },
             completed: { type: Boolean, default: false },

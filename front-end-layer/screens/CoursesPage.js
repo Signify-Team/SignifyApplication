@@ -105,7 +105,7 @@ const CoursesPage = ({ navigation }) => {
             return;
         }
 
-        if (selectedCourse?.courseId === course.courseId) {
+        if (selectedCourse?._id === course._id) {
             setShowCard(!showCard);
         } else {
             setSelectedCourse(course);
@@ -115,14 +115,32 @@ const CoursesPage = ({ navigation }) => {
 
     const handleNavigateToCourse = async () => {
         try {
-            await updateCourseProgress(selectedCourse.courseId, selectedCourse.progress || 0);
+            console.log('Selected course:', selectedCourse); // Debug log
+            if (!selectedCourse || !selectedCourse._id) {
+                console.error('Invalid course data:', selectedCourse);
+                return;
+            }
+
+            const progress = selectedCourse.progress || 0;
+            console.log('Updating progress for course:', selectedCourse._id, 'Progress:', progress);
+            
+            await updateCourseProgress(selectedCourse._id, progress);
+            
             navigation.navigate('CourseDetails', {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
-                courseId: selectedCourse.courseId
+                courseId: selectedCourse._id,
+                lessons: selectedCourse.lessons || []
             });
         } catch (error) {
             console.error('Error updating course progress:', error);
+            // Still navigate to course details even if progress update fails
+            navigation.navigate('CourseDetails', {
+                title: selectedCourse.name,
+                description: selectedCourse.description,
+                courseId: selectedCourse._id,
+                lessons: selectedCourse.lessons || []
+            });
         }
     };
 

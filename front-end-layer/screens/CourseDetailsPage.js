@@ -9,8 +9,8 @@ import { COLORS } from '../utils/constants';
 
 const { width } = Dimensions.get('window');
 
-// Example Lessons Array
-const lessons = [
+// Example Lessons Array - fallback if no lessons provided
+const defaultLessons = [
     {
         id: 1,
         type: 'multipleChoice',
@@ -25,7 +25,7 @@ const lessons = [
         id: 3,
         type: 'multipleChoice',
         data: {
-            video: require('../assets/videos/thank_you.mp4'), // to fix error because non existing video
+            video: require('../assets/videos/thank_you.mp4'),
             options: ['Collect', 'Give', 'Gift', 'Share'],
             correctOption: 'Share',
         },
@@ -33,7 +33,10 @@ const lessons = [
     { id: 4, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
 ];
 
-const CourseDetailPage = ({navigation}) => {
+const CourseDetailPage = ({ route, navigation }) => {
+    const { lessons: courseLessons } = route.params || {};
+    const lessons = courseLessons?.length > 0 ? courseLessons : defaultLessons;
+    
     const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState(null);
     const [isCorrect, setIsCorrect] = useState(null);

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {
     COLORS,
+    FONTS,
 } from '../utils/constants';
 
 const {height, width} =
@@ -23,23 +24,30 @@ export default StyleSheet.create({
     quesContainer: {
         flex: 1,
         backgroundColor: COLORS.neutral_base_soft,
-        justifyContent: 'center',
-        alignItems: 'center',
         padding: width * 0.03,
+        justifyContent: 'center',
+    },
+    trueFalseContainer: {
+        alignItems: 'center',
+        marginBottom: height * 0.1,
     },
     multContainer: {
         width: '100%',
     },
     question: {
-        fontSize: 22,
-        marginBottom: height * 0.01,
+        fontSize: 24,
+        marginBottom: height * 0.05,
         textAlign: 'center',
+        paddingHorizontal: width * 0.1,
+        color: COLORS.neutral_base_dark,
+        fontFamily: FONTS.poppins_font,
     },
     optionsContainer: {
         marginVertical: height * 0.02,
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
+        gap: width * 0.05,
     },
     gestContainer: {
         width: '100%',

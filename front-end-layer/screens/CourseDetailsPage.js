@@ -4,6 +4,7 @@ import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
+import TrueFalseQuestion from '../components/TrueFalseQuestion';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 
@@ -13,6 +14,14 @@ const { width } = Dimensions.get('window');
 const defaultLessons = [
     {
         id: 1,
+        type: 'trueFalse',
+        data: {
+            statement: 'The letter D is signed with a closed fist.',
+            correctAnswer: false
+        }
+    },
+    {
+        id: 2,
         type: 'multipleChoice',
         data: {
             video: require('../assets/videos/thank_you.mp4'),
@@ -20,9 +29,9 @@ const defaultLessons = [
             correctOption: 'Thank You',
         },
     },
-    { id: 2, type: 'gesture', data: { prompt: 'Wave your hand to say Hello.' } },
+    { id: 3, type: 'gesture', data: { prompt: 'Wave your hand to say Hello.' } },
     {
-        id: 3,
+        id: 4,
         type: 'multipleChoice',
         data: {
             video: require('../assets/videos/thank_you.mp4'),
@@ -30,7 +39,7 @@ const defaultLessons = [
             correctOption: 'Share',
         },
     },
-    { id: 4, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
+    { id: 5, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
 ];
 
 const CourseDetailPage = ({ route, navigation }) => {
@@ -43,17 +52,26 @@ const CourseDetailPage = ({ route, navigation }) => {
 
     const handleAnswer = (answer) => {
         console.log('User Answer:', answer); // Debug userAnswer
-        const correct = lessons[currentLessonIndex].data.correctOption;
-    
-        // Update userAnswer and correctness
+        const currentLesson = lessons[currentLessonIndex];
+        
+        // Update userAnswer
         setUserAnswer(answer);
-    
-        if (answer === correct || answer === 'gestureCaptured') {
+        
+        // Check correctness based on lesson type
+        if (currentLesson.type === 'trueFalse') {
+            const isCorrectAnswer = answer === currentLesson.data.correctAnswer;
+            setIsCorrect(isCorrectAnswer);
+            console.log(isCorrectAnswer ? 'Correct' : 'Incorrect');
+        } else if (currentLesson.type === 'multipleChoice') {
+            const isCorrectAnswer = answer === currentLesson.data.correctOption;
+            setIsCorrect(isCorrectAnswer);
+            console.log(isCorrectAnswer ? 'Correct' : `Incorrect. The correct answer was: ${currentLesson.data.correctOption}`);
+        } else if (answer === 'gestureCaptured') {
             setIsCorrect(true);
             console.log('Correct');
         } else {
             setIsCorrect(false);
-            console.log(`Incorrect. The correct answer was: ${correct}`);
+            console.log('Incorrect');
         }
     };
     
@@ -95,7 +113,16 @@ const CourseDetailPage = ({ route, navigation }) => {
                 <GestureQuestion
                     data={currentLesson.data}
                     onSubmit={handleGestureSubmission}
-                    onComplete={handleContinue} // Pass handleContinue to proceed after modal
+                    onComplete={handleContinue}
+                />
+            );
+        }
+    
+        if (currentLesson.type === 'trueFalse') {
+            return (
+                <TrueFalseQuestion
+                    data={currentLesson.data}
+                    onAnswer={handleAnswer}
                 />
             );
         }

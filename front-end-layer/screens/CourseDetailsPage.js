@@ -5,6 +5,7 @@ import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
 import TrueFalseQuestion from '../components/TrueFalseQuestion';
+import CourseDetailsTopBar from '../components/CourseDetailsTopBar';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 
@@ -132,6 +133,7 @@ const CourseDetailPage = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
+            <CourseDetailsTopBar navigation={navigation} />
             <ScrollView contentContainerStyle={styles.questionsContainer}>
                 {renderLesson()}
                 {userAnswer !== null && (

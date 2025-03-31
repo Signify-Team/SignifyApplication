@@ -35,6 +35,21 @@ export default StyleSheet.create({
         elevation: 4,
         zIndex: 1,
     },
+    courseDetailsContainer: {
+        width: '100%',
+        paddingTop: height * 0.07,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: width * 0.05,
+        paddingVertical: height * 0.005,
+        backgroundColor: COLORS.primary,
+        shadowColor: COLORS.neutral_base_dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
+        zIndex: 1,
+    },
     flagIcon: {
         width:   width * 0.15,
         height:  height * 0.03,
@@ -95,5 +110,10 @@ export default StyleSheet.create({
         color: '#FFFFFF',
         fontSize: width * 0.025,
         fontWeight: 'bold',
+    },
+    backIcon: {
+        width: width * 0.08,
+        height: width * 0.08,
+        tintColor: COLORS.neutral_base_soft,
     },
 });

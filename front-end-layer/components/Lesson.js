@@ -11,6 +11,7 @@ import { View } from 'react-native';
 import MultipleChoiceQuestion from './MultipleChoiceQuestion';
 import GestureQuestion from './GestureQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
+import MatchingQuestion from './MatchingQuestion';
 import styles from '../styles/QuestionStyles';
 
 const Lesson = ({ lessonType, questionData, onAnswer }) => {
@@ -24,6 +25,9 @@ const Lesson = ({ lessonType, questionData, onAnswer }) => {
             )}
             {lessonType === 'trueFalse' && (
                 <TrueFalseQuestion data={questionData} onAnswer={onAnswer} />
+            )}
+            {lessonType === 'matching' && (
+                <MatchingQuestion data={questionData} onAnswer={onAnswer} />
             )}
         </View>
     );

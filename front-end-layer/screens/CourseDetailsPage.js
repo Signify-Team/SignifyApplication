@@ -9,6 +9,7 @@ import FillInTheBlankQuestion from '../components/FillInTheBlankQuestion';
 import CourseDetailsTopBar from '../components/CourseDetailsTopBar';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
+import MatchingQuestion from '../components/MatchingQuestion';
 
 const { width } = Dimensions.get('window');
 
@@ -35,18 +36,38 @@ const defaultLessons = [
             ],
             correctAnswerIndex: 2
         }
-    },
-    { id: 3, type: 'gesture', data: { prompt: 'Wave your hand to say Hello.' } },
-    {
-        id: 4,
+    },{
+        id: 3,
         type: 'multipleChoice',
         data: {
             video: require('../assets/videos/thank_you.mp4'),
             options: ['Collect', 'Give', 'Gift', 'Share'],
             correctOption: 'Share',
         },
-    },
-    { id: 5, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
+    },{
+        id: 4,
+        type: 'matching',
+        data: {
+            pairs: [
+                {
+                    signVideoUrl: require('../assets/videos/thank_you.mp4'),
+                    word: 'Thank You'
+                },
+                {
+                    signVideoUrl: require('../assets/videos/thank_you.mp4'),
+                    word: 'Hello'
+                },
+                {
+                    signVideoUrl: require('../assets/videos/thank_you.mp4'),
+                    word: 'Goodbye'
+                },
+                {
+                    signVideoUrl: require('../assets/videos/thank_you.mp4'),
+                    word: 'Please'
+                }
+            ]
+        }
+    }
 ];
 
 const CourseDetailPage = ({ route, navigation }) => {
@@ -80,6 +101,9 @@ const CourseDetailPage = ({ route, navigation }) => {
         } else if (answer === 'gestureCaptured') {
             setIsCorrect(true);
             console.log('Correct');
+        } else if (currentLesson.type === 'matching') {
+            setIsCorrect(answer); // answer is already a boolean indicating if all matches are correct
+            console.log(answer ? 'All matches correct!' : 'Some matches are incorrect');
         } else {
             setIsCorrect(false);
             console.log('Incorrect');
@@ -141,6 +165,15 @@ const CourseDetailPage = ({ route, navigation }) => {
         if (currentLesson.type === 'fillInTheBlank') {
             return (
                 <FillInTheBlankQuestion
+                    data={currentLesson.data}
+                    onAnswer={handleAnswer}
+                />
+            );
+        }
+
+        if (currentLesson.type === 'matching') {
+            return (
+                <MatchingQuestion
                     data={currentLesson.data}
                     onAnswer={handleAnswer}
                 />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Video from 'react-native-video';
 import { COLORS, FONTS } from '../utils/constants';
@@ -9,6 +9,15 @@ const { width, height } = Dimensions.get('window');
 const FillInTheBlankQuestion = ({ data, onAnswer }) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [isAnswered, setIsAnswered] = useState(false);
+    const videoRefs = useRef(data.options.map(() => null));
+
+    useEffect(() => {
+        videoRefs.current.forEach(ref => {
+            if (ref) {
+                ref.seek(0);
+            }
+        });
+    }, []);
 
     const handleOptionPress = (index) => {
         if (isAnswered) return; // Prevent changing answer if already answered
@@ -41,11 +50,14 @@ const FillInTheBlankQuestion = ({ data, onAnswer }) => {
                                 selectedOption === index && isAnswered && styles.selectedVideoWrapper
                             ]}>
                                 <Video
+                                    ref={ref => videoRefs.current[index] = ref}
                                     source={{ uri: videoUrl }}
                                     style={styles.video}
-                                    controls={true}
+                                    controls={false}
                                     resizeMode="cover"
                                     repeat={true}
+                                    paused={false}
+                                    muted={true}
                                 />
                             </View>
                         </TouchableOpacity>

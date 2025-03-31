@@ -134,17 +134,27 @@ const CourseDetailPage = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <CourseDetailsTopBar navigation={navigation} />
-            <ScrollView contentContainerStyle={styles.questionsContainer}>
-                {renderLesson()}
+            <View style={{ flex: 1 }}>
+                <ScrollView contentContainerStyle={styles.questionsContainer}>
+                    {renderLesson()}
+                </ScrollView>
                 {userAnswer !== null && (
-                    <RectangularButton
-                        text="Continue"
-                        width={width * 0.85}
-                        color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
-                        onPress={handleContinue}
-                    />
+                    <View style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        alignItems: 'center'
+                    }}>
+                        <RectangularButton
+                            text="Continue"
+                            width={width * 0.85}
+                            color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
+                            onPress={handleContinue}
+                        />
+                    </View>
                 )}
-            </ScrollView>
+            </View>
         </View>
     );
 };

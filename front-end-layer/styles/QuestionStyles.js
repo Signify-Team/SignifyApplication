@@ -35,7 +35,7 @@ export default StyleSheet.create({
         width: '100%',
     },
     question: {
-        fontSize: 24,
+        fontSize: 20,
         marginBottom: height * 0.05,
         textAlign: 'center',
         paddingHorizontal: width * 0.1,

@@ -5,6 +5,7 @@ import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
 import TrueFalseQuestion from '../components/TrueFalseQuestion';
+import FillInTheBlankQuestion from '../components/FillInTheBlankQuestion';
 import CourseDetailsTopBar from '../components/CourseDetailsTopBar';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
@@ -23,12 +24,17 @@ const defaultLessons = [
     },
     {
         id: 2,
-        type: 'multipleChoice',
+        type: 'fillInTheBlank',
         data: {
-            video: require('../assets/videos/thank_you.mp4'),
-            options: ['Hello', 'Thank You', 'Are', 'Yours'],
-            correctOption: 'Thank You',
-        },
+            sentence: 'The sky is …. when the weather is sunny.',
+            options: [
+                require('../assets/videos/thank_you.mp4'),
+                require('../assets/videos/thank_you.mp4'),
+                require('../assets/videos/thank_you.mp4'),
+                require('../assets/videos/thank_you.mp4')
+            ],
+            correctAnswerIndex: 2
+        }
     },
     { id: 3, type: 'gesture', data: { prompt: 'Wave your hand to say Hello.' } },
     {
@@ -67,6 +73,10 @@ const CourseDetailPage = ({ route, navigation }) => {
             const isCorrectAnswer = answer === currentLesson.data.correctOption;
             setIsCorrect(isCorrectAnswer);
             console.log(isCorrectAnswer ? 'Correct' : `Incorrect. The correct answer was: ${currentLesson.data.correctOption}`);
+        } else if (currentLesson.type === 'fillInTheBlank') {
+            const isCorrectAnswer = answer === currentLesson.data.correctAnswerIndex;
+            setIsCorrect(isCorrectAnswer);
+            console.log(isCorrectAnswer ? 'Correct' : 'Incorrect');
         } else if (answer === 'gestureCaptured') {
             setIsCorrect(true);
             console.log('Correct');
@@ -128,6 +138,15 @@ const CourseDetailPage = ({ route, navigation }) => {
             );
         }
     
+        if (currentLesson.type === 'fillInTheBlank') {
+            return (
+                <FillInTheBlankQuestion
+                    data={currentLesson.data}
+                    onAnswer={handleAnswer}
+                />
+            );
+        }
+    
         return null;
     };
 
@@ -144,7 +163,8 @@ const CourseDetailPage = ({ route, navigation }) => {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        marginBottom: 20,
                     }}>
                         <RectangularButton
                             text="Continue"

@@ -20,32 +20,50 @@ const MatchingQuestion = ({ data, onAnswer }) => {
     const [isComplete, setIsComplete] = useState(false);
     const [randomizedWords, setRandomizedWords] = useState([]);
 
+    // Make sure that the data has a correct structure
+    if (!data || !Array.isArray(data.pairs)) {
+        console.warn('Invalid data structure in MatchingQuestion:', data);
+        return null;
+    }
+
     useEffect(() => {
-        // Randomize the word options on component mount
-        const shuffledWords = [...data.pairs].sort(() => Math.random() - 0.5);
-        setRandomizedWords(shuffledWords);
+        try {
+            // Randomly order the words
+            const validPairs = data.pairs.filter(pair => pair && typeof pair === 'object' && pair.word);
+            const shuffledWords = [...validPairs].sort(() => Math.random() - 0.5);
+            setRandomizedWords(shuffledWords);
+        } catch (error) {
+            console.error('Error setting up randomized words:', error);
+            setRandomizedWords([]);
+        }
     }, [data.pairs]);
 
     useEffect(() => {
-        if (Object.keys(matches).length === data.pairs.length) {
-            setIsComplete(true);
-            const isCorrect = checkAllMatches();
-            onAnswer(isCorrect);
+        try {
+            if (Object.keys(matches).length === data.pairs.length) {
+                setIsComplete(true);
+                const isCorrect = checkAllMatches();
+                onAnswer(isCorrect);
+            }
+        } catch (error) {
+            console.error('Error checking matches:', error);
         }
     }, [matches]);
 
     const checkAllMatches = () => {
-        return data.pairs.every((pair, index) => {
-            return matches[index] === pair.word;
-        });
+        try {
+            return data.pairs.every((pair, index) => {
+                return pair && pair.word && matches[index] === pair.word;
+            });
+        } catch (error) {
+            console.error('Error in checkAllMatches:', error);
+            return false;
+        }
     };
 
     const handleTextSelection = (text) => {
-        if (selectedText === text) {
-            setSelectedText(null);
-        } else {
-            setSelectedText(text);
-        }
+        if (!text) return;
+        setSelectedText(selectedText === text ? null : text);
     };
 
     const handleVideoSelection = (index) => {
@@ -58,9 +76,19 @@ const MatchingQuestion = ({ data, onAnswer }) => {
         }
     };
 
-    const isTextSelected = (text) => selectedText === text;
-    const isTextMatched = (text) => Object.values(matches).includes(text);
-    const getVideoMatch = (index) => matches[index];
+    const isTextSelected = (text) => text && selectedText === text;
+    const isTextMatched = (text) => text && Object.values(matches).includes(text);
+    const getVideoMatch = (index) => matches[index] || null;
+
+    // Check the word video pairs
+    const validPairs = data.pairs.filter(pair => 
+        pair && typeof pair === 'object' && pair.word && pair.signVideoUrl
+    );
+
+    if (validPairs.length === 0) {
+        console.warn('No valid pairs found in MatchingQuestion');
+        return null;
+    }
 
     return (
         <View style={styles.quesContainer}>
@@ -72,24 +100,26 @@ const MatchingQuestion = ({ data, onAnswer }) => {
                 {/* Text Options */}
                 <View style={localStyles.textOptionsContainer}>
                     {randomizedWords.map((pair, index) => (
-                        <TouchableOpacity
-                            key={`text-${index}`}
-                            style={[
-                                localStyles.textOption,
-                                isTextSelected(pair.word) && localStyles.selectedText,
-                                isTextMatched(pair.word) && localStyles.matchedText
-                            ]}
-                            onPress={() => handleTextSelection(pair.word)}
-                            disabled={isTextMatched(pair.word)}
-                        >
-                            <Text style={localStyles.textOptionText}>{pair.word}</Text>
-                        </TouchableOpacity>
+                        pair && pair.word ? (
+                            <TouchableOpacity
+                                key={`text-${index}`}
+                                style={[
+                                    localStyles.textOption,
+                                    isTextSelected(pair.word) && localStyles.selectedText,
+                                    isTextMatched(pair.word) && localStyles.matchedText
+                                ]}
+                                onPress={() => handleTextSelection(pair.word)}
+                                disabled={isTextMatched(pair.word)}
+                            >
+                                <Text style={localStyles.textOptionText}>{pair.word}</Text>
+                            </TouchableOpacity>
+                        ) : null
                     ))}
                 </View>
 
                 {/* Video Options */}
                 <View style={localStyles.videoContainer}>
-                    {data.pairs.map((pair, index) => (
+                    {validPairs.map((pair, index) => (
                         <TouchableOpacity
                             key={`video-${index}`}
                             style={[
@@ -105,6 +135,7 @@ const MatchingQuestion = ({ data, onAnswer }) => {
                                 resizeMode="cover"
                                 repeat={true}
                                 muted={true}
+                                onError={(error) => console.warn('Video error:', error, pair.signVideoUrl)}
                             />
                             {getVideoMatch(index) && (
                                 <View style={localStyles.matchOverlay}>

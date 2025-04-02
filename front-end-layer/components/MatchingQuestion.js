@@ -18,6 +18,13 @@ const MatchingQuestion = ({ data, onAnswer }) => {
     const [selectedText, setSelectedText] = useState(null);
     const [matches, setMatches] = useState({});
     const [isComplete, setIsComplete] = useState(false);
+    const [randomizedWords, setRandomizedWords] = useState([]);
+
+    useEffect(() => {
+        // Randomize the word options on component mount
+        const shuffledWords = [...data.pairs].sort(() => Math.random() - 0.5);
+        setRandomizedWords(shuffledWords);
+    }, [data.pairs]);
 
     useEffect(() => {
         if (Object.keys(matches).length === data.pairs.length) {
@@ -58,9 +65,13 @@ const MatchingQuestion = ({ data, onAnswer }) => {
     return (
         <View style={styles.quesContainer}>
             <View style={localStyles.contentContainer}>
+                <Text style={localStyles.instructionText}>
+                    Match the words with the corresponding signing videos
+                </Text>
+
                 {/* Text Options */}
                 <View style={localStyles.textOptionsContainer}>
-                    {data.pairs.map((pair, index) => (
+                    {randomizedWords.map((pair, index) => (
                         <TouchableOpacity
                             key={`text-${index}`}
                             style={[
@@ -115,6 +126,14 @@ const localStyles = StyleSheet.create({
         justifyContent: 'space-between',
         flex: 1,
     },
+    instructionText: {
+        fontSize: 20,
+        fontFamily: FONTS.poppins_font,
+        color: COLORS.neutral_base_dark,
+        textAlign: 'center',
+        marginBottom: height * 0.03,
+        paddingHorizontal: width * 0.05,
+    },
     textOptionsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -133,7 +152,7 @@ const localStyles = StyleSheet.create({
     },
     selectedText: {
         backgroundColor: COLORS.primary,
-        borderColor: COLORS.dark_gray_1,
+        borderColor: COLORS.tertiary,
     },
     matchedText: {
         opacity: 0.5,

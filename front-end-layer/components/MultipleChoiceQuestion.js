@@ -16,9 +16,13 @@ const MultipleChoiceQuestion = ({ data, onAnswer }) => {
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [isAnswered, setIsAnswered] = useState(false);
 
-    const correctAnswer = data.correctOption;
+    if (!data || !Array.isArray(data.options)) {
+        console.warn('Invalid data structure in MultipleChoiceQuestion:', data);
+        return null;
+    }
 
     const handlePress = (answer) => {
+        if (isAnswered) return;
         setSelectedAnswer(answer);
         setIsAnswered(true);
         onAnswer(answer);
@@ -26,9 +30,11 @@ const MultipleChoiceQuestion = ({ data, onAnswer }) => {
 
     return (
         <>
-            <VideoDisplay
-                sourceVid={data.video}
-            />
+            {data.video && (
+                <VideoDisplay
+                    sourceVid={data.video}
+                />
+            )}
             <View style={styles.multContainer}>
                 <View style={styles.optionsContainer}>
                     {data.options.map((option, index) => (
@@ -36,7 +42,7 @@ const MultipleChoiceQuestion = ({ data, onAnswer }) => {
                             key={index}
                             answer={option}
                             isSelected={selectedAnswer === option}
-                            isCorrect={option === correctAnswer}
+                            isCorrect={option === data.correctOption}
                             onPress={() => handlePress(option)}
                             isAnswered={isAnswered}
                         />

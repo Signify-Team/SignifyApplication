@@ -152,7 +152,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
     return (
         <>
             <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>{data.prompt}</Text>
+                <Text style={styles.questionText}>{data.prompt || data.word}</Text>
             </View>
             <View style={styles.gestContainer}>
                 {videoPath ? (
@@ -185,11 +185,19 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     onPress={stopRecording}
                 />
             </View>
-            <RectangularButton
-                width={width * 0.4}
-                text="SUBMIT"
-                onPress={submitGesture}
-            />
+            <View style={styles.bottomButtonsContainer}>
+                <RectangularButton
+                    width={width * 0.4}
+                    text="SUBMIT"
+                    onPress={submitGesture}
+                />
+                <RectangularButton
+                    width={width * 0.4}
+                    text="SKIP"
+                    color={COLORS.soft_pink_background}
+                    onPress={onComplete}
+                />
+            </View>
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -242,6 +250,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginVertical: height * 0.02,
         gap: width * 0.05,
+    },
+    bottomButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: width * 0.05,
+        marginBottom: height * 0.02,
     },
     modalContainer: {
         flex: 1,

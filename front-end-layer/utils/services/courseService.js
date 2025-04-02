@@ -37,4 +37,16 @@ export const updateCourseProgress = async (courseId, progress, completed = false
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to update course progress');
   }
+};
+
+export const fetchCourseExercises = async (courseId) => {
+  try {
+    console.log('Fetching exercises for course:', courseId);
+    const response = await axios.get(`${API_BASE_URL}/exercises/course/${courseId}`);
+    console.log('Raw exercise response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching course exercises:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch course exercises');
+  }
 }; 

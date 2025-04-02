@@ -21,7 +21,8 @@ import {
     getUserLanguagePreference,
     fetchUserCourses,
     updateCourseProgress,
-    getUserPremiumStatus
+    getUserPremiumStatus,
+    fetchCourseExercises
 } from '../utils/apiService';
 
 const CoursesPage = ({ navigation }) => {
@@ -121,25 +122,25 @@ const CoursesPage = ({ navigation }) => {
                 return;
             }
 
-            const progress = selectedCourse.progress || 0;
-            console.log('Updating progress for course:', selectedCourse._id, 'Progress:', progress);
-            
-            await updateCourseProgress(selectedCourse._id, progress);
+            const [exercises, progressUpdate] = await Promise.all([
+                fetchCourseExercises(selectedCourse._id),
+                updateCourseProgress(selectedCourse._id, selectedCourse.progress || 0)
+            ]);
             
             navigation.navigate('CourseDetails', {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
-                lessons: selectedCourse.lessons || []
+                exercises: exercises || []
             });
         } catch (error) {
-            console.error('Error updating course progress:', error);
-            // Still navigate to course details even if progress update fails
+            console.error('Error preparing course:', error);
+            // Still navigate but with empty exercises array
             navigation.navigate('CourseDetails', {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
-                lessons: selectedCourse.lessons || []
+                exercises: []
             });
         }
     };

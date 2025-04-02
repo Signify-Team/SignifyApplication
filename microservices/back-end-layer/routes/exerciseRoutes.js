@@ -21,6 +21,51 @@ const exerciseLimiter = rateLimit({
     message: { error: 'Too many requests. Try again later.' }
 });
 
+// Get all exercises for a specific course
+router.get('/course/:courseId', exerciseLimiter, async (req, res) => {
+    try {
+        console.log('Fetching exercises for course:', req.params.courseId);
+        
+        const course = await Course.findById(req.params.courseId);
+        if (!course) {
+            console.log('Course not found');
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        console.log('Found course:', course);
+        
+        // Fetch exercises separately to ensure we get all fields
+        const exercises = await Exercise.find({
+            '_id': { $in: course.exercises }
+        });
+
+        console.log('Raw exercises:', exercises);
+
+        if (!exercises || exercises.length === 0) {
+            console.log('No exercises found for course');
+            return res.status(200).json([]);
+        }
+
+        // Transform exercises to ensure all fields are at the top level
+        const transformedExercises = exercises.map(exercise => {
+            // Convert and remove Mongo fields
+            const plainExercise = exercise.toObject();
+            delete plainExercise.__v;
+            delete plainExercise.exerciseId;
+
+            console.log('Processing exercise:', plainExercise);
+            
+            return plainExercise;
+        });
+
+        console.log('Transformed exercises:', transformedExercises);
+        res.status(200).json(transformedExercises);
+    } catch (err) {
+        console.error('Error fetching course exercises:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Get all exercises
 router.get('/', exerciseLimiter, async (req, res) => {
     try {
@@ -37,18 +82,6 @@ router.get('/:id', exerciseLimiter, async (req, res) => {
         const exercise = await Exercise.findById(req.params.id);
         if (!exercise) return res.status(404).json({ message: 'Exercise not found' });
         res.status(200).json(exercise);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Get all exercises for a specific course
-router.get('/course/:courseId', exerciseLimiter, async (req, res) => {
-    try {
-        const course = await Course.findById(req.params.courseId).populate('exercises');
-        if (!course) return res.status(404).json({ message: 'Course not found' });
-
-        res.status(200).json(course.exercises);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

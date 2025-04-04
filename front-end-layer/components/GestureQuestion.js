@@ -70,63 +70,86 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
     const submitGesture = async () => {
         if (!videoPath) {
-            console.error("No video path available.");
+            setIsModalVisible(true);
+            setModalMessage("No video recorded. Please record a video first.");
             return;
         }
-    
+
+        setIsModalVisible(true);
+        setModalMessage("Processing your gesture...");
+
         const formData = new FormData();
         formData.append('file', {
             uri: videoPath,
             name: 'gesture.mp4',
             type: 'video/mp4',
         });
-    
-        console.log('Sending gesture to backend...');
-        console.log('Video path:', videoPath);
-    
-        try {
-            const response = await fetch('http://192.168.0.16:8000/upload-video', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                body: formData,
-            });
-    
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
-            }
-    
-            const { video_server_path } = await response.json();
-            console.log('Video uploaded to:', video_server_path);
-    
-            // Proceed to process the video after uploading
-            const processResponse = await fetch('http://192.168.0.16:8000/process-video', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ video_url: video_server_path }),
-            });
-    
-            const result = await processResponse.json();
-            console.log('Processed result:', result);
 
-            // if the gpt response contains the word "yes", the gesture is correct, so we can display a success message on the screen
-            if (result.includes("yes")) {
-                setIsCorrect(true);
-                setIsModalVisible(true);
-                setModalMessage("Gesture is correct!");
-                console.log("Gesture is correct!");
-            } else {
-                setIsCorrect(false);
-                setIsModalVisible(true);
-                setModalMessage("Gesture is incorrect.");
-                console.log("Gesture is incorrect.");
+        try {
+            // Upload video with timeout
+            const uploadResponse = await Promise.race([
+                fetch('http://172.20.10.6:8000/upload-video', {
+                    method: 'POST',
+                    body: formData,
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Upload timeout')), 10000)
+                )
+            ]);
+
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload video');
+            }
+
+            const uploadResult = await uploadResponse.json();
+
+            // Process video with timeout
+            const processResponse = await Promise.race([
+                fetch('http://172.20.10.6:8000/process-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ video_url: uploadResult.video_server_path }),
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Processing timeout')), 30000)
+                )
+            ]);
+
+            if (!processResponse.ok) {
+                throw new Error('Failed to process video');
+            }
+
+            const result = await processResponse.json();
+            console.log('Server response:', result);
+
+            if (result.status === 'error') {
+                throw new Error(result.message);
+            }
+
+            // Simple yes/no check
+            const isCorrect = result.analysis === 'yes';
+            setIsCorrect(isCorrect);
+            setModalMessage(isCorrect ? 
+                "Correct! Your gesture was recognized successfully!" : 
+                "Incorrect. Please try again or skip to continue."
+            );
+
+            // Call onSubmit with the result
+            if (onSubmit) {
+                onSubmit(isCorrect);
             }
 
         } catch (error) {
-            console.error('Error during gesture submission:', error);
+            console.error('Error:', error);
+            setIsCorrect(false);
+            setModalMessage("An error occurred. Please try again.");
+            
+            // Call onSubmit with false on error
+            if (onSubmit) {
+                onSubmit(false);
+            }
         }
     };
 

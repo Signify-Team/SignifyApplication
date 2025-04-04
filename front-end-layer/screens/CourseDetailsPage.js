@@ -249,7 +249,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                 <ScrollView contentContainerStyle={styles.questionsContainer}>
                     {renderExercise()}
                 </ScrollView>
-                {userAnswer !== null && (
+                {userAnswer !== null && exercises[currentExerciseIndex]?.type !== 'gesture' && (
                     <View style={{
                         position: 'absolute',
                         bottom: 0,

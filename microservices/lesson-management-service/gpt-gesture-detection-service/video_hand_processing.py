@@ -295,13 +295,13 @@ def process_with_detection(frames):
         print(f"Error in process_with_detection: {e}")
         return []
 
-def select_optimal_frames(frames, max_frames=6):
+def select_optimal_frames(frames, max_frames=15):
     """
     Select the optimal frames to send to GPT API to balance accuracy and cost.
     
     Parameters:
     frames (list): List of frame file paths with detected hands
-    max_frames (int): Maximum number of frames to select
+    max_frames (int): Maximum number of frames to select, defaults to 15
     
     Returns:
     list: Selected frame file paths
@@ -310,7 +310,7 @@ def select_optimal_frames(frames, max_frames=6):
         return []
     
     if len(frames) <= max_frames:
-        # If we have fewer frames than the maximum, use all of them
+        # if we have fewer frames than the maximum, use all of them
         return frames
     
     # for longer videos, select frames distributed throughout the gesture
@@ -337,23 +337,41 @@ def select_optimal_frames(frames, max_frames=6):
     frames_with_numbers.sort(key=lambda x: x[1])
     sorted_frames = [f[0] for f in frames_with_numbers]
     
+    # include first, middle, and last frames
     selected = [sorted_frames[0], sorted_frames[frame_count//2], sorted_frames[-1]]
     
-    if max_frames > 3:
-        remaining_slots = max_frames - 3
+    # calculate intervals for remaining frames
+    remaining_slots = max_frames - 3
+    if remaining_slots > 0:
+        # divide the sequence into equal segments
+        segment_size = frame_count // (remaining_slots + 1)
+        for i in range(1, remaining_slots + 1):
+            index = i * segment_size
+            if index < frame_count and sorted_frames[index] not in selected:
+                selected.append(sorted_frames[index])
+    
+    # add more frames from uncovered regions
+    while len(selected) < max_frames and len(selected) < frame_count:
+        # largest gap between selected frames
+        selected_indices = [sorted_frames.index(f) for f in selected]
+        selected_indices.sort()
         
-        if remaining_slots == 1:
-            # get one frame from the first half
-            selected.append(sorted_frames[frame_count//4])
-        elif remaining_slots == 2:
-            # get one from first quarter, one from third quarter
-            selected.append(sorted_frames[frame_count//4])
-            selected.append(sorted_frames[3*frame_count//4])
-        elif remaining_slots == 3:
-            # get frames from the first, second, and third quarters
-            selected.append(sorted_frames[frame_count//4])
-            selected.append(sorted_frames[2*frame_count//4])
-            selected.append(sorted_frames[3*frame_count//4])
+        max_gap = 0
+        gap_index = 0
+        
+        for i in range(len(selected_indices) - 1):
+            gap = selected_indices[i + 1] - selected_indices[i]
+            if gap > max_gap:
+                max_gap = gap
+                gap_index = i
+        
+        if max_gap <= 1:
+            break
+            
+        # add frame from middle of largest gap
+        new_index = selected_indices[gap_index] + max_gap // 2
+        if new_index < frame_count and sorted_frames[new_index] not in selected:
+            selected.append(sorted_frames[new_index])
     
     selected.sort(key=lambda x: sorted_frames.index(x))
     
@@ -481,16 +499,28 @@ async def process_user_video(request: VideoRequest):
         }
 
 async def cleanup_files():
-    """Asynchronous cleanup of temporary files"""
+    """Asynchronous cleanup of temporary files and uploaded video"""
     try:
+        # Clean up temporary directories
         temp_dir = os.path.join(os.path.dirname(EXTRACTED_FRAMES_DIR), "temp_frames")
         for directory in [EXTRACTED_FRAMES_DIR, SELECTED_FRAMES_DIR, temp_dir]:
             if os.path.exists(directory):
                 for file in os.listdir(directory):
                     try:
                         os.remove(os.path.join(directory, file))
-                    except:
-                        pass
+                    except Exception as e:
+                        print(f"Error removing file in {directory}: {e}")
+        
+        # Clean up uploaded videos
+        if os.path.exists(UPLOADS_DIR):
+            for file in os.listdir(UPLOADS_DIR):
+                try:
+                    video_path = os.path.join(UPLOADS_DIR, file)
+                    os.remove(video_path)
+                    print(f"Cleaned up uploaded video: {file}")
+                except Exception as e:
+                    print(f"Error removing uploaded video {file}: {e}")
+                    
     except Exception as e:
         print(f"Cleanup error (non-critical): {e}")
 

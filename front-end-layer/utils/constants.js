@@ -28,6 +28,7 @@ export const COLORS = {
     button_underline: 'rgba(218, 218, 244, 0.3)',
     white: '#FFFFFF',
     start_button: '#FFCC00',
+    premium_gold: '#D4AF37',
 };
 
 export const FONTS = {

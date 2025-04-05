@@ -260,10 +260,31 @@ router.post('/update-language', async (req, res) => {
         user.languagePreference = language;
         await user.save();
 
-        res.status(200).json({ message: 'Language preference updated successfully' });
+        res.status(200).json({ message: 'Language preference updated successfully', language: user.languagePreference });
     } catch (error) {
         console.error('Update Language Error:', error);
         res.status(500).json({ message: 'Failed to update language preference' });
+    }
+});
+
+// Get user's language preference
+router.get('/language-preference/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ language: user.languagePreference || 'ASL' }); // Default to ASL if not set
+    } catch (error) {
+        console.error('Get Language Preference Error:', error);
+        res.status(500).json({ message: 'Failed to fetch language preference' });
     }
 });
 
@@ -331,6 +352,120 @@ router.post('/reset-password', async (req, res) => {
     } catch (error) {
         console.error('Reset Password Error:', error);
         res.status(500).json({ message: 'Failed to reset password' });
+    }
+});
+
+// Change password (requires current password)
+router.post('/change-password', async (req, res) => {
+    const { userId, currentPassword, newPassword } = req.body;
+
+    if (!userId || !currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'User ID, current password, and new password are required' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Change Password Error:', error);
+        res.status(500).json({ message: 'Failed to change password' });
+    }
+});
+
+// Delete user account
+router.delete('/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        await User.findByIdAndDelete(userId);
+        res.status(200).json({ message: 'Account deleted successfully' });
+    } catch (error) {
+        console.error('Delete Account Error:', error);
+        res.status(500).json({ message: 'Failed to delete account' });
+    }
+});
+
+// Get user's premium status
+router.get('/premium-status/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if user is premium and premium hasn't expired
+        const isPremium = user.isPremium && (!user.premiumExpiry || user.premiumExpiry > Date.now());
+
+        console.log('Premium status check:', {
+            userId: user._id,
+            isPremium: user.isPremium,
+            premiumExpiry: user.premiumExpiry,
+            finalStatus: isPremium
+        });
+
+        res.status(200).json({ isPremium });
+    } catch (error) {
+        console.error('Premium Status Check Error:', error);
+        res.status(500).json({ message: 'Failed to check premium status' });
+    }
+});
+
+// Clear user's course progress
+router.post('/clear-progress/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Clear course progress
+        user.courseProgress = [];
+        await user.save();
+
+        res.status(200).json({ message: 'Course progress cleared successfully' });
+    } catch (error) {
+        console.error('Clear Progress Error:', error);
+        res.status(500).json({ message: 'Failed to clear course progress' });
     }
 });
 

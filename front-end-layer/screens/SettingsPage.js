@@ -3,24 +3,27 @@
  * @description Includes settings and configurations for the application
  *
  * @datecreated 05.11.2024
- * @lastmodified 17.12.2024
+ * @lastmodified 31.03.2025
  */
 
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Switch, ScrollView, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { COLORS } from '../utils/constants';
 import styles from '../styles/SettingsStyles';
-import { clearUserId } from '../utils/apiService';
+import { clearUserId, deleteAccount } from '../utils/apiService';
 import { useNavigation } from '@react-navigation/native';
-import { FONTS } from '../utils/constants';
+import DeleteAccountModal from '../components/DeleteAccountModal';
+import LogoutModal from '../components/LogoutModal';
 
 const SettingsPage = () => {
-    const [isDarkMode, setIsDarkMode] = React.useState(false);
-    const [isVibration, setIsVibration] = React.useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isVibration, setIsVibration] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
 
-    const handleLogout = async () => {
+    const handleLogout = () => {
         setShowLogoutModal(true);
     };
 
@@ -36,19 +39,45 @@ const SettingsPage = () => {
         }
     };
 
+    const handleDeleteAccount = () => {
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteAccount = async () => {
+        setIsLoading(true);
+        try {
+            await deleteAccount();
+            setShowDeleteModal(false);
+            setTimeout(() => {
+                navigation.replace('Welcome');
+            }, 300);
+        } catch (error) {
+            console.error('Error deleting account:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingTop: 50 }]}>
             <ScrollView>
                 {/* Account Settings */}
                 <Text style={styles.sectionTitle}>Account Settings:</Text>
                 <View style={styles.settingCard}>
-                    <TouchableOpacity style={styles.option}>
+                    <TouchableOpacity 
+                        style={styles.option}
+                        onPress={() => navigation.navigate('ChangePassword')}>
                         <Text style={styles.optionText}>Change Password</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.option}>
+                    <TouchableOpacity 
+                        style={styles.option}
+                        onPress={() => navigation.navigate('LanguagePreference')}>
                         <Text style={styles.optionText}>Language Selection</Text>
+                        <Text style={styles.arrow}>{'>'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.option}>
+                    <TouchableOpacity 
+                        style={[styles.option, { borderBottomWidth: 0 }]}
+                        onPress={handleDeleteAccount}>
                         <Text style={[styles.optionText, { color: COLORS.button_color }]}>Delete Account</Text>
                     </TouchableOpacity>
                 </View>
@@ -56,7 +85,7 @@ const SettingsPage = () => {
                 {/* Notification Settings */}
                 <Text style={styles.sectionTitle}>Notification Settings:</Text>
                 <View style={styles.settingCard}>
-                    <TouchableOpacity style={styles.option}>
+                    <TouchableOpacity style={[styles.option, { borderBottomWidth: 0 }]}>
                         <Text style={styles.optionText}>Notifications</Text>
                         <Text style={styles.arrow}>{'>'}</Text>
                     </TouchableOpacity>
@@ -80,7 +109,7 @@ const SettingsPage = () => {
                         <Text style={styles.optionText}>Sound Effects</Text>
                         <Text style={styles.arrow}>{'>'}</Text>
                     </TouchableOpacity>
-                    <View style={styles.option}>
+                    <View style={[styles.option, { borderBottomWidth: 0 }]}>
                         <Text style={styles.optionText}>Vibration Feedback</Text>
                         <View style={styles.switchWrapper}>
                             <Switch
@@ -100,7 +129,7 @@ const SettingsPage = () => {
                         <Text style={styles.optionText}>Data Privacy</Text>
                         <Text style={styles.arrow}>{'>'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.option}>
+                    <TouchableOpacity style={[styles.option, { borderBottomWidth: 0 }]}>
                         <Text style={styles.optionText}>Consent Forms</Text>
                         <Text style={styles.arrow}>{'>'}</Text>
                     </TouchableOpacity>
@@ -111,98 +140,24 @@ const SettingsPage = () => {
                     App Version 1.1.1 | Terms and Conditions | Contact Support
                 </Text>
                 <TouchableOpacity onPress={handleLogout}>
-                    <Text style={[styles.logoutText]}>
+                    <Text style={styles.logoutText}>
                         Logout
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
 
-            {/* Logout Confirmation Modal */}
-            <Modal
+            {/* Modals */}
+            <LogoutModal 
                 visible={showLogoutModal}
-                transparent={true}
-                animationType="fade"
-            >
-                <View style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <View style={{
-                        backgroundColor: COLORS.soft_container_color,
-                        borderRadius: 20,
-                        padding: 20,
-                        width: '80%',
-                        shadowColor: COLORS.neutral_base_dark,
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 4,
-                        elevation: 5,
-                    }}>
-                        <Text style={{
-                            fontFamily: FONTS.baloo_font,
-                            fontSize: 24,
-                            color: COLORS.neutral_base_dark,
-                            marginBottom: 15,
-                            textAlign: 'center',
-                        }}>
-                            Logout
-                        </Text>
-                        <Text style={{
-                            fontFamily: FONTS.poppins_font,
-                            fontSize: 16,
-                            color: COLORS.neutral_base_dark,
-                            marginBottom: 20,
-                            textAlign: 'center',
-                        }}>
-                            Are you sure you want to logout?
-                        </Text>
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            gap: 10,
-                        }}>
-                            <TouchableOpacity
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: COLORS.light_gray_2,
-                                    padding: 15,
-                                    borderRadius: 10,
-                                    alignItems: 'center',
-                                }}
-                                onPress={() => setShowLogoutModal(false)}
-                            >
-                                <Text style={{
-                                    fontFamily: FONTS.poppins_font,
-                                    fontSize: 16,
-                                    color: COLORS.neutral_base_dark,
-                                }}>
-                                    Cancel
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: COLORS.highlight_color_2,
-                                    padding: 15,
-                                    borderRadius: 10,
-                                    alignItems: 'center',
-                                }}
-                                onPress={confirmLogout}
-                            >
-                                <Text style={{
-                                    fontFamily: FONTS.poppins_font,
-                                    fontSize: 16,
-                                    color: COLORS.white,
-                                }}>
-                                    Logout
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={confirmLogout}
+            />
+            <DeleteAccountModal 
+                visible={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={confirmDeleteAccount}
+                isLoading={isLoading}
+            />
         </View>
     );
 };

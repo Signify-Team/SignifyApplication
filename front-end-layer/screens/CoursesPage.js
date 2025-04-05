@@ -8,33 +8,89 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, SectionList, ActivityIndicator, RefreshControl } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
-import styles from '../styles/styles';
+import styles from '../styles/CoursesPageStyles';
 import CoursesTopBar from '../components/CoursesTopBar';
-import CircularButton from '../components/CircularButton';
-import KoalaIcon from '../assets/icons/header/koala-hand.png';
-import GreetingsIcon from '../assets/icons/course-info/greetings.png';
-import { COLORS } from '../utils/constants';
 import CourseInfoCard from '../components/CourseInfoCard';
 import VertCard from '../components/VertCard';
-import { fetchSections } from '../utils/apiService';
+import CoursePath from '../components/CoursePath';
+import { COLORS } from '../utils/constants';
+import GreetingsIcon from '../assets/icons/course-info/greetings.png';
+import GreetingsBWIcon from '../assets/icons/course-info/greetings-bw.png';
+import { 
+    fetchSectionsByLanguage, 
+    getUserLanguagePreference,
+    fetchUserCourses,
+    updateCourseProgress,
+    getUserPremiumStatus
+} from '../utils/apiService';
 
 const CoursesPage = ({ navigation }) => {
     const [showCard, setShowCard] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false); // to be able to refresh the page
+    const [refreshing, setRefreshing] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [userLanguage, setUserLanguage] = useState(null);
+    const [isUserPremium, setIsUserPremium] = useState(false);
 
     useEffect(() => {
-        loadSections();
+        loadUserLanguageAndSections();
+        loadUserPremiumStatus();
     }, []);
 
-    const loadSections = async () => {
+    useEffect(() => {
+        if (userLanguage) {
+            setRefreshing(true);
+            loadSections(userLanguage);
+        }
+    }, [userLanguage]);
+
+    const loadUserPremiumStatus = async () => {
         try {
-            const sectionsData = await fetchSections();
-            setSections(sectionsData);
+            const response = await getUserPremiumStatus();
+            setIsUserPremium(Boolean(response?.isPremium));
+        } catch (error) {
+            console.error('Error loading user premium status:', error);
+            setIsUserPremium(false);
+        }
+    };
+
+    const loadUserLanguageAndSections = async () => {
+        try {
+            const language = await getUserLanguagePreference();
+            setUserLanguage(language);
+            await loadSections(language);
+        } catch (error) {
+            console.error('Error loading user language and sections:', error);
+        }
+    };
+
+    const loadSections = async (language) => {
+        try {
+            const [sectionsData, userCoursesData] = await Promise.all([
+                fetchSectionsByLanguage(language),
+                fetchUserCourses()
+            ]);
+
+            const processedSections = sectionsData.map((section, sectionIndex) => ({
+                ...section,
+                isLocked: sectionIndex === 0 ? false : !userCoursesData.unlockedSections?.includes(section._id),
+                courses: section.courses.map(course => {
+                    const userCourse = userCoursesData.find(uc => uc.courseId === course.courseId);
+                    
+                    // A course is unlocked only if it exists in userCourses with isLocked = false
+                    const isLocked = !userCourse || userCourse.isLocked;
+
+                    return {
+                        ...course,
+                        isLocked,
+                        progress: userCourse?.progress || 0,
+                    };
+                })
+            }));
+
+            setSections(processedSections);
         } catch (error) {
             console.error('Error loading sections:', error);
         } finally {
@@ -43,119 +99,45 @@ const CoursesPage = ({ navigation }) => {
         }
     };
 
-    const onRefresh = React.useCallback(() => {
-        setRefreshing(true);
-        setRefreshTrigger(prev => prev + 1);
-        loadSections();
-    }, []);
-
     const handleButtonPress = (course) => {
+        // Don't show card for locked courses
+        if (course.isLocked) {
+            return;
+        }
+
         if (selectedCourse?.courseId === course.courseId) {
-            // If clicking the same button, toggle the card
             setShowCard(!showCard);
         } else {
-            // If clicking a different button, show the card with new course
             setSelectedCourse(course);
             setShowCard(true);
         }
     };
 
-    const handleNavigateToCourse = () => {
-        navigation.navigate('CourseDetails', {
-            title: selectedCourse.name,
-            description: selectedCourse.description,
-        });
+    const handleNavigateToCourse = async () => {
+        try {
+            await updateCourseProgress(selectedCourse.courseId, selectedCourse.progress || 0);
+            navigation.navigate('CourseDetails', {
+                title: selectedCourse.name,
+                description: selectedCourse.description,
+                courseId: selectedCourse.courseId
+            });
+        } catch (error) {
+            console.error('Error updating course progress:', error);
+        }
     };
 
-    const renderSectionHeader = ({ section }) => (
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <CourseInfoCard 
-                icon={GreetingsIcon} 
-                title={section.name} 
-            />
-        </View>
-    );
+    const handleLanguageChange = (newLanguage) => {
+        setUserLanguage(newLanguage);
+    };
 
-    const renderItem = ({ item, section, index }) => (
-        <View style={{ height: 150 }}>
-            <View
-                style={[
-                    styles.buttonRow,
-                    index % 2 === 0 ? styles.leftButton : styles.rightButton,
-                ]}
-            >
-                <CircularButton
-                    icon={KoalaIcon}
-                    color={item.isPremium ? COLORS.neutral_base_dark : (index % 3 === 0 ? COLORS.primary : index % 3 === 1 ? COLORS.secondary : COLORS.tertiary)}
-                    onPress={() => handleButtonPress(item)}
-                />
-            </View>
-        </View>
-    );
+    const onRefresh = () => {
+        setRefreshing(true);
+        setRefreshTrigger(prev => prev + 1);
+        loadUserLanguageAndSections();
+        loadUserPremiumStatus();
+    };
 
-    const renderSection = ({ section }) => (
-        <View>
-            <View style={{ height: section.courses?.length * 150 }}>
-                <Svg
-                    height="100%"
-                    width="100%"
-                    style={{ position: 'absolute', top: 0, left: 0 }}
-                >
-                    {section.courses?.slice(1).map((item, index) => {
-                        const isLeft = index % 2 === 0;
-                        const nextIsLeft = (index + 1) % 2 === 0;
-
-                        const startX = isLeft ? 100 : 300;
-                        const startY = index * 150 + 55;
-                        const endX = nextIsLeft ? 100 : 300;
-                        const endY = (index + 1) * 150 + 55;
-
-                        const controlX1 = startX + (endX - startX) * 0.25;
-                        const controlY1 = startY + 100;
-                        const controlX2 = endX - (endX - startX) * 0.25;
-                        const controlY2 = endY - 100;
-
-                        return (
-                            <Path
-                                key={item.courseId}
-                                d={`M${startX},${startY} 
-                                    C${controlX1},${controlY1} 
-                                    ${controlX2},${controlY2} 
-                                    ${endX},${endY}`}
-                                stroke="black"
-                                strokeWidth="2"
-                                strokeDasharray="4,4"
-                                fill="none"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        );
-                    })}
-                </Svg>
-                {section.courses?.map((course, index) => (
-                    <View
-                        key={course.courseId}
-                        style={{ height: 150 }}
-                    >
-                        <View
-                            style={[
-                                styles.buttonRow,
-                                index % 2 === 0 ? styles.leftButton : styles.rightButton,
-                            ]}
-                        >
-                            <CircularButton
-                                icon={KoalaIcon}
-                                color={course.isPremium ? COLORS.neutral_base_dark : (index % 3 === 0 ? COLORS.primary : index % 3 === 1 ? COLORS.secondary : COLORS.tertiary)}
-                                onPress={() => handleButtonPress(course)}
-                            />
-                        </View>
-                    </View>
-                ))}
-            </View>
-        </View>
-    );
-
-    if (loading) {
+    if (loading && !refreshing) {
         return (
             <View style={[styles.container, styles.centerContent]}>
                 <ActivityIndicator size="large" color={COLORS.primary} />
@@ -164,16 +146,34 @@ const CoursesPage = ({ navigation }) => {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: COLORS.neutral_base_soft }}>
-            <CoursesTopBar refreshTrigger={refreshTrigger} navigation={navigation} />
-            <View style={{ flex: 1, backgroundColor: COLORS.neutral_base_soft, paddingTop: 20 }}>
+        <View style={styles.container}>
+            <CoursesTopBar 
+                refreshTrigger={refreshTrigger} 
+                navigation={navigation} 
+                onLanguageChange={handleLanguageChange}
+            />
+            <View style={[styles.container, { paddingTop: 20 }]}>
                 <SectionList
                     sections={sections.map(section => ({
                         ...section,
-                        data: [section] // Pass the entire section as data
+                        data: [section]
                     }))}
-                    renderItem={renderSection}
-                    renderSectionHeader={renderSectionHeader}
+                    renderItem={({ item }) => (
+                        <CoursePath 
+                            courses={item.courses} 
+                            onCoursePress={handleButtonPress}
+                            isUserPremium={isUserPremium}
+                        />
+                    )}
+                    renderSectionHeader={({ section }) => (
+                        <View style={styles.sectionHeader}>
+                            <CourseInfoCard 
+                                icon={GreetingsIcon} 
+                                title={section.name}
+                                isLocked={section.isLocked} 
+                            />
+                        </View>
+                    )}
                     stickySectionHeadersEnabled={true}
                     keyExtractor={item => item._id}
                     refreshControl={
@@ -200,3 +200,4 @@ const CoursesPage = ({ navigation }) => {
 };
 
 export default CoursesPage;
+

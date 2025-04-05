@@ -48,7 +48,6 @@ const ForgotPasswordPage = () => {
         setIsLoading(true);
 
         try {
-            console.log('Attempting to send password reset email to:', email);
             await forgotPassword(email);
             setSuccessMessage('Password reset instructions have been sent to your email');
             setEmail('');
@@ -82,7 +81,7 @@ const ForgotPasswordPage = () => {
             </Text>
 
             {/* Description Text */}
-            <Text style={[styles.signUpText, { textAlign: 'center', marginBottom: 20 }]}>
+            <Text style={[styles.signUpText, { width: '75%', textAlign: 'center', marginBottom: 20 }]}>
                 Enter your email address and we'll send you instructions to reset your password.
             </Text>
 
@@ -98,13 +97,13 @@ const ForgotPasswordPage = () => {
             />
 
             {errorMessage ? (
-                <Text style={[styles.errorMessage, { textAlign: 'center', marginBottom: 10 }]}>
+                <Text style={[styles.errorMessage, { width: '100%', marginBottom: 10 }]}>
                     {errorMessage}
                 </Text>
             ) : null}
 
             {successMessage ? (
-                <Text style={[styles.signUpText, { color: '#4CAF50', textAlign: 'center', marginBottom: 10 }]}>
+                <Text style={[styles.signUpText, { color: '#4CAF50', width: '100%', marginBottom: 10 }]}>
                     {successMessage}
                 </Text>
             ) : null}

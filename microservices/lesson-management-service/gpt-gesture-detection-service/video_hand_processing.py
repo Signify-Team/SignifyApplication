@@ -495,7 +495,7 @@ async def process_user_video(request: VideoRequest):
         print(f"An error occurred in process_user_video: {e}")
         return {
             "status": "error",
-            "message": str(e)
+            "message": "An internal error has occurred. Please try again later."
         }
 
 async def cleanup_files():

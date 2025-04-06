@@ -157,6 +157,9 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
         setIsModalVisible(false);
         if (isCorrect && onComplete) {
             onComplete(); // continue if correct
+        } else {
+            // make sure we can record again when close is pressed
+            setVideoPath(null);
         }
     };
     

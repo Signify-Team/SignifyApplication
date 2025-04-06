@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Modal } from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import RectangularButton from './RectangularButton';
-import { COLORS, FONTS } from '../utils/constants';
+import { COLORS, FONTS, API, GESTURE_UI } from '../utils/constants';
 import Video from 'react-native-video';
 
 const { width, height } = Dimensions.get('window');
@@ -70,70 +70,96 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
     const submitGesture = async () => {
         if (!videoPath) {
-            console.error("No video path available.");
+            setIsModalVisible(true);
+            setModalMessage("No video recorded. Please record a video first.");
             return;
         }
-    
+
+        setIsModalVisible(true);
+        setModalMessage("Processing your gesture...");
+
         const formData = new FormData();
         formData.append('file', {
             uri: videoPath,
             name: 'gesture.mp4',
             type: 'video/mp4',
         });
-    
-        console.log('Sending gesture to backend...');
-        console.log('Video path:', videoPath);
-    
-        try {
-            const response = await fetch('http://192.168.0.16:8000/upload-video', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                body: formData,
-            });
-    
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
-            }
-    
-            const { video_server_path } = await response.json();
-            console.log('Video uploaded to:', video_server_path);
-    
-            // Proceed to process the video after uploading
-            const processResponse = await fetch('http://192.168.0.16:8000/process-video', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ video_url: video_server_path }),
-            });
-    
-            const result = await processResponse.json();
-            console.log('Processed result:', result);
 
-            // if the gpt response contains the word "yes", the gesture is correct, so we can display a success message on the screen
-            if (result.includes("yes")) {
-                setIsCorrect(true);
-                setIsModalVisible(true);
-                setModalMessage("Gesture is correct!");
-                console.log("Gesture is correct!");
-            } else {
-                setIsCorrect(false);
-                setIsModalVisible(true);
-                setModalMessage("Gesture is incorrect.");
-                console.log("Gesture is incorrect.");
+        try {
+            // Upload video with timeout
+            const uploadResponse = await Promise.race([
+                fetch(`${API.BASE_URL}/upload-video`, {
+                    method: 'POST',
+                    body: formData,
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Upload timeout')), API.UPLOAD_TIMEOUT)
+                )
+            ]);
+
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload video');
+            }
+
+            const uploadResult = await uploadResponse.json();
+
+            // Process video with timeout
+            const processResponse = await Promise.race([
+                fetch(`${API.BASE_URL}/process-video`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ video_url: uploadResult.video_server_path }),
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Processing timeout')), API.PROCESS_TIMEOUT)
+                )
+            ]);
+
+            if (!processResponse.ok) {
+                throw new Error('Failed to process video');
+            }
+
+            const result = await processResponse.json();
+            console.log('Server response:', result);
+
+            if (result.status === 'error') {
+                throw new Error(result.message);
+            }
+
+            // Simple yes/no check
+            const isCorrect = result.analysis === 'yes';
+            setIsCorrect(isCorrect);
+            setModalMessage(isCorrect ? 
+                "Correct! Your gesture was recognized successfully!" : 
+                "Incorrect. Please try again or skip to continue."
+            );
+
+            // Call onSubmit with the result
+            if (onSubmit) {
+                onSubmit(isCorrect);
             }
 
         } catch (error) {
-            console.error('Error during gesture submission:', error);
+            console.error('Error:', error);
+            setIsCorrect(false);
+            setModalMessage("An error occurred. Please try again.");
+            
+            // Call onSubmit with false on error
+            if (onSubmit) {
+                onSubmit(false);
+            }
         }
     };
 
     const closeModal = () => {
         setIsModalVisible(false);
-        if (onComplete) {
-            onComplete(); // Notify parent component to proceed to the next lesson
+        if (isCorrect && onComplete) {
+            onComplete(); // continue if correct
+        } else {
+            // make sure we can record again when close is pressed
+            setVideoPath(null);
         }
     };
     
@@ -152,7 +178,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
     return (
         <>
             <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>{data.prompt}</Text>
+                <Text style={styles.questionText}>{data.prompt || data.word}</Text>
             </View>
             <View style={styles.gestContainer}>
                 {videoPath ? (
@@ -173,23 +199,31 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
             </View>
             <View style={styles.buttonRow}>
                 <RectangularButton
-                    width={width * 0.35}
+                    width={width * GESTURE_UI.BUTTON_WIDTH}
                     color={COLORS.tertiary}
                     text="Start"
                     onPress={startRecording}
                 />
                 <RectangularButton
-                    width={width * 0.35}
+                    width={width * GESTURE_UI.BUTTON_WIDTH}
                     color={COLORS.highlight_color_2}
                     text="Stop"
                     onPress={stopRecording}
                 />
             </View>
-            <RectangularButton
-                width={width * 0.4}
-                text="SUBMIT"
-                onPress={submitGesture}
-            />
+            <View style={styles.bottomButtonsContainer}>
+                <RectangularButton
+                    width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
+                    text="SUBMIT"
+                    onPress={submitGesture}
+                />
+                <RectangularButton
+                    width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
+                    text="SKIP"
+                    color={COLORS.soft_pink_background}
+                    onPress={onComplete}
+                />
+            </View>
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -200,8 +234,8 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalText}>{modalMessage}</Text>
                         <RectangularButton
-                            width={width * 0.4}
-                            text="Continue"
+                            width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
+                            text={isCorrect ? "Continue" : "Close"}
                             color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
                             onPress={closeModal}
                         />
@@ -214,34 +248,41 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
 const styles = StyleSheet.create({
     questionContainer: {
-        width: width * 0.8,
+        width: width * GESTURE_UI.QUESTION_WIDTH,
         marginTop: 0,
-        marginBottom: height * 0.01,
+        marginBottom: height * GESTURE_UI.QUESTION_MARGIN_BOTTOM,
     },
     questionText: {
-        fontSize: 20,
+        fontSize: GESTURE_UI.QUESTION_FONT_SIZE,
         fontFamily: FONTS.poppins_font,
         textAlign: 'left',
         color: COLORS.neutral_base_dark,
     },
     gestContainer: {
-        width: width * 0.82,
-        height: height * 0.58,
-        borderRadius: 16,
+        width: width * GESTURE_UI.GEST_CONTAINER_WIDTH,
+        height: height * GESTURE_UI.GEST_CONTAINER_HEIGHT,
+        borderRadius: GESTURE_UI.GEST_CONTAINER_BORDER_RADIUS,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.primary,
     },
     camera: {
-        width: width * 0.75,
-        height: height * 0.55,
+        width: width * GESTURE_UI.CAMERA_WIDTH,
+        height: height * GESTURE_UI.CAMERA_HEIGHT,
     },
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: height * 0.02,
-        gap: width * 0.05,
+        marginVertical: height * GESTURE_UI.BUTTON_MARGIN_VERTICAL,
+        gap: width * GESTURE_UI.BUTTON_GAP,
+    },
+    bottomButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: width * GESTURE_UI.BUTTON_GAP,
+        marginBottom: height * GESTURE_UI.BUTTON_MARGIN_VERTICAL,
     },
     modalContainer: {
         flex: 1,
@@ -250,24 +291,24 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-        width: width * 0.8,
-        padding: 20,
+        width: width * GESTURE_UI.MODAL_WIDTH,
+        padding: GESTURE_UI.MODAL_PADDING,
         backgroundColor: COLORS.light_gray_1,
-        borderRadius: 12,
+        borderRadius: GESTURE_UI.MODAL_BORDER_RADIUS,
         alignItems: 'center',
     },
     modalText: {
-        fontSize: 18,
-        marginBottom: 20,
+        fontSize: GESTURE_UI.MODAL_FONT_SIZE,
+        marginBottom: GESTURE_UI.MODAL_TEXT_MARGIN_BOTTOM,
         fontFamily: FONTS.poppins_font,
         textAlign: 'center',
         color: COLORS.neutral_base_dark,
     },
     permissionText: {
-        fontSize: 18,
+        fontSize: GESTURE_UI.PERMISSION_FONT_SIZE,
         textAlign: 'center',
         color: COLORS.neutral_base_dark,
-        marginTop: height * 0.4,
+        marginTop: height * GESTURE_UI.PERMISSION_TEXT_MARGIN_TOP,
     },
 });
 

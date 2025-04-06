@@ -21,7 +21,8 @@ import {
     getUserLanguagePreference,
     fetchUserCourses,
     updateCourseProgress,
-    getUserPremiumStatus
+    getUserPremiumStatus,
+    fetchCourseExercises
 } from '../utils/apiService';
 
 const CoursesPage = ({ navigation }) => {
@@ -105,7 +106,7 @@ const CoursesPage = ({ navigation }) => {
             return;
         }
 
-        if (selectedCourse?.courseId === course.courseId) {
+        if (selectedCourse?._id === course._id) {
             setShowCard(!showCard);
         } else {
             setSelectedCourse(course);
@@ -115,14 +116,32 @@ const CoursesPage = ({ navigation }) => {
 
     const handleNavigateToCourse = async () => {
         try {
-            await updateCourseProgress(selectedCourse.courseId, selectedCourse.progress || 0);
+            console.log('Selected course:', selectedCourse); // Debug log
+            if (!selectedCourse || !selectedCourse._id) {
+                console.error('Invalid course data:', selectedCourse);
+                return;
+            }
+
+            const [exercises, progressUpdate] = await Promise.all([
+                fetchCourseExercises(selectedCourse._id),
+                updateCourseProgress(selectedCourse._id, selectedCourse.progress || 0)
+            ]);
+            
             navigation.navigate('CourseDetails', {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
-                courseId: selectedCourse.courseId
+                courseId: selectedCourse._id,
+                exercises: exercises || []
             });
         } catch (error) {
-            console.error('Error updating course progress:', error);
+            console.error('Error preparing course:', error);
+            // Still navigate but with empty exercises array
+            navigation.navigate('CourseDetails', {
+                title: selectedCourse.name,
+                description: selectedCourse.description,
+                courseId: selectedCourse._id,
+                exercises: []
+            });
         }
     };
 

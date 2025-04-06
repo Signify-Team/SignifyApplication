@@ -12,13 +12,24 @@ import Video from 'react-native-video';
 import styles from '../styles/VideoDisplayStyles';
 
 const VideoDisplay = ({sourceVid}) => {
+  // Handle both URLs and require() - in the future we can remove for require() sources
+  const videoSource = typeof sourceVid === 'string' 
+    ? { uri: sourceVid }
+    : sourceVid;
+
+  if (!sourceVid) {
+    console.warn('No video source provided to VideoDisplay');
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Video
-        source={sourceVid}
+        source={videoSource}
         style={styles.video}
-        controls
-        onError={(error) => console.error('Video error:', error)}
+        controls={true}
+        resizeMode="cover"
+        onError={(error) => console.error('Video error:', error, sourceVid)}
       />
     </View>
   );

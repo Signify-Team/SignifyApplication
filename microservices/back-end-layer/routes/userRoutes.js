@@ -19,14 +19,16 @@ const MINUTES_15 = 15000 * 60 * 1000;
 
 const limiter = rateLimit({
     windowMs: MINUTES_15,
-    max: 100, // Limit each IP to 100 requests per `window` (15 minutes)
+    max: 1000, // Increased from 100 to 1000
     message: { message: 'Too many requests, please try again later.' },
 });
-if (process.env.NODE_ENV !== 'test') {
-    console.log("Applying rate limiter...");  // Log for verification
+
+// Only apply rate limiter in production
+if (process.env.NODE_ENV === 'production') {
+    console.log("Applying rate limiter for production...");
     router.use(limiter);
 } else {
-    console.log("Rate limiter disabled for testing.");
+    console.log("Rate limiter disabled for development/testing.");
 }
 
 // Get all users (Admin only)

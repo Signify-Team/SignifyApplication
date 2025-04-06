@@ -13,7 +13,6 @@ import { linking } from '../utils/linking';
 // Screen Links
 import SplashScreen from '../screens/SplashScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
-import WelcomePage from '../screens/WelcomePage';
 import SignUpPage from '../screens/SignUpPage';
 import LoginPage from '../screens/LoginPage';
 import SettingsPage from '../screens/SettingsPage';

@@ -1,118 +1,272 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Dimensions } from 'react-native';
 import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
+import TrueFalseQuestion from '../components/TrueFalseQuestion';
+import FillInTheBlankQuestion from '../components/FillInTheBlankQuestion';
+import CourseDetailsTopBar from '../components/CourseDetailsTopBar';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
+import MatchingQuestion from '../components/MatchingQuestion';
 
 const { width } = Dimensions.get('window');
 
-// Example Lessons Array
-const lessons = [
-    {
-        id: 1,
-        type: 'multipleChoice',
-        data: {
-            video: require('../assets/videos/thank_you.mp4'),
-            options: ['Hello', 'Thank You', 'Are', 'Yours'],
-            correctOption: 'Thank You',
-        },
-    },
-    { id: 2, type: 'gesture', data: { prompt: 'Wave your hand to say Hello.' } },
-    {
-        id: 3,
-        type: 'multipleChoice',
-        data: {
-            video: require('../assets/videos/thank_you.mp4'), // to fix error because non existing video
-            options: ['Collect', 'Give', 'Gift', 'Share'],
-            correctOption: 'Share',
-        },
-    },
-    { id: 4, type: 'gesture', data: { prompt: 'Perform the gesture for "Goodbye".' } },
-];
+const CourseDetailPage = ({ route, navigation }) => {
+    const courseExercises = route?.params?.exercises || [];
+    const transformExercises = (exercises) => {
+        
+        if (!exercises || !Array.isArray(exercises)) {
+            return defaultLessons;
+        }
+        return exercises.map(exercise => {
+            if (!exercise || typeof exercise !== 'object') {
+                return null;
+            }
 
-const CourseDetailPage = ({navigation}) => {
-    const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+            const exerciseType = String(exercise?.type || '').trim();
+            
+            const baseExercise = {
+                id: String(exercise?._id || ''),
+                type: exerciseType.toLowerCase(),
+                data: {}
+            };
+
+            try {
+                switch (exerciseType) {
+                    case 'TrueFalse':
+                        return {
+                            ...baseExercise,
+                            type: 'trueFalse',
+                            data: {
+                                statement: String(exercise?.statement || ''),
+                                correctAnswer: Boolean(exercise?.correctAnswer)
+                            }
+                        };
+                    case 'Multichoice':
+                        return {
+                            ...baseExercise,
+                            type: 'multichoice',
+                            data: {
+                                video: exercise?.signVideoUrl || null,
+                                word: String(exercise?.word || ''),
+                                options: Array.isArray(exercise?.options) ? exercise.options.map(opt => String(opt || '')) : [],
+                                correctOption: String(exercise?.correctAnswer || '')
+                            }
+                        };
+                    case 'FillInTheBlank':
+                        return {
+                            ...baseExercise,
+                            type: 'fillInTheBlank',
+                            data: {
+                                sentence: String(exercise?.sentence || ''),
+                                options: Array.isArray(exercise?.options) ? exercise.options.map(opt => String(opt || '')) : [],
+                                correctAnswerIndex: Number(exercise?.correctAnswerIndex) || 0
+                            }
+                        };
+                    case 'Matching':
+                        const pairs = Array.isArray(exercise?.pairs) ? exercise.pairs : [];
+                        return {
+                            ...baseExercise,
+                            type: 'matching',
+                            data: {
+                                pairs: pairs.map(pair => ({
+                                    signVideoUrl: String(pair?.signVideoUrl || ''),
+                                    word: String(pair?.word || '')
+                                }))
+                            }
+                        };
+                    case 'Signing':
+                        return {
+                            ...baseExercise,
+                            type: 'gesture',
+                            data: {
+                                word: String(exercise?.word || '')
+                            }
+                        };
+                    default:
+                        console.warn('Unknown exercise type:', exerciseType);
+                        return null;
+                }
+            } catch (error) {
+                console.error('Error transforming exercise:', error, exercise);
+                return null;
+            }
+        }).filter(Boolean); // Remove null exercises
+    };
+
+    const exercises = transformExercises(courseExercises);
+    console.log('Transformed exercises:', exercises);
+
+    const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState(null);
     const [isCorrect, setIsCorrect] = useState(null);
 
     const handleAnswer = (answer) => {
-        console.log('User Answer:', answer); // Debug userAnswer
-        const correct = lessons[currentLessonIndex].data.correctOption;
-    
-        // Update userAnswer and correctness
-        setUserAnswer(answer);
-    
-        if (answer === correct || answer === 'gestureCaptured') {
-            setIsCorrect(true);
-            console.log('Correct');
-        } else {
-            setIsCorrect(false);
-            console.log(`Incorrect. The correct answer was: ${correct}`);
+        if (answer === undefined || answer === null) {
+            console.warn('Invalid answer received');
+            return;
         }
-    };
-    
 
-    const handleGestureSubmission = (result) => {
-        if (result.includes('yes')) {
-            handleAnswer('gestureCaptured');
-        } else {
-            handleAnswer(null); // Incorrect gesture
+        const currentExercise = exercises[currentExerciseIndex];
+        
+        if (!currentExercise?.data) {
+            console.warn('Invalid exercise data in handleAnswer');
+            return;
+        }
+
+        let correct = false;
+
+        try {
+            // Reset previous state!!
+            setUserAnswer(null);
+            setIsCorrect(null);
+
+            switch (currentExercise.type) {
+                case 'multichoice':
+                    correct = String(answer) === String(currentExercise.data.correctOption);
+                    break;
+                case 'trueFalse':
+                    correct = Boolean(answer) === Boolean(currentExercise.data.correctAnswer);
+                    break;
+                case 'fillInTheBlank':
+                    correct = Number(answer) === Number(currentExercise.data.correctAnswerIndex);
+                    break;
+                case 'matching':
+                    if (!Array.isArray(answer) || !Array.isArray(currentExercise.data.pairs)) {
+                        console.warn('Invalid matching answer format');
+                        correct = false;
+                        break;
+                    }
+                    correct = answer.every((pair, index) => 
+                        currentExercise.data.pairs[index] &&
+                        String(pair?.word || '') === String(currentExercise.data.pairs[index]?.word || '')
+                    );
+                    break;
+                case 'gesture':
+                    correct = Boolean(answer);
+                    break;
+                default:
+                    console.warn('Unknown exercise type in handleAnswer:', currentExercise.type);
+            }
+
+            // Set new state
+            setUserAnswer(answer);
+            setIsCorrect(correct);
+        } catch (error) {
+            console.error('Error in handleAnswer:', error);
+            setUserAnswer(null);
+            setIsCorrect(false);
         }
     };
 
     const handleContinue = () => {
-        // Move to the next lesson if available
-        if (currentLessonIndex < lessons.length - 1) {
-            setCurrentLessonIndex(currentLessonIndex + 1);
+        if (currentExerciseIndex < exercises.length - 1) {
+            // Reset all states
             setUserAnswer(null);
             setIsCorrect(null);
+            setCurrentExerciseIndex(prevIndex => prevIndex + 1);
         } else {
-            console.log('Course Completed');
+            // Course completed
             navigation.navigate('Home', { screen: 'Courses' });
         }
     };
 
-    const renderLesson = () => {
-        const currentLesson = lessons[currentLessonIndex];
-    
-        if (currentLesson.type === 'multipleChoice') {
-            return (
-                <MultipleChoiceQuestion
-                    data={currentLesson.data}
-                    onAnswer={handleAnswer}
-                />
-            );
+    // Reset states when exercise changes
+    useEffect(() => {
+        setUserAnswer(null);
+        setIsCorrect(null);
+    }, [currentExerciseIndex]);
+
+    const renderExercise = () => {
+        const currentExercise = exercises[currentExerciseIndex];
+        if (!currentExercise?.data) {
+            console.warn('No valid exercise to render');
+            return null;
         }
-    
-        if (currentLesson.type === 'gesture') {
-            return (
-                <GestureQuestion
-                    data={currentLesson.data}
-                    onSubmit={handleGestureSubmission}
-                    onComplete={handleContinue} // Pass handleContinue to proceed after modal
-                />
-            );
+
+        try {
+            switch (currentExercise.type) {
+                case 'multichoice':
+                    return (
+                        <MultipleChoiceQuestion
+                            key={`${currentExercise.id}-${currentExerciseIndex}`}
+                            data={currentExercise.data}
+                            onAnswer={handleAnswer}
+                        />
+                    );
+                case 'gesture':
+                    return (
+                        <GestureQuestion
+                            key={`${currentExercise.id}-${currentExerciseIndex}`}
+                            data={currentExercise.data}
+                            onSubmit={handleAnswer}
+                            onComplete={() => {
+                                handleAnswer(false);
+                                handleContinue();
+                            }}
+                        />
+                    );
+                case 'trueFalse':
+                    return (
+                        <TrueFalseQuestion
+                            key={`${currentExercise.id}-${currentExerciseIndex}`}
+                            data={currentExercise.data}
+                            onAnswer={handleAnswer}
+                        />
+                    );
+                case 'fillInTheBlank':
+                    return (
+                        <FillInTheBlankQuestion
+                            key={`${currentExercise.id}-${currentExerciseIndex}`}
+                            data={currentExercise.data}
+                            onAnswer={handleAnswer}
+                        />
+                    );
+                case 'matching':
+                    return (
+                        <MatchingQuestion
+                            key={`${currentExercise.id}-${currentExerciseIndex}`}
+                            data={currentExercise.data}
+                            onAnswer={handleAnswer}
+                        />
+                    );
+                default:
+                    console.warn('Unsupported exercise type:', currentExercise.type);
+                    return null;
+            }
+        } catch (error) {
+            console.error('Error rendering exercise:', error);
+            return null;
         }
-    
-        return null;
     };
 
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.questionsContainer}>
-                {renderLesson()}
-                {userAnswer !== null && (
-                    <RectangularButton
-                        text="Continue"
-                        width={width * 0.85}
-                        color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
-                        onPress={handleContinue}
-                    />
+            <CourseDetailsTopBar navigation={navigation} />
+            <View style={{ flex: 1 }}>
+                <ScrollView contentContainerStyle={styles.questionsContainer}>
+                    {renderExercise()}
+                </ScrollView>
+                {userAnswer !== null && exercises[currentExerciseIndex]?.type !== 'gesture' && (
+                    <View style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        alignItems: 'center',
+                        marginBottom: 20,
+                    }}>
+                        <RectangularButton
+                            text="Continue"
+                            width={width * 0.85}
+                            color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
+                            onPress={handleContinue}
+                        />
+                    </View>
                 )}
-            </ScrollView>
+            </View>
         </View>
     );
 };

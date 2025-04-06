@@ -21,6 +21,17 @@ from dotenv import load_dotenv
 from PIL import Image
 import io
 
+# Constants
+class VideoConstants:
+    FRAME_INTERVAL = 6 
+    TARGET_SIZE = (320, 240) 
+    MAX_FRAMES = 15 
+    HAND_DETECTION_THRESHOLD = 0.08 
+    GPT_MAX_TOKENS = 5 
+    GPT_TEMPERATURE = 0.1 
+    IMAGE_QUALITY = 85
+    TARGET_WIDTH = 256
+
 # Add the parent directory of the current script to sys.path
 parent_directory = Path(__file__).resolve().parent.parent #__file__ is the path of the current file, parent is the parent directory, parent.parent is the grandparent directory
 #lesson-management-service is the grandparent directory of the current file
@@ -75,7 +86,7 @@ async def upload_video(file: UploadFile = File(...)):
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-def extract_frames(video_path, interval=6):
+def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
     print("Extracting frames from video...", video_path)
 
     if(video_path.startswith("file://")):
@@ -160,16 +171,16 @@ def optimize_image_for_api(image_path):
         
         # Calculate new dimensions maintaining aspect ratio
         width, height = img.size
-        target_width = 256
+        target_width = VideoConstants.TARGET_WIDTH
         aspect_ratio = width / height
         target_height = int(target_width / aspect_ratio)
         
         # Resize image maintaining aspect ratio
-        img = img.resize((target_width, target_height), Image.Resampling.LANCZOS) # LANCZOS is a high-quality resampling algorithm that is generally preferred for image resizing in cases like these
+        img = img.resize((target_width, target_height), Image.Resampling.LANCZOS)
         
         # Save with optimal compression
-        buffer = io.BytesIO() # this is used to save the image to an in memory byte buffer
-        img.save(buffer, format='JPEG', quality=85, optimize=True)
+        buffer = io.BytesIO()
+        img.save(buffer, format='JPEG', quality=VideoConstants.IMAGE_QUALITY, optimize=True)
         return base64.b64encode(buffer.getvalue()).decode('utf-8')
 
 # send the frames to the GPT API
@@ -186,7 +197,7 @@ async def send_frames_to_gpt(frames):
             loop.run_in_executor(executor, optimize_image_for_api, frame)
             for frame in frames  # process all frames
         ]
-        optimized_images = await asyncio.gather(*tasks) # wait for all the tasks to finish and collect the results
+        optimized_images = await asyncio.gather(*tasks)
     
     opt_time = time.time() - opt_start_time
     print(f"  - Image optimization time: {opt_time:.2f} seconds")
@@ -230,8 +241,8 @@ Be strict in your assessment. If uncertain, answer "NO".
             lambda: client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": message_content}],
-                max_tokens=5,  # smaller to force a concise response
-                temperature=0.1  # lower temperature for more deterministic response
+                max_tokens=VideoConstants.GPT_MAX_TOKENS,
+                temperature=VideoConstants.GPT_TEMPERATURE
             )
         )
         
@@ -284,7 +295,7 @@ def process_with_detection(frames):
         # process frames with hand detection
         # increased threshold from 0.05 to 0.08 to be more selective about significant hand movements
         hand_detection_start = time.time()    
-        selected_frames = process_frames(valid_frames, SELECTED_FRAMES_DIR, threshold=0.08)
+        selected_frames = process_frames(valid_frames, SELECTED_FRAMES_DIR, threshold=VideoConstants.HAND_DETECTION_THRESHOLD)
         hand_detection_time = time.time() - hand_detection_start
         print(f"  - Core hand detection time: {hand_detection_time:.2f} seconds")
         
@@ -295,7 +306,7 @@ def process_with_detection(frames):
         print(f"Error in process_with_detection: {e}")
         return []
 
-def select_optimal_frames(frames, max_frames=15):
+def select_optimal_frames(frames, max_frames=VideoConstants.MAX_FRAMES):
     """
     Select the optimal frames to send to GPT API to balance accuracy and cost.
     
@@ -379,7 +390,7 @@ def select_optimal_frames(frames, max_frames=15):
     return selected
 
 # resize the image for faster processing in hand detection
-def preprocess_frames_for_detection(frames_dir, target_size=(320, 240)):
+def preprocess_frames_for_detection(frames_dir, target_size=VideoConstants.TARGET_SIZE):
     """
     Resize all frames in a directory to a smaller size for faster processing.
     

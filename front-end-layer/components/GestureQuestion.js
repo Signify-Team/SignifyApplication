@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Modal } from 'react-native';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import RectangularButton from './RectangularButton';
-import { COLORS, FONTS } from '../utils/constants';
+import { COLORS, FONTS, API, GESTURE_UI } from '../utils/constants';
 import Video from 'react-native-video';
 
 const { width, height } = Dimensions.get('window');
@@ -88,12 +88,12 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
         try {
             // Upload video with timeout
             const uploadResponse = await Promise.race([
-                fetch('http://172.20.10.6:8000/upload-video', {
+                fetch(`${API.BASE_URL}/upload-video`, {
                     method: 'POST',
                     body: formData,
                 }),
                 new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Upload timeout')), 10000)
+                    setTimeout(() => reject(new Error('Upload timeout')), API.UPLOAD_TIMEOUT)
                 )
             ]);
 
@@ -105,7 +105,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
             // Process video with timeout
             const processResponse = await Promise.race([
-                fetch('http://172.20.10.6:8000/process-video', {
+                fetch(`${API.BASE_URL}/process-video`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     body: JSON.stringify({ video_url: uploadResult.video_server_path }),
                 }),
                 new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Processing timeout')), 30000)
+                    setTimeout(() => reject(new Error('Processing timeout')), API.PROCESS_TIMEOUT)
                 )
             ]);
 
@@ -245,41 +245,41 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
 const styles = StyleSheet.create({
     questionContainer: {
-        width: width * 0.8,
+        width: width * GESTURE_UI.QUESTION_WIDTH,
         marginTop: 0,
-        marginBottom: height * 0.01,
+        marginBottom: height * GESTURE_UI.QUESTION_MARGIN_BOTTOM,
     },
     questionText: {
-        fontSize: 20,
+        fontSize: GESTURE_UI.QUESTION_FONT_SIZE,
         fontFamily: FONTS.poppins_font,
         textAlign: 'left',
         color: COLORS.neutral_base_dark,
     },
     gestContainer: {
-        width: width * 0.82,
-        height: height * 0.58,
-        borderRadius: 16,
+        width: width * GESTURE_UI.GEST_CONTAINER_WIDTH,
+        height: height * GESTURE_UI.GEST_CONTAINER_HEIGHT,
+        borderRadius: GESTURE_UI.GEST_CONTAINER_BORDER_RADIUS,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.primary,
     },
     camera: {
-        width: width * 0.75,
-        height: height * 0.55,
+        width: width * GESTURE_UI.CAMERA_WIDTH,
+        height: height * GESTURE_UI.CAMERA_HEIGHT,
     },
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: height * 0.02,
-        gap: width * 0.05,
+        marginVertical: height * GESTURE_UI.BUTTON_MARGIN_VERTICAL,
+        gap: width * GESTURE_UI.BUTTON_GAP,
     },
     bottomButtonsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: width * 0.05,
-        marginBottom: height * 0.02,
+        gap: width * GESTURE_UI.BUTTON_GAP,
+        marginBottom: height * GESTURE_UI.BUTTON_MARGIN_VERTICAL,
     },
     modalContainer: {
         flex: 1,
@@ -288,24 +288,24 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-        width: width * 0.8,
-        padding: 20,
+        width: width * GESTURE_UI.MODAL_WIDTH,
+        padding: GESTURE_UI.MODAL_PADDING,
         backgroundColor: COLORS.light_gray_1,
-        borderRadius: 12,
+        borderRadius: GESTURE_UI.MODAL_BORDER_RADIUS,
         alignItems: 'center',
     },
     modalText: {
-        fontSize: 18,
-        marginBottom: 20,
+        fontSize: GESTURE_UI.MODAL_FONT_SIZE,
+        marginBottom: GESTURE_UI.MODAL_TEXT_MARGIN_BOTTOM,
         fontFamily: FONTS.poppins_font,
         textAlign: 'center',
         color: COLORS.neutral_base_dark,
     },
     permissionText: {
-        fontSize: 18,
+        fontSize: GESTURE_UI.PERMISSION_FONT_SIZE,
         textAlign: 'center',
         color: COLORS.neutral_base_dark,
-        marginTop: height * 0.4,
+        marginTop: height * GESTURE_UI.PERMISSION_TEXT_MARGIN_TOP,
     },
 });
 

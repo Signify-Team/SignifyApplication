@@ -155,8 +155,8 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
     const closeModal = () => {
         setIsModalVisible(false);
-        if (onComplete) {
-            onComplete(); // Notify parent component to proceed to the next lesson
+        if (isCorrect && onComplete) {
+            onComplete(); // continue if correct
         }
     };
     
@@ -231,8 +231,8 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalText}>{modalMessage}</Text>
                         <RectangularButton
-                            width={width * 0.4}
-                            text="Continue"
+                            width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
+                            text={isCorrect ? "Continue" : "Close"}
                             color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
                             onPress={closeModal}
                         />

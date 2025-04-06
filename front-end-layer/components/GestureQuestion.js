@@ -199,13 +199,13 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
             </View>
             <View style={styles.buttonRow}>
                 <RectangularButton
-                    width={width * 0.35}
+                    width={width * GESTURE_UI.BUTTON_WIDTH}
                     color={COLORS.tertiary}
                     text="Start"
                     onPress={startRecording}
                 />
                 <RectangularButton
-                    width={width * 0.35}
+                    width={width * GESTURE_UI.BUTTON_WIDTH}
                     color={COLORS.highlight_color_2}
                     text="Stop"
                     onPress={stopRecording}
@@ -213,12 +213,12 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
             </View>
             <View style={styles.bottomButtonsContainer}>
                 <RectangularButton
-                    width={width * 0.4}
+                    width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
                     text="SUBMIT"
                     onPress={submitGesture}
                 />
                 <RectangularButton
-                    width={width * 0.4}
+                    width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
                     text="SKIP"
                     color={COLORS.soft_pink_background}
                     onPress={onComplete}

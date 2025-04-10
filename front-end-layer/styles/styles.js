@@ -73,14 +73,11 @@ export default StyleSheet.create(
             paddingTop: height * 0.01,
         },
 
-
         bottomBarContainer: {
             backgroundColor: COLORS.neutral_base_soft,
             borderTopWidth: 1 ,
-            borderTopColor: "#95A3AA", 
-            
+            borderTopColor: '#95A3AA',
         },
-
 
         // Login Page styles
         loginWelcomeText:

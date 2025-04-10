@@ -1,15 +1,59 @@
-import React, { useEffect } from 'react';
-import { View, Image, StyleSheet, Animated } from 'react-native';
+/**
+ * @file SplashScreen.js
+ * @description The splash screen of the application
+ *             Displays a logo with animations and plays a sound.
+ *
+ * @datecreated 12.03.2025
+ * @lastmodified 10.04.2025
+ */
+
+import React, { useEffect, useRef } from 'react';
+import { View, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../utils/constants';
+import Sound from 'react-native-sound';
+import styles from '../styles/SplashScreenStyles.js';
 
 const SplashScreen = () => {
     const navigation = useNavigation();
-    const fadeAnim = new Animated.Value(0);
-    const waveAnim = new Animated.Value(0);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const waveAnim = useRef(new Animated.Value(0)).current;
+    const bounceAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-        // Create continuous waving animation
+        Sound.setCategory('Playback');
+
+        const sound = new Sound('splash_screen.mp3', Sound.MAIN_BUNDLE, (error) => {
+            if (error) {
+                console.log('Sound load error:', error);
+                return;
+            }
+            setTimeout(() => {
+                sound.play((success) => {
+                    if (!success) {
+                        console.log('Sound playback failed');
+                    }
+                    sound.release();
+                });
+            }, 400);
+        });
+
+        // Bounce
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(bounceAnim, {
+                    toValue: -10,
+                    duration: 500,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(bounceAnim, {
+                    toValue: 0,
+                    duration: 500,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+
+        // Wave
         Animated.loop(
             Animated.sequence([
                 Animated.timing(waveAnim, {
@@ -36,7 +80,12 @@ const SplashScreen = () => {
         ]).start(() => {
             navigation.replace('Welcome');
         });
-    }, []);
+
+        // Clean up
+        return () => {
+            sound.release();
+        };
+    }, [bounceAnim, fadeAnim, navigation, waveAnim]);
 
     return (
         <View style={styles.container}>
@@ -47,6 +96,7 @@ const SplashScreen = () => {
                     {
                         opacity: fadeAnim,
                         transform: [
+                            { translateY: bounceAnim },
                             {
                                 scale: fadeAnim.interpolate({
                                     inputRange: [0, 1],
@@ -67,18 +117,4 @@ const SplashScreen = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.neutral_base_soft,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    logo: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain',
-    },
-});
-
-export default SplashScreen; 
+export default SplashScreen;

@@ -53,7 +53,7 @@ const ForgotPasswordPage = () => {
             setEmail('');
         } catch (error) {
             console.error('Error in handleForgotPassword:', error);
-            
+
             // Handle specific error cases
             if (error.message.includes('Network error')) {
                 setErrorMessage('Unable to connect to the server. Please check your internet connection.');

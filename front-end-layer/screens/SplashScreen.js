@@ -10,8 +10,10 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Sound from 'react-native-sound';
 import styles from '../styles/SplashScreenStyles.js';
+import { USER_ID_KEY } from '../utils/config.js';
 
 const SplashScreen = () => {
     const navigation = useNavigation();
@@ -20,6 +22,22 @@ const SplashScreen = () => {
     const bounceAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const userId = await AsyncStorage.getItem(USER_ID_KEY);
+                if (userId) {
+                    console.log('User ID found:', userId);
+                    navigation.replace('Login');
+                } else {
+                    console.log('No user ID found, navigating to Welcome screen');
+                    navigation.replace('Welcome');
+                }
+            } catch (error) {
+                console.error('Error retrieving user ID:', error);
+                navigation.replace('Welcome');
+            }
+        };
+
         Sound.setCategory('Playback');
 
         const sound = new Sound('splash_screen.mp3', Sound.MAIN_BUNDLE, (error) => {
@@ -78,7 +96,7 @@ const SplashScreen = () => {
             }),
             Animated.delay(1500),
         ]).start(() => {
-            navigation.replace('Welcome');
+            checkLoginStatus();
         });
 
         // Clean up

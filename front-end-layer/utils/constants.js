@@ -84,9 +84,9 @@ export const darkenColor = (color, amount) => {
 };
 
 export const API = {
-    UPLOAD_TIMEOUT: 10000, 
-    PROCESS_TIMEOUT: 30000,
-    BASE_URL: 'http://172.20.10.6:8000',
+    BASE_URL: process.env.API_BASE_URL,
+    UPLOAD_TIMEOUT: 30000,  // 30 seconds
+    PROCESS_TIMEOUT: 60000,  // 60 seconds
 };
 
 export const VIDEO = {

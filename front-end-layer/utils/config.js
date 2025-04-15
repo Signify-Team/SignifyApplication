@@ -5,5 +5,5 @@
  * @lastmodified 31.03.2025
  */
 
-export const API_BASE_URL = 'http://172.20.10.6:3000/api';
+export const API_BASE_URL = process.env.API_URL;
 export const USER_ID_KEY = '@user_id'; 

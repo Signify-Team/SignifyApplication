@@ -501,11 +501,11 @@ async def process_user_video(request: VideoRequest):
         extract_time = time.time() - extract_start_time
         print(f"Frame extraction time: {extract_time:.2f} seconds")
         
-        if not s3_frame_keys:
+        if not frames:
             return {"status": "error", "message": "No frames extracted"}
 
-        print(f"Extracted {len(s3_frame_keys)} frames")
-        print(f"Frame paths: {s3_frame_keys[:3]}...")  # Debug print first 3 frames
+        print(f"Extracted {len(frames)} frames")
+        print(f"Frame paths: {frames[:3]}...")  # Debug print first 3 frames
         
         # preprocess frames for faster detection
         preprocess_start_time = time.time()
@@ -514,10 +514,9 @@ async def process_user_video(request: VideoRequest):
         
         # process with detection
         detection_start_time = time.time()
-        s3_frame_keys = extract_frames_to_s3(request.video_url, folder_name)
         selected_frames = await asyncio.to_thread(
             process_with_detection_s3, 
-            s3_frame_keys, 
+            frames, 
             folder_name
         )
         detection_time = time.time() - detection_start_time
@@ -578,9 +577,13 @@ def extract_frames_to_s3(video_path, s3_folder, interval=VideoConstants.FRAME_IN
 
         if frame_count % interval == 0:
             s3_key = f"{s3_folder}frame_{frame_id}.jpg"
-            upload_frame_to_s3(frame, s3_key)
-            s3_frame_keys.append(s3_key)
-            frame_id += 1
+            try:
+                upload_frame_to_s3(frame, s3_key)
+                s3_frame_keys.append(s3_key)
+                frame_id += 1
+            except Exception as e:
+                print(f"Error uploading frame {frame_id}: {str(e)}")
+                continue
 
         frame_count += 1
 

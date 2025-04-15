@@ -588,9 +588,23 @@ def extract_frames_to_s3(video_path, s3_folder, interval=VideoConstants.FRAME_IN
     return s3_frame_keys
 
 def upload_frame_to_s3(frame, s3_key):
-    success, buffer = cv2.imencode('.jpg', frame)
-    if success:
-        s3.upload_fileobj(io.BytesIO(buffer), os.getenv("S3_BUCKET_NAME"), s3_key)
+    try:
+        print(f"Attempting to upload frame to S3: {s3_key}")
+        success, buffer = cv2.imencode('.jpg', frame)
+        if success:
+            print(f"Frame encoded successfully, size: {len(buffer)} bytes")
+            s3.upload_fileobj(
+                io.BytesIO(buffer), 
+                os.getenv("S3_BUCKET_NAME"), 
+                s3_key,
+                ExtraArgs={'ACL': 'public-read'}
+            )
+            print(f"Successfully uploaded frame to S3: {s3_key}")
+        else:
+            print("Failed to encode frame")
+    except Exception as e:
+        print(f"Error uploading frame to S3: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     # capture the time spent on the process

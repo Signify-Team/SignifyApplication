@@ -497,7 +497,7 @@ async def process_user_video(request: VideoRequest):
         session_id = str(uuid.uuid4())  # or get from user session
         exercise_id = "demo"  # pass dynamically in real use
         folder_name = f"USER_DATA/{session_id}_{exercise_id}/"
-        s3_frame_keys = extract_frames_to_s3(request.video_url, folder_name)
+        frames = extract_frames_to_s3(request.video_url, folder_name)
         extract_time = time.time() - extract_start_time
         print(f"Frame extraction time: {extract_time:.2f} seconds")
         
@@ -514,7 +514,7 @@ async def process_user_video(request: VideoRequest):
         
         # process with detection
         detection_start_time = time.time()
-        
+        s3_frame_keys = extract_frames_to_s3(request.video_url, folder_name)
         selected_frames = await asyncio.to_thread(
             process_with_detection_s3, 
             s3_frame_keys, 
@@ -588,15 +588,34 @@ def extract_frames_to_s3(video_path, s3_folder, interval=VideoConstants.FRAME_IN
     return s3_frame_keys
 
 def upload_frame_to_s3(frame, s3_key):
+    success, buffer = cv2.imencode('.jpg', frame)
+    if success:
+        s3.upload_fileobj(io.BytesIO(buffer), os.getenv("S3_BUCKET_NAME"), s3_key)
+
+
+async def cleanup_files():
+    """Asynchronous cleanup of temporary files and uploaded video"""
     try:
-        success, buffer = cv2.imencode('.jpg', frame)
-        if success:
-            s3.put_object(
-                Bucket=os.getenv("S3_BUCKET_NAME"),
-                Key=s3_key,
-                Body=io.BytesIO(buffer),
-                ContentType='image/jpeg'
-            )
+        # Clean up temporary directories
+        temp_dir = os.path.join(os.path.dirname(EXTRACTED_FRAMES_DIR), "temp_frames")
+        for directory in [EXTRACTED_FRAMES_DIR, SELECTED_FRAMES_DIR, temp_dir]:
+            if os.path.exists(directory):
+                for file in os.listdir(directory):
+                    try:
+                        os.remove(os.path.join(directory, file))
+                    except Exception as e:
+                        print(f"Error removing file in {directory}: {e}")
+        
+        # Clean up uploaded videos
+        if os.path.exists(UPLOADS_DIR):
+            for file in os.listdir(UPLOADS_DIR):
+                try:
+                    video_path = os.path.join(UPLOADS_DIR, file)
+                    os.remove(video_path)
+                    print(f"Cleaned up uploaded video: {file}")
+                except Exception as e:
+                    print(f"Error removing uploaded video {file}: {e}")
+                    
     except Exception as e:
         print(f"S3 Upload Error: {str(e)}")
         raise

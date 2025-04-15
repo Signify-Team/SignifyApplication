@@ -30,7 +30,7 @@ class VideoConstants:
     TARGET_SIZE = (320, 240) 
     MAX_FRAMES = 15 
     HAND_DETECTION_THRESHOLD = 0.08 
-    GPT_MAX_TOKENS = 100 
+    GPT_MAX_TOKENS = 5
     GPT_TEMPERATURE = 0.1 
     IMAGE_QUALITY = 85
     TARGET_WIDTH = 256
@@ -241,8 +241,6 @@ A hello/greeting gesture typically includes:
 - The hand positioned near the face or raised to shoulder level
 - Open palm facing forward
 - Fingers together or slightly spread
-first tell me what the person is gesturing including their posture and hand movements
-then
 Give me a SINGLE one-word answer:
 - Answer "YES" if these frames clearly show a hello/greeting gesture
 - Answer "NO" for any other gesture (pointing, thumbs up, peace sign, etc.)

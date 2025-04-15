@@ -546,7 +546,7 @@ async def process_user_video(request: VideoRequest):
         print("========================")
         
         # clean up files in background
-        asyncio.create_task(cleanup_files())
+        asyncio.create_task(delete_s3_folder())
         
         return {
             "status": "success",

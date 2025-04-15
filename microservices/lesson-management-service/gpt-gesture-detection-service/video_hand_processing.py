@@ -545,8 +545,6 @@ async def process_user_video(request: VideoRequest):
         print(f"Total processing time: {total_time:.2f} seconds")
         print("========================")
         
-        # clean up files in background
-        asyncio.create_task(delete_s3_folder())
         
         return {
             "status": "success",
@@ -594,12 +592,6 @@ def upload_frame_to_s3(frame, s3_key):
     if success:
         s3.upload_fileobj(io.BytesIO(buffer), os.getenv("S3_BUCKET_NAME"), s3_key)
 
-
-def delete_s3_folder(folder_prefix):
-    response = s3.list_objects_v2(Bucket=bucket_name, Prefix = folder_prefix)
-    for obj in response.get("Contents", []):
-        s3.delete_object(Bucket=bucket_name, Key=obj["Key"])
-    
 if __name__ == "__main__":
     # capture the time spent on the process
     import uvicorn

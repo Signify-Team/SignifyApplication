@@ -36,18 +36,54 @@ export const clearUserId = async () => {
 };
 
 export const loginUser = async (email, password) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/users/login`, {
-      email,
-      password,
-    });
-    if (response.data.user?._id) {
-      await setUserId(response.data.user._id);
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.timeout = 10000; // 10 seconds timeout
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (data.user?._id) {
+              setUserId(data.user._id)
+                .then(() => resolve(data))
+                .catch(error => reject(error));
+            } else {
+              resolve(data);
+            }
+          } catch (e) {
+            reject(new Error('Invalid response from server'));
+          }
+        } else {
+          reject(new Error(`Server returned status ${xhr.status}`));
+        }
+      }
+    };
+
+    xhr.onerror = function(e) {
+      reject(new Error('Network request failed'));
+    };
+
+    xhr.ontimeout = function() {
+      reject(new Error('Request timed out'));
+    };
+
+    try {
+      xhr.open('POST', `${API_BASE_URL}/users/login`, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Accept', '*/*');
+      
+      const body = JSON.stringify({
+        email,
+        password
+      });
+      
+      xhr.send(body);
+    } catch (error) {
+      reject(error);
     }
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || 'Login failed');
-  }
+  });
 };
 
 export const registerUser = async (username, email, password) => {

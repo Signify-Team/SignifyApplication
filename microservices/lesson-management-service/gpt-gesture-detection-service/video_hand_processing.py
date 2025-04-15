@@ -3,12 +3,15 @@ This script demonstrates the workflow for processing a video file with hand dete
 
 The video file is processed frame by frame, extracting the frames and running hand detection on each frame. The frames with detected hand movements are then sent to the GPT API for analysis.
 """
+import uuid
 import cv2
 import sys
 import os
 import base64
 import time
 import asyncio
+import boto3
+import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from openai import OpenAI
@@ -41,6 +44,23 @@ from hand_detection_service import process_frames
 # Load gpt key from .env file
 load_dotenv()
 
+s3 = boto3.client(
+    's3',
+    region_name=os.getenv("AWS_REGION"),  # e.g., "eu-central-1"
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),       # optional if IAM role is used
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")  # optional if IAM role is used
+)
+
+bucket_name = os.getenv("S3_BUCKET_NAME")  # e.g., "signifyappbucket"
+
+# Initialize OpenAI client
+GPT_API_KEY = os.getenv("GPT_API_KEY")
+if not GPT_API_KEY:
+    raise ValueError("GPT_API_KEY not found in environment variables")
+
+# Initialize OpenAI client without any proxy settings
+client = OpenAI(api_key=GPT_API_KEY)
+
 #app init
 app = FastAPI()
 
@@ -48,10 +68,10 @@ app = FastAPI()
 # should be restricted in future, only makes sense for development right now
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True, # allows cookies to be sent with the request (user session için)
-    allow_methods=["*"], # we can use all methods
-    allow_headers=["*"], # makes sure that authentication tokens are sent
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 # Directories - Using absolute paths otherwise app crashes and cannot find the paths
@@ -65,10 +85,6 @@ os.makedirs(EXTRACTED_FRAMES_DIR, exist_ok=True)
 os.makedirs(SELECTED_FRAMES_DIR, exist_ok=True)
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
-# get the gpt key from the .env file (MAKE SURE TO USE " INSTEAD OF LEFT DOUBLE QUOTES IN .ENV FILE)
-GPT_API_KEY = os.getenv("GPT_API_KEY")
-client = OpenAI(api_key=GPT_API_KEY)
-
 # Define input model
 class VideoRequest(BaseModel):
     video_url: str  # Path or URL to the video file
@@ -77,14 +93,27 @@ class VideoRequest(BaseModel):
 @app.post("/upload-video")
 async def upload_video(file: UploadFile = File(...)):
     try:
-        print("Uploading video...")
-        file_path = os.path.join(UPLOADS_DIR, file.filename) # get the directory from above
+        print(f"Uploading video: {file.filename}")
+        print(f"Uploads directory: {UPLOADS_DIR}")
+        
+        # Ensure uploads directory exists
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
+        
+        # Check if directory is writable
+        if not os.access(UPLOADS_DIR, os.W_OK):
+            raise HTTPException(status_code=500, detail="Uploads directory is not writable")
+            
+        file_path = os.path.join(UPLOADS_DIR, file.filename)
+        print(f"Saving to: {file_path}")
+        
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+            
+        print(f"Successfully uploaded video to: {file_path}")
         return {"video_server_path": file_path}
     except Exception as e:
-        print(f"An error occurred: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"An error occurred during upload: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload video: {str(e)}")
 
 def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
     print("Extracting frames from video...", video_path)
@@ -262,49 +291,70 @@ Be strict in your assessment. If uncertain, answer "NO".
         print(f"Error in GPT request: {str(e)}")
         return "no"
 
-def process_with_detection(frames):
-    """Process frames with hand detection with error handling"""
-    print("Processing frames with hand detection...")
+def process_with_detection_s3(frame_keys, s3_folder_prefix):
+    """Process frames stored in S3 with hand detection"""
     try:
-        if not frames:
-            print("No valid frames to process")
+        if not frame_keys:
+            print("No frame keys provided")
             return []
-            
-        # ensure all frames exist and are valid
-        validate_start = time.time()
-        valid_frames = []
-        for frame_path in frames:
-            abs_path = os.path.abspath(frame_path)
-            if os.path.exists(abs_path):
-                valid_frames.append(abs_path)
-                print(f"Valid frame path: {abs_path}") 
+
+        print(f"Processing {len(frame_keys)} frames from S3 folder: {s3_folder_prefix}")
+
+        # Sort by frame number for consistent order
+        def extract_frame_number(s3_key):
+            try:
+                return int(s3_key.split("frame_")[1].split(".")[0])
+            except:
+                return 0
+
+        frame_keys = sorted(frame_keys, key=extract_frame_number)
+
+        # Skip early frames
+        if len(frame_keys) > 12:
+            frame_keys = frame_keys[2:]
+
+        # Load frames from S3 into memory (as numpy arrays)
+        frames = []
+        for key in frame_keys:
+            frame = load_frame_from_s3(key)
+            if frame is not None:
+                frames.append((key, frame))
             else:
-                print(f"Warning: Frame file not found: {abs_path}")
-        
-        if not valid_frames:
-            print("No valid frames found for processing")
+                print(f"Failed to load frame: {key}")
+
+        if not frames:
+            print("No valid frames loaded from S3")
             return []
-        
-        validate_time = time.time() - validate_start
-        print(f"  - Frame validation time: {validate_time:.2f} seconds")
-        
-        # skip early frames 
-        if len(valid_frames) > 12:
-            valid_frames = valid_frames[2:]  # skip the first 2 frames which often show setup
-        
-        # process frames with hand detection
-        # increased threshold from 0.05 to 0.08 to be more selective about significant hand movements
-        hand_detection_start = time.time()    
-        selected_frames = process_frames(valid_frames, SELECTED_FRAMES_DIR, threshold=VideoConstants.HAND_DETECTION_THRESHOLD)
-        hand_detection_time = time.time() - hand_detection_start
-        print(f"  - Core hand detection time: {hand_detection_time:.2f} seconds")
-        
-        if selected_frames:
-            print(f"Successfully processed {len(selected_frames)} frames")
+
+        # Save processed frames to a temp directory before detection (optional but useful for reuse)
+        local_temp_dir = os.path.join("/tmp", s3_folder_prefix.replace("/", "_"))
+        os.makedirs(local_temp_dir, exist_ok=True)
+        local_paths = []
+
+        for i, (s3_key, frame) in enumerate(frames):
+            local_path = os.path.join(local_temp_dir, f"frame_{i}.jpg")
+            cv2.imwrite(local_path, frame)
+            local_paths.append(local_path)
+
+        # Process valid local paths
+        selected_frames = process_frames(local_paths, SELECTED_FRAMES_DIR, threshold=VideoConstants.HAND_DETECTION_THRESHOLD)
+
         return selected_frames
+
     except Exception as e:
-        print(f"Error in process_with_detection: {e}")
+        print(f"Error in process_with_detection_s3: {e}")
         return []
+    
+def load_frame_from_s3(s3_key):
+    print("HELLOOOOOOO SÜPER ÇALIŞIYO KODUMUZ")
+    try:
+        obj = s3.get_object(Bucket=bucket_name, Key=s3_key)
+        image_bytes = obj['Body'].read()
+        image_array = np.asarray(bytearray(image_bytes), dtype=np.uint8)
+        return cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    except Exception as e:
+        print(f"Failed to load frame {s3_key}: {e}")
+        return None
 
 def select_optimal_frames(frames, max_frames=VideoConstants.MAX_FRAMES):
     """
@@ -440,10 +490,12 @@ async def process_user_video(request: VideoRequest):
     try:
         total_start_time = time.time()
         
-        print("=== PERFORMANCE METRICS ===")
         
         extract_start_time = time.time()
-        frames = extract_frames(request.video_url)
+        session_id = str(uuid.uuid4())  # or get from user session
+        exercise_id = "demo"  # pass dynamically in real use
+        folder_name = f"USER_DATA/{session_id}_{exercise_id}/"
+        frames = extract_frames_to_s3(request.video_url, folder_name)
         extract_time = time.time() - extract_start_time
         print(f"Frame extraction time: {extract_time:.2f} seconds")
         
@@ -461,7 +513,12 @@ async def process_user_video(request: VideoRequest):
         
         # process with detection
         detection_start_time = time.time()
-        selected_frames = await asyncio.to_thread(process_with_detection, processed_frames)
+        s3_frame_keys = extract_frames_to_s3(request.video_url, folder_name)
+        selected_frames = await asyncio.to_thread(
+            process_with_detection_s3, 
+            s3_frame_keys, 
+            folder_name
+        )
         detection_time = time.time() - detection_start_time
         print(f"Hand detection time: {detection_time:.2f} seconds")
         
@@ -508,6 +565,34 @@ async def process_user_video(request: VideoRequest):
             "status": "error",
             "message": "An internal error has occurred. Please try again later."
         }
+
+def extract_frames_to_s3(video_path, s3_folder, interval=VideoConstants.FRAME_INTERVAL):
+    cap = cv2.VideoCapture(video_path)
+    frame_id = 0
+    frame_count = 0
+    s3_frame_keys = []
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        if frame_count % interval == 0:
+            s3_key = f"{s3_folder}frame_{frame_id}.jpg"
+            upload_frame_to_s3(frame, s3_key)
+            s3_frame_keys.append(s3_key)
+            frame_id += 1
+
+        frame_count += 1
+
+    cap.release()
+    return s3_frame_keys
+
+def upload_frame_to_s3(frame, s3_key):
+    success, buffer = cv2.imencode('.jpg', frame)
+    if success:
+        s3.upload_fileobj(io.BytesIO(buffer), os.getenv("S3_BUCKET_NAME"), s3_key)
+
 
 async def cleanup_files():
     """Asynchronous cleanup of temporary files and uploaded video"""

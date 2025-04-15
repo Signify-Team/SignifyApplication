@@ -241,7 +241,8 @@ A hello/greeting gesture typically includes:
 - The hand positioned near the face or raised to shoulder level
 - Open palm facing forward
 - Fingers together or slightly spread
-
+first tell me what the person is gesturing including their posture and hand movements
+then
 Give me a SINGLE one-word answer:
 - Answer "YES" if these frames clearly show a hello/greeting gesture
 - Answer "NO" for any other gesture (pointing, thumbs up, peace sign, etc.)
@@ -282,6 +283,7 @@ Be strict in your assessment. If uncertain, answer "NO".
         response_text = response.choices[0].message.content.lower().strip()
         print(f"GPT response: {response_text}")
         
+        print(response_text)
         if response_text.startswith("yes"):
             return "yes"
         else:
@@ -495,25 +497,24 @@ async def process_user_video(request: VideoRequest):
         session_id = str(uuid.uuid4())  # or get from user session
         exercise_id = "demo"  # pass dynamically in real use
         folder_name = f"USER_DATA/{session_id}_{exercise_id}/"
-        frames = extract_frames_to_s3(request.video_url, folder_name)
+        s3_frame_keys = extract_frames_to_s3(request.video_url, folder_name)
         extract_time = time.time() - extract_start_time
         print(f"Frame extraction time: {extract_time:.2f} seconds")
         
-        if not frames:
+        if not s3_frame_keys:
             return {"status": "error", "message": "No frames extracted"}
 
-        print(f"Extracted {len(frames)} frames")
-        print(f"Frame paths: {frames[:3]}...")  # Debug print first 3 frames
+        print(f"Extracted {len(s3_frame_keys)} frames")
+        print(f"Frame paths: {s3_frame_keys[:3]}...")  # Debug print first 3 frames
         
         # preprocess frames for faster detection
         preprocess_start_time = time.time()
-        processed_frames = preprocess_frames_for_detection(EXTRACTED_FRAMES_DIR)
         preprocess_time = time.time() - preprocess_start_time
         print(f"Frame preprocessing time: {preprocess_time:.2f} seconds")
         
         # process with detection
         detection_start_time = time.time()
-        s3_frame_keys = extract_frames_to_s3(request.video_url, folder_name)
+        
         selected_frames = await asyncio.to_thread(
             process_with_detection_s3, 
             s3_frame_keys, 
@@ -594,32 +595,11 @@ def upload_frame_to_s3(frame, s3_key):
         s3.upload_fileobj(io.BytesIO(buffer), os.getenv("S3_BUCKET_NAME"), s3_key)
 
 
-async def cleanup_files():
-    """Asynchronous cleanup of temporary files and uploaded video"""
-    try:
-        # Clean up temporary directories
-        temp_dir = os.path.join(os.path.dirname(EXTRACTED_FRAMES_DIR), "temp_frames")
-        for directory in [EXTRACTED_FRAMES_DIR, SELECTED_FRAMES_DIR, temp_dir]:
-            if os.path.exists(directory):
-                for file in os.listdir(directory):
-                    try:
-                        os.remove(os.path.join(directory, file))
-                    except Exception as e:
-                        print(f"Error removing file in {directory}: {e}")
-        
-        # Clean up uploaded videos
-        if os.path.exists(UPLOADS_DIR):
-            for file in os.listdir(UPLOADS_DIR):
-                try:
-                    video_path = os.path.join(UPLOADS_DIR, file)
-                    os.remove(video_path)
-                    print(f"Cleaned up uploaded video: {file}")
-                except Exception as e:
-                    print(f"Error removing uploaded video {file}: {e}")
-                    
-    except Exception as e:
-        print(f"Cleanup error (non-critical): {e}")
-
+def delete_s3_folder(folder_prefix):
+    response = s3.list_objects_v2(Bucket=bucket_name, Prefix = folder_prefix)
+    for obj in response.get("Contents", []):
+        s3.delete_object(Bucket=bucket_name, Key=obj["Key"])
+    
 if __name__ == "__main__":
     # capture the time spent on the process
     import uvicorn

@@ -83,8 +83,19 @@ const QuestsPage = () => {
               return status.isCompleted && status.collected;
             }
             
-            // uncompleted quests or completed but not collected
-            return quest.questType === type && (!status.isCompleted || (status.isCompleted && !status.collected));
+            // // uncompleted quests or completed but not collected
+            // return quest.questType === type && (!status.isCompleted || (status.isCompleted && !status.collected));
+
+            // keep the completed / uncompleted and not collected quests but hide the expired ones
+            const now = new Date();
+            const isPastDeadline = quest.deadline && new Date(quest.deadline) < now;
+
+            return (
+              quest.questType === type &&
+              (!status.isCompleted || (status.isCompleted && !status.collected)) &&
+              !(isPastDeadline && !status.isCompleted) // <== hide incomplete + expired quests
+            );
+
           })
           .map(quest => {
             const status = getQuestStatus(quest, userQuests);

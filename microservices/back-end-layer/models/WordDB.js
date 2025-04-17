@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 const WordSchema = new mongoose.Schema({
     wordId: { type: String, required: true, unique: true },
     name: { type: String, required: true }, // Word in text form
-    videoUrl: { type: String, required: true }, // URL to the video of the sign
+    videoUrl: { type: String}, // URL to the video of the sign
     description: { type: String }, // Optional description or usage of the word
 });
 

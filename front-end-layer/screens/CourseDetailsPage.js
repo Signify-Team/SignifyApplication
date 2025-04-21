@@ -244,7 +244,10 @@ const CourseDetailPage = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <CourseDetailsTopBar navigation={navigation} />
+            <CourseDetailsTopBar
+                navigation={navigation}
+                currentCourseId={route.params.courseId}
+            />
             <View style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.questionsContainer}>
                     {renderExercise()}

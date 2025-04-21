@@ -38,7 +38,9 @@ router.get('/', async (req, res) => {
 // Get a specific course by ID
 router.get('/:id', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id).populate('exercises');
+        const course = await Course.findById(req.params.id)
+            .populate('exercises')
+            .populate('dictionary');
         if (!course) return res.status(404).json({ message: 'Course not found' });
         res.status(200).json(course);
     } catch (err) {

@@ -210,7 +210,7 @@ const CoursesPage = ({ navigation }) => {
                         level={selectedCourse.level}
                         buttonText="START"
                         onPress={handleNavigateToCourse}
-                        onDictionaryPress={() => navigation.navigate('Dictionary')}
+                        onDictionaryPress={() => navigation.navigate('Dictionary', { courseId: selectedCourse._id })}
                     />
                 )}
             </View>

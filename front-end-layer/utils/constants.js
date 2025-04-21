@@ -6,6 +6,8 @@
  * @lastmodified 20.12.2024
  */
 
+import { API_BASE_URL, GESTURE_SERVICE_URL } from './config';
+
 export const COLORS = {
     primary: '#8EB1CF',
     secondary: '#F76C63',
@@ -84,7 +86,8 @@ export const darkenColor = (color, amount) => {
 };
 
 export const API = {
-    BASE_URL: process.env.API_BASE_URL,
+    BASE_URL: API_BASE_URL,
+    GESTURE_SERVICE_URL: GESTURE_SERVICE_URL,
     UPLOAD_TIMEOUT: 30000,  // 30 seconds
     PROCESS_TIMEOUT: 60000,  // 60 seconds
 };

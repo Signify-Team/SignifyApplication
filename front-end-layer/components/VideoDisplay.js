@@ -13,7 +13,7 @@ import styles from '../styles/VideoDisplayStyles';
 
 const VideoDisplay = ({sourceVid}) => {
   // Handle both URLs and require() - in the future we can remove for require() sources
-  const videoSource = typeof sourceVid === 'string' 
+  const videoSource = typeof sourceVid === 'string'
     ? { uri: sourceVid }
     : sourceVid;
 

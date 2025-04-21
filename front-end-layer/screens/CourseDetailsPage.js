@@ -83,7 +83,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                             type: 'gesture',
                             data: {
                                 word: String(exercise?.word || '')
-                            }
+                            },
                         };
                     default:
                         console.warn('Unknown exercise type:', exerciseType);
@@ -110,7 +110,7 @@ const CourseDetailPage = ({ route, navigation }) => {
         }
 
         const currentExercise = exercises[currentExerciseIndex];
-        
+
         if (!currentExercise?.data) {
             console.warn('Invalid exercise data in handleAnswer');
             return;
@@ -139,7 +139,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                         correct = false;
                         break;
                     }
-                    correct = answer.every((pair, index) => 
+                    correct = answer.every((pair, index) =>
                         currentExercise.data.pairs[index] &&
                         String(pair?.word || '') === String(currentExercise.data.pairs[index]?.word || '')
                     );

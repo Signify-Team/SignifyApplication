@@ -50,8 +50,4 @@ export default StyleSheet.create({
         fontWeight: 'bold',
         color: COLORS.white,
     },
-    icon: {
-        width: width * 0.05,
-        height: height * 0.03,
-    },
 });

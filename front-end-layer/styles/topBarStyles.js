@@ -21,7 +21,7 @@ const {width, height} =
 
 export default StyleSheet.create({
     container: {
-        paddingTop: height * 0.07, 
+        paddingTop: height * 0.07,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -34,6 +34,16 @@ export default StyleSheet.create({
         shadowRadius: 4,
         elevation: 4,
         zIndex: 1,
+    },
+    leftIcons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: width * 0.01,
+    },
+    dictionaryIcon: {
+        height: height * 0.05,
+        aspectRatio: 1,
+        resizeMode: 'contain',
     },
     courseDetailsContainer: {
         width: '100%',
@@ -89,7 +99,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        right: width * 0.04
+        right: width * 0.04,
     },
     notificationContainer: {
         position: 'relative',

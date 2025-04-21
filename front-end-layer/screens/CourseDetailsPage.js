@@ -16,7 +16,7 @@ const { width } = Dimensions.get('window');
 const CourseDetailPage = ({ route, navigation }) => {
     const courseExercises = route?.params?.exercises || [];
     const transformExercises = (exercises) => {
-        
+
         if (!exercises || !Array.isArray(exercises)) {
             return defaultLessons;
         }
@@ -26,11 +26,11 @@ const CourseDetailPage = ({ route, navigation }) => {
             }
 
             const exerciseType = String(exercise?.type || '').trim();
-            
+
             const baseExercise = {
                 id: String(exercise?._id || ''),
                 type: exerciseType.toLowerCase(),
-                data: {}
+                data: {},
             };
 
             try {
@@ -41,8 +41,8 @@ const CourseDetailPage = ({ route, navigation }) => {
                             type: 'trueFalse',
                             data: {
                                 statement: String(exercise?.statement || ''),
-                                correctAnswer: Boolean(exercise?.correctAnswer)
-                            }
+                                correctAnswer: Boolean(exercise?.correctAnswer),
+                            },
                         };
                     case 'Multichoice':
                         return {
@@ -52,7 +52,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                                 video: exercise?.signVideoUrl || null,
                                 word: String(exercise?.word || ''),
                                 options: Array.isArray(exercise?.options) ? exercise.options.map(opt => String(opt || '')) : [],
-                                correctOption: String(exercise?.correctAnswer || '')
+                                correctOption: String(exercise?.correctAnswer || ''),
                             }
                         };
                     case 'FillInTheBlank':
@@ -62,7 +62,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                             data: {
                                 sentence: String(exercise?.sentence || ''),
                                 options: Array.isArray(exercise?.options) ? exercise.options.map(opt => String(opt || '')) : [],
-                                correctAnswerIndex: Number(exercise?.correctAnswerIndex) || 0
+                                correctAnswerIndex: Number(exercise?.correctAnswerIndex) || 0,
                             }
                         };
                     case 'Matching':
@@ -73,17 +73,17 @@ const CourseDetailPage = ({ route, navigation }) => {
                             data: {
                                 pairs: pairs.map(pair => ({
                                     signVideoUrl: String(pair?.signVideoUrl || ''),
-                                    word: String(pair?.word || '')
-                                }))
-                            }
+                                    word: String(pair?.word || ''),
+                                })),
+                            },
                         };
                     case 'Signing':
                         return {
                             ...baseExercise,
                             type: 'gesture',
                             data: {
-                                word: String(exercise?.word || '')
-                            }
+                                word: String(exercise?.word || ''),
+                            },
                         };
                     default:
                         console.warn('Unknown exercise type:', exerciseType);
@@ -110,7 +110,7 @@ const CourseDetailPage = ({ route, navigation }) => {
         }
 
         const currentExercise = exercises[currentExerciseIndex];
-        
+
         if (!currentExercise?.data) {
             console.warn('Invalid exercise data in handleAnswer');
             return;
@@ -139,7 +139,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                         correct = false;
                         break;
                     }
-                    correct = answer.every((pair, index) => 
+                    correct = answer.every((pair, index) =>
                         currentExercise.data.pairs[index] &&
                         String(pair?.word || '') === String(currentExercise.data.pairs[index]?.word || '')
                     );

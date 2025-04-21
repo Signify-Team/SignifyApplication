@@ -22,7 +22,9 @@ const MultipleChoiceQuestion = ({ data, onAnswer }) => {
     }
 
     const handlePress = (answer) => {
-        if (isAnswered) return;
+        if (isAnswered) {
+            return;
+        }
         setSelectedAnswer(answer);
         setIsAnswered(true);
         onAnswer(answer);

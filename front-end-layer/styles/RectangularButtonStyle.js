@@ -9,7 +9,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { COLORS, FONTS} from '../utils/constants';
 
-const {width, height} =
+const {height} =
     Dimensions.get(
         'window',
     );
@@ -49,9 +49,5 @@ export default StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: COLORS.white,
-    },
-    icon: {
-        width: width * 0.05,
-        height: height * 0.03,
     },
 });

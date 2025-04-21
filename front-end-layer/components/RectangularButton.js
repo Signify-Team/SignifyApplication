@@ -10,11 +10,15 @@ import React, { useState } from 'react';
 import styles from '../styles/RectangularButtonStyle';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { COLORS, darkenColor } from '../utils/constants';
+const { width, height } = Dimensions.get('window');
+import { Dimensions } from 'react-native';
 
 const RectangularButton = ({
     width: buttonWidth = 200, // Default width
     text = 'Button',
     icon = null,
+    iconWidth = width * 0.05,
+    iconHeight = height * 0.03,
     onlyIcon = false,
     onlyText = false,
     color = COLORS.bright_button_color,
@@ -64,7 +68,7 @@ const RectangularButton = ({
                 disabled={disabled}
             >
                 {onlyIcon && icon ? (
-                    <Image source={icon} style={styles.icon} />
+                    <Image source={icon} style={{width: iconWidth, height: iconHeight}} />
                 ) : onlyText ? (
                     <Text style={styles.text}>{text}</Text>
                 ) : (

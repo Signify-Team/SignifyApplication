@@ -10,6 +10,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { COLORS, darkenColor } from '../utils/constants';
 import RectangularButton from './RectangularButton';
+import DictionaryIcon from '../assets/icons/header/dictionary_icon.png';
 const { width, height } = Dimensions.get('window');
 
 const VertCard = ({
@@ -18,6 +19,7 @@ const VertCard = ({
     buttonText = 'START',
     buttonColor = COLORS.start_button,
     onPress,
+    onDictionaryPress,
 }) => {
     return (
         <View style={[styles.cardWrapper, { backgroundColor: darkenColor(COLORS.soft_pink_background, 40) }]}>
@@ -25,13 +27,24 @@ const VertCard = ({
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.description}>{description}</Text>
 
-                <View style={styles.buttonContainer}>
+                <View style={styles.buttonRow}>
                     <RectangularButton
                         width={width * 0.25}
                         text={buttonText}
                         color={buttonColor}
-                        onPress={() => {onPress();}}
+                        onPress={() => { onPress(); }}
                     />
+                    {onDictionaryPress && (
+                        <RectangularButton
+                            width={width * 0.12}
+                            icon={DictionaryIcon}
+                            iconHeight={height * 0.03}
+                            iconWidth={width * 0.08}
+                            onlyIcon={true}
+                            color={COLORS.paw_color}
+                            onPress={onDictionaryPress}
+                        />
+                    )}
                 </View>
             </View>
         </View>
@@ -40,7 +53,7 @@ const VertCard = ({
 
 const styles = StyleSheet.create({
     cardWrapper: {
-        position: 'absolute', // to center the vert car perfectly
+        position: 'absolute',
         bottom: 0,
         left: width * 0.05,
         right: width * 0.05,
@@ -72,10 +85,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: height * 0.02,
     },
-    buttonContainer: {
+    buttonRow: {
         width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-    },
+        gap: width * 0.17,
+      },
 });
 
 export default VertCard;

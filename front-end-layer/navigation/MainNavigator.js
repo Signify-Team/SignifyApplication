@@ -25,13 +25,15 @@ import NotificationsPage from '../screens/NotificationsPage';
 import ForgotPasswordPage from '../screens/ForgotPasswordPage';
 import ResetPasswordPage from '../screens/ResetPasswordPage';
 import ChangePasswordPage from '../screens/ChangePasswordPage';
+import DictionaryPage from '../screens/DictionaryPage';
+import WordVideoPage from '../screens/WordVideoPage';
 
-const Stack = 
+const Stack =
 createStackNavigator();
 
 // Main Stack navigations
 const MainNavigator = () => (
-    <Stack.Navigator 
+    <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{
             headerShown: false,
@@ -97,6 +99,18 @@ const MainNavigator = () => (
                 headerShown: false,
             }}
         />
+        <Stack.Screen
+            name="Dictionary"
+            component={DictionaryPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen 
+            name="WordVideo" 
+            component={WordVideoPage}
+        />
+
         <Stack.Screen
             name="CourseDetails"
             component={

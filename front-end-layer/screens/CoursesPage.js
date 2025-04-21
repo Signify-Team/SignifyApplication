@@ -3,7 +3,7 @@
  * @description Shows the courses available for the user.
  *
  * @datecreated 19.12.2024
- * @lastmodified 23.12.2024
+ * @lastmodified 21.04.2025
  */
 
 import React, { useState, useEffect } from 'react';
@@ -15,14 +15,13 @@ import VertCard from '../components/VertCard';
 import CoursePath from '../components/CoursePath';
 import { COLORS } from '../utils/constants';
 import GreetingsIcon from '../assets/icons/course-info/greetings.png';
-import GreetingsBWIcon from '../assets/icons/course-info/greetings-bw.png';
-import { 
-    fetchSectionsByLanguage, 
+import {
+    fetchSectionsByLanguage,
     getUserLanguagePreference,
     fetchUserCourses,
     updateCourseProgress,
     getUserPremiumStatus,
-    fetchCourseExercises
+    fetchCourseExercises,
 } from '../utils/apiService';
 
 const CoursesPage = ({ navigation }) => {
@@ -71,7 +70,7 @@ const CoursesPage = ({ navigation }) => {
         try {
             const [sectionsData, userCoursesData] = await Promise.all([
                 fetchSectionsByLanguage(language),
-                fetchUserCourses()
+                fetchUserCourses(),
             ]);
 
             const processedSections = sectionsData.map((section, sectionIndex) => ({
@@ -79,7 +78,7 @@ const CoursesPage = ({ navigation }) => {
                 isLocked: sectionIndex === 0 ? false : !userCoursesData.unlockedSections?.includes(section._id),
                 courses: section.courses.map(course => {
                     const userCourse = userCoursesData.find(uc => uc.courseId === course.courseId);
-                    
+
                     // A course is unlocked only if it exists in userCourses with isLocked = false
                     const isLocked = !userCourse || userCourse.isLocked;
 
@@ -88,7 +87,7 @@ const CoursesPage = ({ navigation }) => {
                         isLocked,
                         progress: userCourse?.progress || 0,
                     };
-                })
+                }),
             }));
 
             setSections(processedSections);
@@ -124,14 +123,14 @@ const CoursesPage = ({ navigation }) => {
 
             const [exercises, progressUpdate] = await Promise.all([
                 fetchCourseExercises(selectedCourse._id),
-                updateCourseProgress(selectedCourse._id, selectedCourse.progress || 0)
+                updateCourseProgress(selectedCourse._id, selectedCourse.progress || 0),
             ]);
-            
+
             navigation.navigate('CourseDetails', {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
-                exercises: exercises || []
+                exercises: exercises || [],
             });
         } catch (error) {
             console.error('Error preparing course:', error);
@@ -140,7 +139,7 @@ const CoursesPage = ({ navigation }) => {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
-                exercises: []
+                exercises: [],
             });
         }
     };
@@ -166,30 +165,30 @@ const CoursesPage = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <CoursesTopBar 
-                refreshTrigger={refreshTrigger} 
-                navigation={navigation} 
+            <CoursesTopBar
+                refreshTrigger={refreshTrigger}
+                navigation={navigation}
                 onLanguageChange={handleLanguageChange}
             />
-            <View style={[styles.container, { paddingTop: 20 }]}>
+            <View style={[styles.container, styles.contentContainer]}>
                 <SectionList
                     sections={sections.map(section => ({
                         ...section,
-                        data: [section]
+                        data: [section],
                     }))}
                     renderItem={({ item }) => (
-                        <CoursePath 
-                            courses={item.courses} 
+                        <CoursePath
+                            courses={item.courses}
                             onCoursePress={handleButtonPress}
                             isUserPremium={isUserPremium}
                         />
                     )}
                     renderSectionHeader={({ section }) => (
                         <View style={styles.sectionHeader}>
-                            <CourseInfoCard 
-                                icon={GreetingsIcon} 
+                            <CourseInfoCard
+                                icon={GreetingsIcon}
                                 title={section.name}
-                                isLocked={section.isLocked} 
+                                isLocked={section.isLocked}
                             />
                         </View>
                     )}
@@ -211,6 +210,7 @@ const CoursesPage = ({ navigation }) => {
                         level={selectedCourse.level}
                         buttonText="START"
                         onPress={handleNavigateToCourse}
+                        onDictionaryPress={() => navigation.navigate('Dictionary')}
                     />
                 )}
             </View>

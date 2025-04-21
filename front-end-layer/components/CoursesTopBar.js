@@ -3,7 +3,7 @@
  * @description Custom top bar for the courses page.
  *
  * @datecreated 16.12.2024
- * @lastmodified 31.03.2025
+ * @lastmodified 21.04.2025
  */
 
 import React, { useState, useEffect } from 'react';
@@ -15,12 +15,13 @@ import StreaksIcon from '../assets/icons/header/streak.png';
 import NotificationsIcon from '../assets/icons/header/notifications.png';
 import { fetchUserProfile, updateLanguagePreference } from '../utils/apiService';
 import LanguageDropdown from './LanguageDropdown';
+import DictionaryIcon from '../assets/icons/header/dictionary_icon.png';
 
 const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
     const [userData, setUserData] = useState({
         streakCount: 0,
         unreadNotifications: 0,
-        languagePreference: 'TID'
+        languagePreference: 'TID',
     }); // the default top bar if the needed information cannot be found
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
@@ -34,7 +35,7 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
             setUserData({
                 streakCount: userProfile.streakCount || 0,
                 unreadNotifications: userProfile.unreadNotifications || 0,
-                languagePreference: userProfile.languagePreference || 'TID'
+                languagePreference: userProfile.languagePreference || 'TID',
             }); // set to default values in case of empty data
         } catch (error) {
             console.error('Error loading user data:', error.message);
@@ -62,7 +63,7 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
             // Update local state first
             setUserData(prev => ({
                 ...prev,
-                languagePreference: language
+                languagePreference: language,
             }));
             // Close dropdown
             setShowLanguageDropdown(false);
@@ -81,12 +82,21 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => setShowLanguageDropdown(true)}>
-                <Image 
-                    source={getLanguageFlag(userData.languagePreference)} 
-                    style={styles.flagIcon} 
-                />
-            </TouchableOpacity>
+            <View style={styles.leftIcons}>
+                <TouchableOpacity onPress={() => setShowLanguageDropdown(true)}>
+                    <Image
+                        source={getLanguageFlag(userData.languagePreference)}
+                        style={styles.flagIcon}
+                    />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate('Dictionary')}>
+                    <Image
+                        source={DictionaryIcon}
+                        style={styles.dictionaryIcon}
+                    />
+                </TouchableOpacity>
+            </View>
 
             <View style={styles.center}>
                 <View style={styles.streakBox}>
@@ -94,7 +104,7 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
                     <Text style={styles.streakText}>{userData.streakCount}</Text>
                 </View>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.notificationContainer}
                     onPress={handleNotificationPress}
                 >

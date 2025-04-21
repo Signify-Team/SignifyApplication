@@ -166,9 +166,9 @@ const CoursesPage = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <CoursesTopBar 
-                refreshTrigger={refreshTrigger} 
-                navigation={navigation} 
+            <CoursesTopBar
+                refreshTrigger={refreshTrigger}
+                navigation={navigation}
                 onLanguageChange={handleLanguageChange}
             />
             <View style={[styles.container, { paddingTop: 20 }]}>

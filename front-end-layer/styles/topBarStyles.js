@@ -35,6 +35,16 @@ export default StyleSheet.create({
         elevation: 4,
         zIndex: 1,
     },
+    leftIcons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: width * 0.01,
+    },
+    dictionaryIcon: {
+        height: height * 0.05,
+        aspectRatio: 1,
+        resizeMode: 'contain',
+    },
     courseDetailsContainer: {
         width: '100%',
         paddingTop: height * 0.07,

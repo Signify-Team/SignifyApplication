@@ -11,7 +11,7 @@ import { View, Text, TouchableOpacity, Image } from 'react-native';
 import VideoDisplay from '../components/VideoDisplay';
 import BackIcon from '../assets/icons/header/back.png';
 import VideoDisplayStyles from '../styles/VideoDisplayStyles';
-import styles from '../styles/WordVideoPageStyles';
+import styles from '../styles/WordVideoPageStyle';
 
 const WordVideoPage = ({ route, navigation }) => {
   const { word, videoUrl, description } = route.params;

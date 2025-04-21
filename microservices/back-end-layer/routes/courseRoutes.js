@@ -161,6 +161,10 @@ router.post('/user/:userId/progress', async (req, res) => {
         courseProgress.completed = completed;
         courseProgress.lastAccessed = new Date();
 
+        if (completed) {
+            user.totalPoints += 50;
+        }
+
         await user.save();
         res.status(200).json({ message: 'Progress updated successfully', user });
     } catch (err) {

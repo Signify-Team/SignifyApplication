@@ -27,7 +27,6 @@ const sampleWords = [
     wordId: 1,
     name: 'share',
     category: 'everyday_signs',
-    videoUrl: 'https://signifyappbucket.s3.eu-north-1.amazonaws.com/ASL_DATA/Everyday_Signs/share/share_1.mp4',
     description: 'This is the ASL sign for "share" verb. Used in contexts like "sharing something with someone/something..."',
   },
 ];

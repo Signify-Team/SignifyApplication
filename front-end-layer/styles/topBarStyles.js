@@ -21,7 +21,7 @@ const {width, height} =
 
 export default StyleSheet.create({
     container: {
-        paddingTop: height * 0.07, 
+        paddingTop: height * 0.07,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -99,7 +99,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        right: width * 0.04
+        right: width * 0.04,
     },
     notificationContainer: {
         position: 'relative',

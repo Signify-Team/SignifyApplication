@@ -26,6 +26,7 @@ import ForgotPasswordPage from '../screens/ForgotPasswordPage';
 import ResetPasswordPage from '../screens/ResetPasswordPage';
 import ChangePasswordPage from '../screens/ChangePasswordPage';
 import DictionaryPage from '../screens/DictionaryPage';
+import WordVideoPage from '../screens/WordVideoPage';
 
 const Stack =
 createStackNavigator();
@@ -105,6 +106,11 @@ const MainNavigator = () => (
                 headerShown: false,
             }}
         />
+        <Stack.Screen 
+            name="WordVideo" 
+            component={WordVideoPage}
+        />
+
         <Stack.Screen
             name="CourseDetails"
             component={

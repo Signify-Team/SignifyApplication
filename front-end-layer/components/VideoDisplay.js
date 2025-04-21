@@ -11,7 +11,7 @@ import { View } from 'react-native';
 import Video from 'react-native-video';
 import styles from '../styles/VideoDisplayStyles';
 
-const VideoDisplay = ({sourceVid}) => {
+const VideoDisplay = ({sourceVid, customStyle, customContainerStyle}) => {
   // Handle both URLs and require() - in the future we can remove for require() sources
   const videoSource = typeof sourceVid === 'string'
     ? { uri: sourceVid }
@@ -23,10 +23,10 @@ const VideoDisplay = ({sourceVid}) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={customContainerStyle || styles.container}>
       <Video
         source={videoSource}
-        style={styles.video}
+        style={customStyle || styles.video}
         controls={true}
         resizeMode="cover"
         onError={(error) => console.error('Video error:', error, sourceVid)}

@@ -170,7 +170,7 @@ const CoursesPage = ({ navigation }) => {
                 navigation={navigation}
                 onLanguageChange={handleLanguageChange}
             />
-            <View style={[styles.container, { paddingTop: 20 }]}>
+            <View style={[styles.container, styles.contentContainer]}>
                 <SectionList
                     sections={sections.map(section => ({
                         ...section,

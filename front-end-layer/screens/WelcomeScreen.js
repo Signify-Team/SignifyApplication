@@ -10,7 +10,7 @@ import {
     Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, FONTS } from '../utils/constants';
+import { COLORS } from '../utils/constants';
 import styles from '../styles/styles';
 
 const {width, height} = Dimensions.get('window');
@@ -119,4 +119,4 @@ const welcomeStyles = StyleSheet.create({
     },
 });
 
-export default WelcomeScreen; 
+export default WelcomeScreen;

@@ -10,6 +10,9 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    contentContainer: {
+        paddingTop: 20,
+    },
     sectionHeader: {
         alignItems: 'center',
         marginBottom: 20,
@@ -43,4 +46,4 @@ export default StyleSheet.create({
         elevation: 5,
         backgroundColor: 'transparent',
     },
-}); 
+});

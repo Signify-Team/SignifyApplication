@@ -31,7 +31,7 @@ export const updateCourseProgress = async (courseId, progress, completed = false
     const response = await axios.post(`${API_BASE_URL}/courses/user/${userId}/progress`, {
       courseId,
       progress,
-      completed
+      completed,
     });
     return response.data;
   } catch (error) {
@@ -49,4 +49,4 @@ export const fetchCourseExercises = async (courseId) => {
     console.error('Error fetching course exercises:', error);
     throw new Error(error.response?.data?.message || 'Failed to fetch course exercises');
   }
-}; 
+};

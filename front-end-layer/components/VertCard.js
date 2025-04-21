@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { COLORS, darkenColor } from '../utils/constants';
 import RectangularButton from './RectangularButton';
 import DictionaryIcon from '../assets/icons/header/dictionary_icon.png';

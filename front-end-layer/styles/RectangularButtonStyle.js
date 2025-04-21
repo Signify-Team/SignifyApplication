@@ -9,7 +9,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { COLORS, FONTS} from '../utils/constants';
 
-const {width, height} =
+const {height} =
     Dimensions.get(
         'window',
     );

@@ -8,6 +8,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { getUserId } from './authService';
+import { updateUserPoints } from './userService';
 
 export const fetchUserCourses = async () => {
   try {
@@ -71,6 +72,10 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
 
         // should we update the course progress to 100% or keep the progress as 75% and make the user be able to try again
         await updateCourseProgress(courseId, 100, true);
+
+        if (isPassed) {
+            await updateUserPoints(50, 'Course completion');
+        }
 
         return response.data;
     } catch (error) {

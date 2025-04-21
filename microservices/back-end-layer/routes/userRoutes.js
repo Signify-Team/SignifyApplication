@@ -471,6 +471,46 @@ router.post('/clear-progress/:userId', async (req, res) => {
     }
 });
 
+// Update user points
+router.post('/:userId/points', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { points, reason } = req.body;
+
+        console.log('Received points update request:', { userId, points, reason });
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.error('Invalid User ID:', userId);
+            return res.status(400).json({ message: 'Invalid User ID' });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $inc: { totalPoints: points } }, 
+            { new: true } 
+        );
+
+        if (!updatedUser) {
+            console.error('User not found:', userId);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log('Updated user points:', updatedUser.totalPoints);
+
+        res.status(200).json({
+            message: 'Points updated successfully',
+            totalPoints: updatedUser.totalPoints
+        });
+    } catch (err) {
+        console.error('Error updating user points:', err);
+        console.error('Error details:', {
+            message: err.message,
+            stack: err.stack
+        });
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Test route
 router.get('/test', (req, res) => {
     res.status(200).send('User route is working!');

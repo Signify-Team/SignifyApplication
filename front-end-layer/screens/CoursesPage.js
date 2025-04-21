@@ -22,6 +22,7 @@ import {
     updateCourseProgress,
     getUserPremiumStatus,
     fetchCourseExercises,
+    updateUserPoints,
 } from '../utils/apiService';
 
 const CoursesPage = ({ navigation, route }) => {
@@ -209,10 +210,19 @@ const CoursesPage = ({ navigation, route }) => {
         loadUserPremiumStatus();
     };
 
-    const showCourseCompletionAlert = (successRate, isPassed) => {
-        const message = isPassed 
-            ? `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. The next course is now unlocked!`
-            : `You completed the course with ${successRate.toFixed(1)}% success rate. Please try again to unlock the next course.`;
+    const showCourseCompletionAlert = async (successRate, isPassed) => {
+        let message;
+        if (isPassed) {
+            try {
+                const updatedPoints = await updateUserPoints(50, 'Course completion');
+                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! Your total points are now ${updatedPoints}. The next course is now unlocked!`;
+            } catch (error) {
+                console.error('Error updating points:', error);
+                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. The next course is now unlocked!`;
+            }
+        } else {
+            message = `You completed the course with ${successRate.toFixed(1)}% success rate. Please try again to unlock the next course.`;
+        }
 
         Alert.alert(
             isPassed ? 'Course Completed!' : 'Course Completed',

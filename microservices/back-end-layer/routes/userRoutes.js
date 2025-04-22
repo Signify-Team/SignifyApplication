@@ -98,14 +98,43 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
+        // Handle streak logic
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of day
+
+        if (!user.lastLoginDate) {
+            // First login - start streak
+            user.streakCount = 1;
+        } else {
+            const lastLogin = new Date(user.lastLoginDate);
+            lastLogin.setHours(0, 0, 0, 0); // Set to start of day
+
+            const dayDiff = Math.floor((today - lastLogin) / (1000 * 60 * 60 * 24));
+
+            if (dayDiff === 0) {
+                // Already logged in today - keep streak
+            } else if (dayDiff === 1) {
+                // Consecutive day - increment streak
+                user.streakCount += 1;
+            } else {
+                // Streak broken - reset to 1
+                user.streakCount = 1;
+            }
+        }
+
+        // Update last login date
+        user.lastLoginDate = today;
+        await user.save();
+
         res.status(200).json({
             message: 'Login successful',
             user: {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                languagePreference: user.languagePreference
-            },
+                languagePreference: user.languagePreference,
+                streakCount: user.streakCount
+            }
         });
     } catch (error) {
         console.error('Login Error:', error);

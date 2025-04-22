@@ -38,6 +38,7 @@ const UserSchema = new mongoose.Schema({
     ],
     progress: { type: mongoose.Schema.Types.ObjectId, ref: 'UserProgress' },
     streakCount: { type: Number, default: 0 },
+    lastLoginDate: { type: Date }, // Track the last login date for streak calculation
     totalPoints: { type: Number, default: 0 },
     achievements: [
         {

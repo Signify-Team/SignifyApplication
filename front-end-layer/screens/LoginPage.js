@@ -19,6 +19,7 @@ import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
 import { loginUser, fetchUserProfile } from '../utils/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import StreakNotification from '../components/StreakNotification';
 
 // Login Page layout
 const LoginPage = () => {
@@ -27,6 +28,8 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
+    const [showStreakNotification, setShowStreakNotification] = useState(false);
+    const [streakCount, setStreakCount] = useState(0);
     const navigation = useNavigation();
 
     const validateEmail = (email) => {
@@ -57,6 +60,11 @@ const LoginPage = () => {
             const serverLanguagePreference = data.user?.languagePreference;
             
             setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
+            
+            if (data.user?.streakCount) {
+                setStreakCount(data.user.streakCount);
+                setShowStreakNotification(true);
+            }
                     
             if (!serverLanguagePreference) {
                 navigation.replace('LanguagePreference', { userId: data.user._id });
@@ -72,6 +80,13 @@ const LoginPage = () => {
 
     return (
         <View style={styles.container}>
+            {showStreakNotification && (
+                <StreakNotification
+                    streakCount={streakCount}
+                    onClose={() => setShowStreakNotification(false)}
+                />
+            )}
+
             {/* Logo */}
             <Image
                 source={require('../assets/images/Signify-Logo.png')}

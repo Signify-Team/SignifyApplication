@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Dimensions } from 'react-native';
+import { View, ScrollView, Dimensions, Alert } from 'react-native';
 import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
@@ -10,6 +10,7 @@ import CourseDetailsTopBar from '../components/CourseDetailsTopBar';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 import MatchingQuestion from '../components/MatchingQuestion';
+import { updateCourseProgress, updateCourseCompletion } from '../utils/services/courseService';
 
 const { width } = Dimensions.get('window');
 
@@ -102,6 +103,8 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState(null);
     const [isCorrect, setIsCorrect] = useState(null);
+    const [completedExercises, setCompletedExercises] = useState([]);
+    const [correctAnswers, setCorrectAnswers] = useState(0);
 
     const handleAnswer = (answer) => {
         if (answer === undefined || answer === null) {
@@ -151,6 +154,11 @@ const CourseDetailPage = ({ route, navigation }) => {
                     console.warn('Unknown exercise type in handleAnswer:', currentExercise.type);
             }
 
+            // increment correct answers count by 1 if correct
+            if (correct) {
+                setCorrectAnswers(prev => prev + 1);
+            }
+
             // Set new state
             setUserAnswer(answer);
             setIsCorrect(correct);
@@ -161,15 +169,55 @@ const CourseDetailPage = ({ route, navigation }) => {
         }
     };
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
+        // add to completed exercises list
+        setCompletedExercises(prev => [...prev, currentExerciseIndex]);
+
         if (currentExerciseIndex < exercises.length - 1) {
             // Reset all states
             setUserAnswer(null);
             setIsCorrect(null);
             setCurrentExerciseIndex(prevIndex => prevIndex + 1);
         } else {
-            // Course completed
-            navigation.navigate('Home', { screen: 'Courses' });
+            // course complete
+            const successRate = (correctAnswers / exercises.length) * 100;
+            const isCoursePassed = successRate >= 60;
+
+            try {
+                // update course progress by 100 (because it is done but in the future maybe we should keep the success rate)
+                await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
+                
+                // back to courses page
+                navigation.navigate('Home', { 
+                    screen: 'Courses',
+                    params: { 
+                        showCompletionMessage: true,
+                        successRate: successRate,
+                        isPassed: isCoursePassed
+                    }
+                });
+            } catch (error) {
+                console.error('Error updating course progress:', error);
+                navigation.navigate('Home', { screen: 'Courses' });
+            }
+        }
+    };
+
+    const handleExerciseComplete = async (successRate) => {
+        const isPassed = successRate >= 60;
+        
+        // update course completion status
+        try {
+            await updateCourseCompletion(route.params.courseId, isPassed);
+            
+            navigation.navigate('Courses', {
+                showCompletionMessage: true,
+                successRate,
+                isPassed
+            });
+        } catch (error) {
+            console.error('Error updating course completion:', error);
+            Alert.alert('Error', 'Failed to update course completion status');
         }
     };
 
@@ -244,7 +292,10 @@ const CourseDetailPage = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <CourseDetailsTopBar navigation={navigation} />
+            <CourseDetailsTopBar
+                navigation={navigation}
+                currentCourseId={route.params.courseId}
+            />
             <View style={{ flex: 1 }}>
                 <ScrollView contentContainerStyle={styles.questionsContainer}>
                     {renderExercise()}

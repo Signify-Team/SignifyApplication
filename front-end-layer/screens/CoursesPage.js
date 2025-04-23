@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, SectionList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, SectionList, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import styles from '../styles/CoursesPageStyles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CourseInfoCard from '../components/CourseInfoCard';
@@ -22,9 +22,10 @@ import {
     updateCourseProgress,
     getUserPremiumStatus,
     fetchCourseExercises,
+    updateUserPoints,
 } from '../utils/apiService';
 
-const CoursesPage = ({ navigation }) => {
+const CoursesPage = ({ navigation, route }) => {
     const [showCard, setShowCard] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [sections, setSections] = useState([]);
@@ -33,6 +34,7 @@ const CoursesPage = ({ navigation }) => {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [userLanguage, setUserLanguage] = useState(null);
     const [isUserPremium, setIsUserPremium] = useState(false);
+    const [showCompletionMessage, setShowCompletionMessage] = useState(false);
 
     useEffect(() => {
         loadUserLanguageAndSections();
@@ -45,6 +47,14 @@ const CoursesPage = ({ navigation }) => {
             loadSections(userLanguage);
         }
     }, [userLanguage]);
+
+    useEffect(() => {
+        if (route.params?.showCompletionMessage) {
+            const { successRate, isPassed } = route.params;
+            showCourseCompletionAlert(successRate, isPassed);
+            navigation.setParams({ showCompletionMessage: false });
+        }
+    }, [route.params]);
 
     const loadUserPremiumStatus = async () => {
         try {
@@ -66,29 +76,74 @@ const CoursesPage = ({ navigation }) => {
         }
     };
 
+    // progress logic here (unlocking new courses and sections)
     const loadSections = async (language) => {
         try {
-            const [sectionsData, userCoursesData] = await Promise.all([
-                fetchSectionsByLanguage(language),
-                fetchUserCourses(),
+            setLoading(true);
+            setRefreshing(true);
+
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Request timed out')), 10000);
+            });
+
+            const sectionsPromise = fetchSectionsByLanguage(language);
+            const userCoursesPromise = fetchUserCourses();
+
+            const [sectionsData, userCoursesData] = await Promise.race([
+                Promise.all([sectionsPromise, userCoursesPromise]),
+                timeoutPromise
             ]);
 
-            const processedSections = sectionsData.map((section, sectionIndex) => ({
-                ...section,
-                isLocked: sectionIndex === 0 ? false : !userCoursesData.unlockedSections?.includes(section._id),
-                courses: section.courses.map(course => {
-                    const userCourse = userCoursesData.find(uc => uc.courseId === course.courseId);
+            const processedSections = sectionsData.map((section, sectionIndex) => {
+                // Check if the previous section's non-premium courses are completed
+                const previousSection = sectionsData[sectionIndex - 1];
+                const previousSectionCompleted = previousSection ? 
+                    previousSection.courses
+                        .filter(course => !course.isPremium) // Only check non-premium courses
+                        .every(course => 
+                            userCoursesData.find(uc => uc.courseId === course.courseId)?.completed
+                        ) : true;
 
-                    // A course is unlocked only if it exists in userCourses with isLocked = false
-                    const isLocked = !userCourse || userCourse.isLocked;
+                // Check if this section should be unlocked
+                // A section is unlocked if:
+                // * It's the first section, OR
+                // * All non-premium courses in the previous section are completed
+                const isSectionUnlocked = sectionIndex === 0 || previousSectionCompleted;
 
-                    return {
-                        ...course,
-                        isLocked,
-                        progress: userCourse?.progress || 0,
-                    };
-                }),
-            }));
+                return {
+                    ...section,
+                    isLocked: !isSectionUnlocked,
+                    courses: section.courses.map((course, courseIndex) => {
+                        const userCourse = userCoursesData.find(uc => uc.courseId === course.courseId);
+                        
+                        // Only unlock if:
+                        // * It's the first course in an unlocked section, OR
+                        // * The previous course is completed AND the section is unlocked
+                        const isFirstCourseInUnlockedSection = isSectionUnlocked && courseIndex === 0;
+                        const previousCourse = section.courses[courseIndex - 1];
+                        const previousCourseCompleted = previousCourse ? 
+                            userCoursesData.find(uc => uc.courseId === previousCourse.courseId)?.completed : false;
+                        
+                        // all courses are locked unless completed with success rate over 60%
+                        let isLocked = true;
+                        
+                        if (isFirstCourseInUnlockedSection) {
+                            // first course of an unlocked section is unlocked
+                            isLocked = false;
+                        } else if (isSectionUnlocked && previousCourseCompleted) {
+                            // course is unlocked if its section is unlocked and previous course is completed
+                            isLocked = false;
+                        }
+
+                        return {
+                            ...course,
+                            isLocked,
+                            progress: userCourse?.progress || 0,
+                            completed: userCourse?.completed || false
+                        };
+                    })
+                };
+            });
 
             setSections(processedSections);
         } catch (error) {
@@ -155,6 +210,37 @@ const CoursesPage = ({ navigation }) => {
         loadUserPremiumStatus();
     };
 
+    const showCourseCompletionAlert = async (successRate, isPassed) => {
+        let message;
+        if (isPassed) {
+            try {
+                const updatedPoints = await updateUserPoints(50, 'Course completion');
+                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! Your total points are now ${updatedPoints}. The next course is now unlocked!`;
+            } catch (error) {
+                console.error('Error updating points:', error);
+                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. The next course is now unlocked!`;
+            }
+        } else {
+            message = `You completed the course with ${successRate.toFixed(1)}% success rate. Please try again to unlock the next course.`;
+        }
+
+        Alert.alert(
+            isPassed ? 'Course Completed!' : 'Course Completed',
+            message,
+            [
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        setShowCompletionMessage(false);
+                        // Force a complete refresh of the course list
+                        setRefreshing(true);
+                        loadUserLanguageAndSections();
+                    }
+                }
+            ]
+        );
+    };
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.container, styles.centerContent]}>
@@ -210,7 +296,7 @@ const CoursesPage = ({ navigation }) => {
                         level={selectedCourse.level}
                         buttonText="START"
                         onPress={handleNavigateToCourse}
-                        onDictionaryPress={() => navigation.navigate('Dictionary')}
+                        onDictionaryPress={() => navigation.navigate('Dictionary', { courseId: selectedCourse._id })}
                     />
                 )}
             </View>

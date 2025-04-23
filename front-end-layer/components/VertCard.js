@@ -20,6 +20,7 @@ const VertCard = ({
     buttonColor = COLORS.start_button,
     onPress,
     onDictionaryPress,
+    courseId,
 }) => {
     return (
         <View style={[styles.cardWrapper, { backgroundColor: darkenColor(COLORS.soft_pink_background, 40) }]}>
@@ -42,7 +43,7 @@ const VertCard = ({
                             iconWidth={width * 0.08}
                             onlyIcon={true}
                             color={COLORS.paw_color}
-                            onPress={onDictionaryPress}
+                            onPress={() => onDictionaryPress(courseId)}
                         />
                     )}
                 </View>

@@ -6,7 +6,7 @@
  * @lastmodified 21.04.2025
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -18,21 +18,36 @@ import {
 } from 'react-native';
 import { COLORS, FONTS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
+import { fetchCourseDictionary, fetchAllUnlockedCourseWords } from '../utils/services/wordService';
 
 const { width, height } = Dimensions.get('window');
 
-const sampleWords = [
-  {
-    _id: '67d323ed54ef1ceb8a0ce517',
-    wordId: 1,
-    name: 'share',
-    category: 'everyday_signs',
-    description: 'This is the ASL sign for "share" verb. Used in contexts like "sharing something with someone/something..."',
-  },
-];
+const DictionaryPage = ({ navigation, route }) => {
+  const [words, setWords] = useState([]);
 
+  useEffect(() => {
+    const loadDictionary = async () => {
+      try {
+        let fetchedWords;
+        if (route.params?.courseId) {
+          // get the words of that course
+          fetchedWords = await fetchCourseDictionary(route.params.courseId);
+        } else {
+          // get all unlocked words
+          fetchedWords = await fetchAllUnlockedCourseWords();
+        }
+        setWords(fetchedWords);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+        console.error('Error loading dictionary:', err);
+      }
+    };
 
-const DictionaryPage = ({ navigation }) => {
+    loadDictionary();
+  }, [route.params?.courseId]);
+
   const handleWordPress = (wordObj) => {
     navigation.navigate('WordVideo', {
       word: wordObj.name,
@@ -53,7 +68,7 @@ const DictionaryPage = ({ navigation }) => {
 
             <FlatList
               contentContainerStyle={styles.wordList}
-              data={sampleWords}
+              data={words}
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
                 <TouchableOpacity

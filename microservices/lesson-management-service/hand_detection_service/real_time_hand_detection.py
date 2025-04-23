@@ -6,9 +6,17 @@ import os
 import pickle
 import json
 
-# Initialize MediaPipe Hands
+# Set environment variable to force CPU usage
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Disable GPU
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Reduce TensorFlow logging
+
+# Initialize MediaPipe Hands with CPU-only mode
 mp_hands = mp.solutions.hands.Hands(
-    static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.5
+    static_image_mode=False,
+    max_num_hands=2,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5,
+    model_complexity=0  # Use lightweight model
 )
 
 STATE_FILE = "prev_landmarks.pkl"

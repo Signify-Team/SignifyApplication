@@ -78,4 +78,36 @@ export const getUserPremiumStatus = async () => {
     console.error('Error fetching premium status:', error);
     return { isPremium: false };
   }
+};
+
+export const updateUserPoints = async (points, reason) => {
+    try {
+        const userId = await getUserId();
+        console.log('Updating points for user:', userId);
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/users/${userId}/points`, {
+            points,
+            reason
+        });
+
+        console.log('Points update response:', response.data); 
+
+        if (!response.data || !response.data.totalPoints) {
+            console.error('Invalid response data:', response.data);
+            throw new Error('Invalid response from server');
+        }
+
+        return response.data.totalPoints;
+    } catch (error) {
+        console.error('Error updating user points:', error);
+        console.error('Error details:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        }); 
+        throw new Error(error.response?.data?.message || 'Failed to update user points');
+    }
 }; 

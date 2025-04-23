@@ -88,7 +88,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
         try {
             // Upload video with timeout
             const uploadResponse = await Promise.race([
-                fetch(`${API.BASE_URL}/upload-video`, {
+                fetch(`${API.GESTURE_SERVICE_URL}/upload-video`, {
                     method: 'POST',
                     body: formData,
                 }),
@@ -105,7 +105,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
 
             // Process video with timeout
             const processResponse = await Promise.race([
-                fetch(`${API.BASE_URL}/process-video`, {
+                fetch(`${API.GESTURE_SERVICE_URL}/process-video`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

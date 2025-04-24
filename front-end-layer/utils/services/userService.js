@@ -155,4 +155,23 @@ export const getUserProfile = async (userId) => {
         console.error('Get user profile error:', error.response?.data || error.message);
         throw new Error(error.response?.data?.message || 'Failed to fetch user profile');
     }
+};
+
+export const unfollowUser = async (followedId) => {
+    try {
+        const currentUserId = await getUserId();
+        if (!currentUserId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+
+        const response = await axios.post(`${API_BASE_URL}/users/unfollow`, {
+            followerId: currentUserId,
+            followedId: followedId
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
+        throw error;
+    }
 }; 

@@ -627,4 +627,68 @@ router.post('/follow', async (req, res) => {
     }
 });
 
+// Unfollow a user
+router.post('/unfollow', async (req, res) => {
+    try {
+        const { followerId, followedId } = req.body;
+
+        // Validate input
+        if (!followerId || !followedId) {
+            return res.status(400).json({ error: 'Follower ID and Followed ID are required' });
+        }
+
+        // Convert string IDs to ObjectId
+        const followerObjectId = new mongoose.Types.ObjectId(followerId);
+        const followedObjectId = new mongoose.Types.ObjectId(followedId);
+
+        // Prevent self-unfollowing
+        if (followerId === followedId) {
+            return res.status(400).json({ error: 'Cannot unfollow yourself' });
+        }
+
+        // Find both users
+        const follower = await User.findById(followerObjectId);
+        const followed = await User.findById(followedObjectId);
+
+        // Check if users exist
+        if (!follower || !followed) {
+            return res.status(404).json({ error: 'One or both users not found' });
+        }
+
+        // Initialize arrays if they don't exist
+        if (!follower.following) follower.following = [];
+        if (!followed.followers) followed.followers = [];
+
+        // Check if already not following
+        const isFollowing = follower.following.some(id => id.equals(followedObjectId));
+        if (!isFollowing) {
+            return res.status(400).json({ error: 'Not following this user' });
+        }
+
+        // Remove from following and followers arrays
+        follower.following = follower.following.filter(id => !id.equals(followedObjectId));
+        followed.followers = followed.followers.filter(id => !id.equals(followerObjectId));
+
+        // Update counts
+        follower.followingCount = follower.following.length;
+        followed.followerCount = followed.followers.length;
+
+        // Save both users
+        await follower.save();
+        await followed.save();
+
+        res.json({
+            message: 'Successfully unfollowed user',
+            followerCount: followed.followerCount,
+            followingCount: follower.followingCount
+        });
+    } catch (error) {
+        console.error('Error in unfollow route:', error);
+        res.status(500).json({ 
+            error: error.message,
+            stack: error.stack 
+        });
+    }
+});
+
 export default router;

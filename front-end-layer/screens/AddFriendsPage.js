@@ -16,13 +16,14 @@ import {
     TextInput,
     ActivityIndicator,
 } from 'react-native';
-import { getAllUsers, followUser, getUserProfile } from '../utils/services/userService';
+import { getAllUsers, followUser, unfollowUser, getUserProfile } from '../utils/services/userService';
 import { createNotification } from '../utils/services/notificationService';
 import { getUserId } from '../utils/services/authService';
 import { COLORS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../styles/AddFriendsPageStyles';
+import CustomAlert from '../components/CustomAlert';
 
 const AddFriendsPage = () => {
     const [users, setUsers] = useState([]);
@@ -30,6 +31,8 @@ const AddFriendsPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showUnfollowAlert, setShowUnfollowAlert] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -86,6 +89,13 @@ const AddFriendsPage = () => {
                 throw new Error('Could not fetch current user profile');
             }
 
+            // If already following, show unfollow confirmation
+            if (userToFollow.isFollowing) {
+                setSelectedUser(userToFollow);
+                setShowUnfollowAlert(true);
+                return;
+            }
+
             // First, follow the user
             const response = await followUser(userToFollow._id);
             
@@ -132,10 +142,35 @@ const AddFriendsPage = () => {
             }
         } catch (err) {
             console.error('Error following user:', err);
-            // Show error message to user
             setError(err.message);
-            // Reload users to ensure correct following status
             loadUsers();
+        }
+    };
+
+    const handleUnfollow = async () => {
+        try {
+            const response = await unfollowUser(selectedUser._id);
+            if (response && response.message === 'Successfully unfollowed user') {
+                // Update local state
+                setUsers(users.map(user => 
+                    user._id === selectedUser._id 
+                        ? { ...user, isFollowing: false } 
+                        : user
+                ));
+                
+                setFilteredUsers(filteredUsers.map(user => 
+                    user._id === selectedUser._id 
+                        ? { ...user, isFollowing: false } 
+                        : user
+                ));
+            }
+        } catch (err) {
+            console.error('Error unfollowing user:', err);
+            setError(err.message);
+            loadUsers();
+        } finally {
+            setShowUnfollowAlert(false);
+            setSelectedUser(null);
         }
     };
 
@@ -151,7 +186,6 @@ const AddFriendsPage = () => {
             <TouchableOpacity 
                 style={[styles.followButton, item.isFollowing && styles.followingButton]}
                 onPress={() => handleFollow(item)}
-                disabled={item.isFollowing}
             >
                 <Text style={[styles.followButtonText, item.isFollowing && styles.followingButtonText]}>
                     {item.isFollowing ? 'Following' : 'Follow'}
@@ -203,6 +237,18 @@ const AddFriendsPage = () => {
                 renderItem={renderUserItem}
                 keyExtractor={item => item._id}
                 contentContainerStyle={styles.listContainer}
+            />
+            <CustomAlert
+                visible={showUnfollowAlert}
+                title="Unfollow User"
+                message={`Are you sure you want to unfollow ${selectedUser?.username}?`}
+                onCancel={() => {
+                    setShowUnfollowAlert(false);
+                    setSelectedUser(null);
+                }}
+                onConfirm={handleUnfollow}
+                confirmText="Unfollow"
+                cancelText="Cancel"
             />
         </View>
     );

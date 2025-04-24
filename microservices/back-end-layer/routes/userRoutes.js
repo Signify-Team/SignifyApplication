@@ -103,13 +103,46 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
+        // Get current date and yesterday's date
+        const currentDate = new Date();
+        const yesterday = new Date(currentDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        // Format dates to compare only the date part (ignoring time)
+        const formatDate = (date) => {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        };
+
+        const currentDateFormatted = formatDate(currentDate);
+        const yesterdayFormatted = formatDate(yesterday);
+        const lastLoginFormatted = user.lastLoginDate ? formatDate(user.lastLoginDate) : null;
+
+        // Update streak count based on login pattern
+        if (!lastLoginFormatted) {
+            // First time login
+            user.streakCount = 1;
+        } else if (currentDateFormatted.getTime() === lastLoginFormatted.getTime()) {
+            // Already logged in today - do nothing
+        } else if (yesterdayFormatted.getTime() === lastLoginFormatted.getTime()) {
+            // Logged in yesterday - increment streak
+            user.streakCount += 1;
+        } else {
+            // Missed a day - reset streak
+            user.streakCount = 1;
+        }
+
+        // Update last login date
+        user.lastLoginDate = currentDate;
+        await user.save();
+
         res.status(200).json({
             message: 'Login successful',
             user: {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                languagePreference: user.languagePreference
+                languagePreference: user.languagePreference,
+                streakCount: user.streakCount
             },
         });
     } catch (error) {

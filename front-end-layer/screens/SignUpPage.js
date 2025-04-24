@@ -23,7 +23,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
-import { sendVerificationCode, registerUser } from '../utils/apiService';
+import { sendVerificationCode, registerUser } from '../utils/services/authService';
 
 // SignUp Page layout
 const SignUpPage = () => {
@@ -83,15 +83,20 @@ const SignUpPage = () => {
         try {
             if (verified) {
                 // If email is verified, proceed with registration
-                await registerUser(username, email, password);
-                navigation.replace('Login');
+                const result = await registerUser(username, email, password);
+                if (result) {
+                    navigation.replace('Login');
+                }
             } else {
                 // If not verified, send verification code
-                await sendVerificationCode(email, username, password);
-                navigation.replace('Authentication', { email, username, password });
+                const result = await sendVerificationCode(email, username, password);
+                if (result) {
+                    navigation.replace('Authentication', { email, username, password });
+                }
             }
         } catch (error) {
-            setErrorMessage(error.message || 'Failed to proceed');
+            setErrorMessage(error.message);
+            // Don't navigate on error
         } finally {
             setIsLoading(false);
         }

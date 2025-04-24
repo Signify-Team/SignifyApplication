@@ -52,7 +52,12 @@ router.post('/register', async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email: { $eq: email } });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email is already registered' }); // Change status code to 400
+            return res.status(409).json({ message: 'Email is already registered' }); // Change status code to 409
+        }
+
+        const existingUsername = await User.findOne({ username: { $eq: username } });
+        if (existingUsername) {
+            return res.status(409).json({ message: 'Username is already registered' }); // Change status code to 409
         }
 
         // Hash the password
@@ -168,32 +173,34 @@ router.post('/send-verification', async (req, res) => {
     }
 
     try {
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: { $eq: email } });
+        if (existingUser) {
+            return res.status(409).json({ message: 'Email is already registered' });
+        }
+
+        const existingUsername = await User.findOne({ username: { $eq: username } });
+        if (existingUsername) {
+            return res.status(409).json({ message: 'Username is already registered' });
+        }
+
         // Generate a 6-digit code
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Store the code in the user document with expiration
-        const user = await User.findOne({ email: { $eq: email } });
-        if (!user) {
-            // Create a new user document with provided credentials
-            if (!password) {
-                return res.status(400).json({ message: 'Password is required for new users' });
-            }
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new User({
-                email,
-                username,
-                password: hashedPassword,
-                verificationCode,
-                verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
-                isEmailVerified: false
-            });
-            await newUser.save();
-        } else {
-            // Update existing user's verification code
-            user.verificationCode = verificationCode;
-            user.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
-            await user.save();
+        // Create a new user document with provided credentials
+        if (!password) {
+            return res.status(400).json({ message: 'Password is required for new users' });
         }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({
+            email,
+            username,
+            password: hashedPassword,
+            verificationCode,
+            verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
+            isEmailVerified: false
+        });
+        await newUser.save();
 
         // Send verification email
         await sendVerificationEmail(email, verificationCode);

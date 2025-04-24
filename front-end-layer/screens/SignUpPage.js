@@ -83,12 +83,13 @@ const SignUpPage = () => {
         try {
             if (verified) {
                 // If email is verified, proceed with registration
-                await registerUser(username, email, password);
-                navigation.replace('Login');
+                const result = await registerUser(username, email, password);
+                if (result) {
+                    navigation.replace('Login');
+                }
             } else {
                 // If not verified, send verification code
                 const result = await sendVerificationCode(email, username, password);
-                // Only navigate if there was no error
                 if (result) {
                     navigation.replace('Authentication', { email, username, password });
                 }

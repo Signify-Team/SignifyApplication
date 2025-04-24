@@ -105,13 +105,21 @@ export const registerUser = async (username, email, password) => {
       data: error.response?.data,
       message: error.message
     });
-    if (error.response?.status === 409) {
-      if (error.response?.data?.message?.includes('username')) {
-        throw new Error('Username already exists. Please choose another username.');
-      } else if (error.response?.data?.message?.includes('email')) {
-        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
-      }
+    
+    // Check for specific error messages in the response
+    const errorMessage = error.response?.data?.message?.toLowerCase() || '';
+    
+    if (errorMessage.includes('username') || errorMessage.includes('user')) {
+      throw new Error('Username already exists. Please choose another username.');
+    } else if (errorMessage.includes('email') || errorMessage.includes('account')) {
+      throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
     }
+    
+    // If we get a 409 status but no specific message, assume it's a duplicate
+    if (error.response?.status === 409) {
+      throw new Error('Username or email already exists. Please try a different username or email.');
+    }
+    
     throw error;
   }
 };
@@ -158,13 +166,20 @@ export const sendVerificationCode = async (email, username, password) => {
       message: error.message
     });
     
-    if (error.response?.status === 409) {
-      if (error.response?.data?.message?.includes('username')) {
-        throw new Error('Username already exists. Please choose another username.');
-      } else if (error.response?.data?.message?.includes('email')) {
-        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
-      }
+    // Check for specific error messages in the response
+    const errorMessage = error.response?.data?.message?.toLowerCase() || '';
+    
+    if (errorMessage.includes('username') || errorMessage.includes('user')) {
+      throw new Error('Username already exists. Please choose another username.');
+    } else if (errorMessage.includes('email') || errorMessage.includes('account')) {
+      throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
     }
+    
+    // If we get a 409 status but no specific message, assume it's a duplicate
+    if (error.response?.status === 409) {
+      throw new Error('Username or email already exists. Please try a different username or email.');
+    }
+    
     throw error;
   }
 };

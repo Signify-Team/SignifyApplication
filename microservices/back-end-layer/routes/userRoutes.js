@@ -563,4 +563,50 @@ router.get('/test', (req, res) => {
     res.status(200).send('User route is working!');
 });
 
+// Follow a user
+router.post('/follow', async (req, res) => {
+    const { followerId, followedId } = req.body;
+
+    if (!followerId || !followedId || !mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followedId)) {
+        return res.status(400).json({ message: 'Invalid user IDs' });
+    }
+
+    if (followerId === followedId) {
+        return res.status(400).json({ message: 'Cannot follow yourself' });
+    }
+
+    try {
+        const [follower, followed] = await Promise.all([
+            User.findById(followerId),
+            User.findById(followedId)
+        ]);
+
+        if (!follower || !followed) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if already following
+        if (follower.following.includes(followedId)) {
+            return res.status(400).json({ message: 'Already following this user' });
+        }
+
+        // Update both users
+        follower.following.push(followedId);
+        follower.followingCount += 1;
+        followed.followers.push(followerId);
+        followed.followerCount += 1;
+
+        await Promise.all([follower.save(), followed.save()]);
+
+        res.status(200).json({ 
+            message: 'Successfully followed user',
+            followerCount: followed.followerCount,
+            followingCount: follower.followingCount
+        });
+    } catch (error) {
+        console.error('Follow Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 export default router;

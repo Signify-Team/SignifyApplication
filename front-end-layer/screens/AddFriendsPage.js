@@ -23,7 +23,7 @@ import { COLORS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../styles/AddFriendsPageStyles';
-import CustomAlert from '../components/CustomAlert';
+import UnfollowAlert from '../components/UnfollowAlert';
 
 const AddFriendsPage = () => {
     const [users, setUsers] = useState([]);
@@ -238,17 +238,15 @@ const AddFriendsPage = () => {
                 keyExtractor={item => item._id}
                 contentContainerStyle={styles.listContainer}
             />
-            <CustomAlert
+            <UnfollowAlert
                 visible={showUnfollowAlert}
-                title="Unfollow User"
-                message={`Are you sure you want to unfollow ${selectedUser?.username}?`}
-                onCancel={() => {
+                onClose={() => {
                     setShowUnfollowAlert(false);
                     setSelectedUser(null);
                 }}
                 onConfirm={handleUnfollow}
-                confirmText="Unfollow"
-                cancelText="Cancel"
+                title="Unfollow User"
+                message={`Are you sure you want to unfollow ${selectedUser?.username}?`}
             />
         </View>
     );

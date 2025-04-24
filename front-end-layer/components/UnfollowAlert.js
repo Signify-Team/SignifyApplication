@@ -1,36 +1,31 @@
 import React from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Modal,
-    StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { COLORS } from '../utils/constants';
 
-const CustomAlert = ({ visible, title, message, onCancel, onConfirm, confirmText = 'Confirm', cancelText = 'Cancel' }) => {
+const UnfollowAlert = ({ visible, onClose, onConfirm, title, message }) => {
     return (
         <Modal
             visible={visible}
             transparent={true}
             animationType="fade"
+            onRequestClose={onClose}
         >
             <View style={styles.overlay}>
                 <View style={styles.alertContainer}>
                     <Text style={styles.title}>{title}</Text>
                     <Text style={styles.message}>{message}</Text>
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity
-                            style={[styles.button, styles.cancelButton]}
-                            onPress={onCancel}
+                        <TouchableOpacity 
+                            style={[styles.button, styles.cancelButton]} 
+                            onPress={onClose}
                         >
-                            <Text style={styles.cancelButtonText}>{cancelText}</Text>
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.button, styles.confirmButton]}
+                        <TouchableOpacity 
+                            style={[styles.button, styles.confirmButton]} 
                             onPress={onConfirm}
                         >
-                            <Text style={styles.confirmButtonText}>{confirmText}</Text>
+                            <Text style={styles.confirmButtonText}>Unfollow</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -45,14 +40,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
     },
     alertContainer: {
         backgroundColor: COLORS.white,
         borderRadius: 20,
-        padding: 25,
-        width: '100%',
-        maxWidth: 350,
+        padding: 20,
+        width: '80%',
+        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -63,8 +57,8 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     title: {
-        fontSize: 20,
-        fontFamily: 'Baloo2-Bold',
+        fontSize: 18,
+        fontFamily: 'Poppins-SemiBold',
         color: COLORS.neutral_base_dark,
         marginBottom: 10,
         textAlign: 'center',
@@ -75,27 +69,18 @@ const styles = StyleSheet.create({
         color: COLORS.neutral_base_dark,
         marginBottom: 20,
         textAlign: 'center',
-        lineHeight: 22,
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
+        width: '100%',
     },
     button: {
-        flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 10,
         paddingHorizontal: 20,
-        borderRadius: 15,
-        marginHorizontal: 5,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
+        borderRadius: 20,
+        minWidth: 100,
+        alignItems: 'center',
     },
     cancelButton: {
         backgroundColor: COLORS.neutral_base_soft,
@@ -107,14 +92,12 @@ const styles = StyleSheet.create({
         color: COLORS.neutral_base_dark,
         fontSize: 16,
         fontFamily: 'Poppins-SemiBold',
-        textAlign: 'center',
     },
     confirmButtonText: {
         color: COLORS.white,
         fontSize: 16,
         fontFamily: 'Poppins-SemiBold',
-        textAlign: 'center',
     },
 });
 
-export default CustomAlert; 
+export default UnfollowAlert; 

@@ -567,18 +567,22 @@ router.get('/test', (req, res) => {
 router.post('/follow', async (req, res) => {
     const { followerId, followedId } = req.body;
 
-    if (!followerId || !followedId || !mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followedId)) {
-        return res.status(400).json({ message: 'Invalid user IDs' });
-    }
-
-    if (followerId === followedId) {
-        return res.status(400).json({ message: 'Cannot follow yourself' });
+    if (!followerId || !followedId) {
+        return res.status(400).json({ message: 'Follower and followed IDs are required' });
     }
 
     try {
+        // Convert string IDs to MongoDB ObjectIds
+        const followerObjectId = new mongoose.Types.ObjectId(followerId);
+        const followedObjectId = new mongoose.Types.ObjectId(followedId);
+
+        if (followerObjectId.equals(followedObjectId)) {
+            return res.status(400).json({ message: 'Cannot follow yourself' });
+        }
+
         const [follower, followed] = await Promise.all([
-            User.findById(followerId),
-            User.findById(followedId)
+            User.findById(followerObjectId),
+            User.findById(followedObjectId)
         ]);
 
         if (!follower || !followed) {
@@ -586,14 +590,14 @@ router.post('/follow', async (req, res) => {
         }
 
         // Check if already following
-        if (follower.following.includes(followedId)) {
+        if (follower.following.some(id => id.equals(followedObjectId))) {
             return res.status(400).json({ message: 'Already following this user' });
         }
 
         // Update both users
-        follower.following.push(followedId);
+        follower.following.push(followedObjectId);
         follower.followingCount += 1;
-        followed.followers.push(followerId);
+        followed.followers.push(followerObjectId);
         followed.followerCount += 1;
 
         await Promise.all([follower.save(), followed.save()]);

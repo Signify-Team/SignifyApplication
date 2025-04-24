@@ -63,7 +63,7 @@ router.post('/:id/start', async (req, res) => {
 // Finish a course (Mark course as completed)
 router.post('/:id/finish', async (req, res) => {
     try {
-        const { userId, isPassed, completed, progress } = req.body;
+        const { userId, isPassed, completed, progress, isPracticeSession } = req.body;
         const courseId = req.params.id;
 
         // Validate required fields
@@ -105,8 +105,8 @@ router.post('/:id/finish', async (req, res) => {
         // Save user with updated progress
         await user.save();
 
-        // Only award points for first completion
-        if (isFirstCompletion && isPassed) {
+        // Only award points for first completion and not for practice sessions
+        if (isFirstCompletion && isPassed && !isPracticeSession) {
             user.points += 50;
             await user.save();
         }
@@ -117,8 +117,8 @@ router.post('/:id/finish', async (req, res) => {
             isPassed,
             progress: courseProgress,
             isFirstCompletion,
-            isPracticeSession: !isFirstCompletion,
-            pointsAwarded: isFirstCompletion && isPassed ? 50 : 0
+            isPracticeSession: isPracticeSession || !isFirstCompletion,
+            pointsAwarded: (isFirstCompletion && isPassed && !isPracticeSession) ? 50 : 0
         });
     } catch (err) {
         console.error('Error completing course:', err);

@@ -595,10 +595,6 @@ router.post('/follow', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Initialize following/followers arrays if they don't exist
-        if (!follower.following) follower.following = [];
-        if (!followed.followers) followed.followers = [];
-
         // Check if already following
         const isAlreadyFollowing = follower.following.some(id => id.equals(followedObjectId));
         if (isAlreadyFollowing) {

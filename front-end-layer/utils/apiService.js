@@ -11,3 +11,4 @@ export * from './services/languageService';
 export * from './services/questService';
 export * from './services/courseService';
 export * from './services/badgeService';
+export * from './services/notificationService';

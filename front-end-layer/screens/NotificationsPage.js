@@ -7,18 +7,21 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, RefreshControl, Alert } from 'react-native';
 import { COLORS } from '../utils/constants';
 import styles from '../styles/NotificationPageStyles';
 import StreaksIcon from '../assets/icons/header/streak.png';
 import TrophyIcon from '../assets/icons/course-info/trophyIcon.png';
 import KoalaIcon from '../assets/icons/header/koala-hand.png';
 import BackIcon from '../assets/icons/header/back.png';
+import { fetchUserNotifications, markNotificationAsRead, deleteNotification } from '../utils/services/notificationService';
+import NotificationPopup from '../components/NotificationPopup';
 
 const NotificationsPage = ({ navigation }) => {
     const [notifications, setNotifications] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [selectedNotification, setSelectedNotification] = useState(null);
 
     useEffect(() => {
         loadNotifications();
@@ -26,42 +29,46 @@ const NotificationsPage = ({ navigation }) => {
 
     const loadNotifications = async () => {
         try {
-            // TODO: Replace with actual API call
-            const mockNotifications = [
-                {
-                    id: '1',
-                    type: 'achievement',
-                    title: 'First Streak!',
-                    message: 'You\'ve completed your first 3-day streak!',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-                    isRead: false,
-                    icon: StreaksIcon
-                },
-                {
-                    id: '2',
-                    type: 'badge',
-                    title: 'New Badge Earned',
-                    message: 'Congratulations! You\'ve earned the "Quick Learner" badge!',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-                    isRead: true,
-                    icon: TrophyIcon
-                },
-                {
-                    id: '3',
-                    type: 'course',
-                    title: 'Course Reminder',
-                    message: 'Don\'t forget to practice your daily lessons!',
-                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-                    isRead: true,
-                    icon: KoalaIcon
-                }
-            ];
-            setNotifications(mockNotifications);
+            const fetchedNotifications = await fetchUserNotifications();
+            console.log('Fetched notifications:', fetchedNotifications);
+            
+            // Sort notifications by date in descending order (newest first)
+            const sortedNotifications = fetchedNotifications.sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            const formattedNotifications = sortedNotifications.map(notification => ({
+                ...notification,
+                id: notification._id,
+                type: notification.type || 'general',
+                title: notification.title || 'Notification',
+                message: notification.message,
+                timestamp: new Date(notification.date),
+                isRead: notification.isRead,
+                icon: getNotificationIcon(notification.type)
+            }));
+            
+            console.log('Formatted notifications:', formattedNotifications);
+            setNotifications(formattedNotifications);
         } catch (error) {
             console.error('Error loading notifications:', error);
+            Alert.alert('Error', 'Failed to load notifications. Please try again later.');
         } finally {
             setLoading(false);
             setRefreshing(false);
+        }
+    };
+
+    const getNotificationIcon = (type) => {
+        switch (type) {
+            case 'streak':
+                return StreaksIcon;
+            case 'badge':
+                return TrophyIcon;
+            case 'course':
+                return KoalaIcon;
+            default:
+                return KoalaIcon;
         }
     };
 
@@ -86,16 +93,52 @@ const NotificationsPage = ({ navigation }) => {
         }
     };
 
+    const handleNotificationPress = async (item) => {
+        try {
+            console.log('Handling notification press:', item);
+            setSelectedNotification(item);
+        } catch (error) {
+            console.error('Error in handleNotificationPress:', error);
+        }
+    };
+
+    const handlePopupClose = async () => {
+        if (selectedNotification && !selectedNotification.isRead) {
+            try {
+                await markNotificationAsRead(selectedNotification);
+                const updatedNotifications = notifications.map(notification => 
+                    notification.id === selectedNotification.id 
+                        ? { ...notification, isRead: true }
+                        : notification
+                );
+                setNotifications(updatedNotifications);
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+        setSelectedNotification(null);
+    };
+
+    const handleDeleteNotification = async (item) => {
+        try {
+            await deleteNotification(item);
+            const updatedNotifications = notifications.filter(
+                notification => notification.id !== item.id
+            );
+            setNotifications(updatedNotifications);
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+            Alert.alert('Error', 'Failed to delete notification. Please try again.');
+        }
+    };
+
     const renderNotification = ({ item }) => (
         <TouchableOpacity 
             style={[
                 styles.notificationItem,
                 !item.isRead && styles.unreadNotification
             ]}
-            onPress={() => {
-                // TODO: Handle notification press
-                console.log('Notification pressed:', item.id);
-            }}
+            onPress={() => handleNotificationPress(item)}
         >
             <View style={styles.notificationIconContainer}>
                 <Image 
@@ -103,13 +146,18 @@ const NotificationsPage = ({ navigation }) => {
                     style={styles.notificationIcon}
                     resizeMode="contain"
                 />
-                {!item.isRead && <View style={styles.unreadDot} />}
             </View>
             <View style={styles.notificationContent}>
                 <Text style={styles.notificationTitle}>{item.title}</Text>
                 <Text style={styles.notificationMessage}>{item.message}</Text>
                 <Text style={styles.notificationTime}>{formatTimestamp(item.timestamp)}</Text>
             </View>
+            <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDeleteNotification(item)}
+            >
+                <Text style={styles.deleteButtonText}>×</Text>
+            </TouchableOpacity>
         </TouchableOpacity>
     );
 
@@ -151,15 +199,13 @@ const NotificationsPage = ({ navigation }) => {
                     />
                 }
             />
-            <TouchableOpacity 
-                style={styles.markAllReadButton}
-                onPress={() => {
-                    // TODO: Implement mark all as read
-                    console.log('Mark all as read pressed');
-                }}
-            >
-                <Text style={styles.markAllReadText}>Mark all as read</Text>
-            </TouchableOpacity>
+            <NotificationPopup
+                visible={selectedNotification !== null}
+                onClose={handlePopupClose}
+                title={selectedNotification?.title || 'Notification'}
+                message={selectedNotification?.message || ''}
+                icon={selectedNotification?.icon}
+            />
         </View>
     );
 };

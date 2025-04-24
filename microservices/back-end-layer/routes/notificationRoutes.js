@@ -28,7 +28,7 @@ router.use(notificationRateLimiter);
 
 // Create a new notification for a user
 router.post('/', async (req, res) => {
-    const { userId, message } = req.body;
+    const { userId, type, title, message } = req.body;
 
     // Ensure userId is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -42,11 +42,13 @@ router.post('/', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Create the notification object, but don't save it yet
+        // Create the notification object
         const newNotification = new Notification({
             userId: new mongoose.Types.ObjectId(userId),
+            type: type || 'general',
+            title: title,
             message: message.trim(),
-            notificationId: new mongoose.Types.ObjectId() // Use a new ObjectId for notificationId
+            notificationId: new mongoose.Types.ObjectId()
         });
 
         // Save the notification

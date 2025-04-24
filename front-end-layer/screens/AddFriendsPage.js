@@ -86,33 +86,56 @@ const AddFriendsPage = () => {
                 throw new Error('Could not fetch current user profile');
             }
 
+            // First, follow the user
             const response = await followUser(userToFollow._id);
             
-            // Create notification for the followed user
-            await createNotification(
-                userToFollow._id,
-                'follow',
-                'New Follower',
-                `${currentUserProfile.username} started following you`
-            );
-            
-            // Update local state
-            setUsers(users.map(user => 
-                user._id === userToFollow._id 
-                    ? { ...user, isFollowing: true } 
-                    : user
-            ));
-            
-            // Update filtered users as well
-            setFilteredUsers(filteredUsers.map(user => 
-                user._id === userToFollow._id 
-                    ? { ...user, isFollowing: true } 
-                    : user
-            ));
+            // Only proceed if follow was successful
+            if (response && response.message === 'Successfully followed user') {
+                try {
+                    // Create notification for the followed user
+                    await createNotification(
+                        'follow',
+                        'New Follower',
+                        `${currentUserProfile.username} started following you`,
+                        userToFollow._id
+                    );
+                    
+                    // Update local state only after both operations succeed
+                    setUsers(users.map(user => 
+                        user._id === userToFollow._id 
+                            ? { ...user, isFollowing: true } 
+                            : user
+                    ));
+                    
+                    setFilteredUsers(filteredUsers.map(user => 
+                        user._id === userToFollow._id 
+                            ? { ...user, isFollowing: true } 
+                            : user
+                    ));
+                } catch (notificationError) {
+                    console.error('Error creating notification:', notificationError);
+                    // Even if notification fails, we still show success since follow worked
+                    setUsers(users.map(user => 
+                        user._id === userToFollow._id 
+                            ? { ...user, isFollowing: true } 
+                            : user
+                    ));
+                    
+                    setFilteredUsers(filteredUsers.map(user => 
+                        user._id === userToFollow._id 
+                            ? { ...user, isFollowing: true } 
+                            : user
+                    ));
+                }
+            } else {
+                throw new Error('Failed to follow user');
+            }
         } catch (err) {
             console.error('Error following user:', err);
             // Show error message to user
             setError(err.message);
+            // Reload users to ensure correct following status
+            loadUsers();
         }
     };
 

@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, SectionList, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import { View, SectionList, ActivityIndicator, RefreshControl, Alert, Text, TouchableOpacity, ScrollView } from 'react-native';
 import styles from '../styles/CoursesPageStyles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CourseInfoCard from '../components/CourseInfoCard';
@@ -23,7 +23,9 @@ import {
     getUserPremiumStatus,
     fetchCourseExercises,
     updateUserPoints,
+    fetchUserProfile,
 } from '../utils/apiService';
+import StreakPopup from '../components/StreakPopup';
 
 const CoursesPage = ({ navigation, route }) => {
     const [showCard, setShowCard] = useState(false);
@@ -35,10 +37,14 @@ const CoursesPage = ({ navigation, route }) => {
     const [userLanguage, setUserLanguage] = useState(null);
     const [isUserPremium, setIsUserPremium] = useState(false);
     const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const [showStreakPopup, setShowStreakPopup] = useState(false);
+    const [streakMessage, setStreakMessage] = useState('');
 
     useEffect(() => {
         loadUserLanguageAndSections();
         loadUserPremiumStatus();
+        loadUserData();
     }, []);
 
     useEffect(() => {
@@ -53,6 +59,13 @@ const CoursesPage = ({ navigation, route }) => {
             const { successRate, isPassed } = route.params;
             showCourseCompletionAlert(successRate, isPassed);
             navigation.setParams({ showCompletionMessage: false });
+        }
+    }, [route.params]);
+
+    useEffect(() => {
+        if (route.params?.streakMessage) {
+            setStreakMessage(route.params.streakMessage);
+            setShowStreakPopup(true);
         }
     }, [route.params]);
 
@@ -73,6 +86,15 @@ const CoursesPage = ({ navigation, route }) => {
             await loadSections(language);
         } catch (error) {
             console.error('Error loading user language and sections:', error);
+        }
+    };
+
+    const loadUserData = async () => {
+        try {
+            const data = await fetchUserProfile();
+            setUserData(data);
+        } catch (error) {
+            console.error('Error loading user data:', error);
         }
     };
 
@@ -241,6 +263,10 @@ const CoursesPage = ({ navigation, route }) => {
         );
     };
 
+    const handleStreakPopupClose = () => {
+        setShowStreakPopup(false);
+    };
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.container, styles.centerContent]}>
@@ -300,6 +326,12 @@ const CoursesPage = ({ navigation, route }) => {
                     />
                 )}
             </View>
+
+            <StreakPopup
+                visible={showStreakPopup}
+                message={streakMessage}
+                onClose={handleStreakPopupClose}
+            />
         </View>
     );
 };

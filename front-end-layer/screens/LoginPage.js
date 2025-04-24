@@ -61,16 +61,10 @@ const LoginPage = () => {
             
             setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
             
-            // Show streak popup if there's a streak message
-            if (data.streakMessage) {
-                setStreakMessage(data.streakMessage);
-                setShowStreakPopup(true);
+            if (!serverLanguagePreference) {
+                navigation.replace('LanguagePreference', { userId: data.user._id });
             } else {
-                if (!serverLanguagePreference) {
-                    navigation.replace('LanguagePreference', { userId: data.user._id });
-                } else {
-                    navigation.replace('Home');
-                }
+                navigation.replace('Courses', { streakMessage: data.streakMessage });
             }
         } catch (error) {
             setErrorMessage(error.message || 'Unable to connect to the server');

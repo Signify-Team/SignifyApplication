@@ -87,20 +87,16 @@ const SignUpPage = () => {
                 navigation.replace('Login');
             } else {
                 // If not verified, send verification code
-                try {
-                    await sendVerificationCode(email, username, password);
-                    // Only navigate if there was no error
+                const result = await sendVerificationCode(email, username, password);
+                // Only navigate if there was no error
+                if (result) {
                     navigation.replace('Authentication', { email, username, password });
-                } catch (error) {
-                    console.log('Verification error:', error);
-                    setErrorMessage(error.message);
-                    // Don't navigate on error
-                    return;
                 }
             }
         } catch (error) {
-            console.log('Registration error:', error);
+            console.log('Error in handleContinue:', error);
             setErrorMessage(error.message);
+            // Don't navigate on error
         } finally {
             setIsLoading(false);
         }

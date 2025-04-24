@@ -143,6 +143,10 @@ export const checkUserExists = async (username, email) => {
 
 export const sendVerificationCode = async (email, username, password) => {
   try {
+    // First check if user exists
+    await checkUserExists(username, email);
+    
+    // If no error from checkUserExists, proceed with sending verification
     console.log('Sending verification code for:', { email, username });
     const response = await axios.post(`${API_BASE_URL}/users/send-verification`, {
       email,
@@ -150,16 +154,6 @@ export const sendVerificationCode = async (email, username, password) => {
       password
     });
     console.log('Verification code response:', response.data);
-    
-    // Check if the response indicates an existing user
-    if (response.data?.error) {
-      if (response.data.error.includes('username')) {
-        throw new Error('Username already exists. Please choose another username.');
-      } else if (response.data.error.includes('email')) {
-        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
-      }
-    }
-    
     return response.data;
   } catch (error) {
     console.log('Verification code error:', {
@@ -167,17 +161,7 @@ export const sendVerificationCode = async (email, username, password) => {
       data: error.response?.data,
       message: error.message
     });
-    
-    if (error.response?.status === 409) {
-      if (error.response?.data?.message?.includes('username')) {
-        throw new Error('Username already exists. Please choose another username.');
-      } else if (error.response?.data?.message?.includes('email')) {
-        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
-      }
-    }
-    
-    // If we get here, throw a generic error
-    throw new Error(error.response?.data?.message || 'Failed to send verification code');
+    throw error; // Re-throw the error from checkUserExists
   }
 };
 

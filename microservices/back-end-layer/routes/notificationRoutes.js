@@ -1,16 +1,15 @@
 /**
  * @file notificationRoutes.js
- * @description This file handles the notification routes.
- *
- * @datecreated 15.02.2025
- * @lastmodified 18.02.2025
+ * @description Routes for handling notifications
+ * @datecreated 24.04.2025
  */
 
 import express from 'express';
+import mongoose from 'mongoose';
 import Notification from '../models/NotificationDB.js';
+import { createNotification } from '../utils/notificationUtils.js';
 import User from '../models/UserDB.js'; // Make sure User model is imported
 import rateLimit from 'express-rate-limit'; // Import rate limiter
-import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -26,40 +25,24 @@ const notificationRateLimiter = rateLimit({
 // Apply rate limiter to all notification routes
 router.use(notificationRateLimiter);
 
-// Create a new notification for a user
+// Create a new notification
 router.post('/', async (req, res) => {
-    const { userId, type, title, message } = req.body;
-
-    // Ensure userId is a valid MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ error: 'Invalid userId format' });
-    }
-
     try {
-        // Check if the user exists
-        const userExists = await User.findById(userId);
-        if (!userExists) {
-            return res.status(404).json({ error: 'User not found' });
+        const { userId, type, title, message } = req.body;
+
+        if (!userId || !type || !title || !message) {
+            return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Create the notification object
-        const newNotification = new Notification({
-            userId: new mongoose.Types.ObjectId(userId),
-            type: type || 'general',
-            title: title,
-            message: message.trim(),
-            notificationId: new mongoose.Types.ObjectId()
-        });
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
 
-        // Save the notification
-        const savedNotification = await newNotification.save();
-
-        res.status(201).json({
-            message: 'Notification created successfully',
-            notification: savedNotification
-        });
+        const notification = await createNotification(type, title, message, userId);
+        res.status(201).json(notification);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error creating notification:', error);
+        res.status(500).json({ message: 'Failed to create notification' });
     }
 });
 

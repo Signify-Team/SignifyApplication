@@ -22,6 +22,13 @@ export const fetchUserNotifications = async () => {
   }
 };
 
+/**
+ * Creates a new notification
+ * @param {string} type - Type of notification ('streak', 'badge', 'course', 'general')
+ * @param {string} title - Title of the notification
+ * @param {string} message - Message content of the notification
+ * @returns {Promise<Object>} The created notification
+ */
 export const createNotification = async (type, title, message) => {
   try {
     const userId = await getUserId();
@@ -36,7 +43,8 @@ export const createNotification = async (type, title, message) => {
     });
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to create notification');
+    console.error('Error creating notification:', error);
+    throw error;
   }
 };
 

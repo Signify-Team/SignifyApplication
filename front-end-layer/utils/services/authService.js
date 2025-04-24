@@ -116,8 +116,37 @@ export const registerUser = async (username, email, password) => {
   }
 };
 
+export const checkUserExists = async (username, email) => {
+  try {
+    console.log('Checking if user exists:', { username, email });
+    const response = await axios.post(`${API_BASE_URL}/users/check-exists`, {
+      username,
+      email
+    });
+    return response.data;
+  } catch (error) {
+    console.log('Check user exists error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    if (error.response?.status === 409) {
+      if (error.response?.data?.message?.includes('username')) {
+        throw new Error('Username already exists. Please choose another username.');
+      } else if (error.response?.data?.message?.includes('email')) {
+        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
+      }
+    }
+    throw error;
+  }
+};
+
 export const sendVerificationCode = async (email, username, password) => {
   try {
+    // First check if user exists
+    await checkUserExists(username, email);
+    
+    // If no error from checkUserExists, proceed with sending verification
     console.log('Sending verification code for:', { email, username });
     const response = await axios.post(`${API_BASE_URL}/users/send-verification`, {
       email,
@@ -132,15 +161,7 @@ export const sendVerificationCode = async (email, username, password) => {
       data: error.response?.data,
       message: error.message
     });
-    
-    if (error.response?.status === 409) {
-      if (error.response?.data?.message?.includes('username')) {
-        throw new Error('Username already exists. Please choose another username.');
-      } else if (error.response?.data?.message?.includes('email')) {
-        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
-      }
-    }
-    throw new Error(error.response?.data?.message || 'Failed to send verification code');
+    throw error; // Re-throw the error from checkUserExists
   }
 };
 

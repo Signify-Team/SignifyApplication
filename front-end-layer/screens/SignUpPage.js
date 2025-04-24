@@ -91,6 +91,7 @@ const SignUpPage = () => {
                 navigation.replace('Authentication', { email, username, password });
             }
         } catch (error) {
+            console.log('Error in handleContinue:', error);
             setErrorMessage(error.message);
         } finally {
             setIsLoading(false);

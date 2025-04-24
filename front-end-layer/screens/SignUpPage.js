@@ -87,12 +87,16 @@ const SignUpPage = () => {
                 navigation.replace('Login');
             } else {
                 // If not verified, send verification code
-                await sendVerificationCode(email, username, password);
-                navigation.replace('Authentication', { email, username, password });
+                const result = await sendVerificationCode(email, username, password);
+                // Only navigate if there was no error
+                if (result) {
+                    navigation.replace('Authentication', { email, username, password });
+                }
             }
         } catch (error) {
             console.log('Error in handleContinue:', error);
             setErrorMessage(error.message);
+            // Don't navigate on error
         } finally {
             setIsLoading(false);
         }

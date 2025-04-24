@@ -84,9 +84,6 @@ router.post('/:id/finish', async (req, res) => {
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         
         // Check if this is the first completion
-        // It's first completion if:
-        // 1. No progress entry exists, OR
-        // 2. Progress entry exists but course was never completed
         const isFirstCompletion = !courseProgress || !courseProgress.completed;
 
         if (!courseProgress) {
@@ -108,13 +105,20 @@ router.post('/:id/finish', async (req, res) => {
         // Save user with updated progress
         await user.save();
 
+        // Only award points for first completion
+        if (isFirstCompletion && isPassed) {
+            user.points += 50;
+            await user.save();
+        }
+
         res.status(200).json({ 
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
             progress: courseProgress,
             isFirstCompletion,
-            isPracticeSession: !isFirstCompletion
+            isPracticeSession: !isFirstCompletion,
+            pointsAwarded: isFirstCompletion && isPassed ? 50 : 0
         });
     } catch (err) {
         console.error('Error completing course:', err);

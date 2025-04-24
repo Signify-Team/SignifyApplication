@@ -60,7 +60,7 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             throw new Error('No user ID found. Please log in again.');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/completion`, {
+        const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/finish`, {
             userId,
             isPassed,
             completed: true,

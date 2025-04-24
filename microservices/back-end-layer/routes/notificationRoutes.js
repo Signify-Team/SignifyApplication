@@ -16,7 +16,7 @@ const router = express.Router();
 // Rate limiter for notification routes
 const notificationRateLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 10,
+    max: 60,
     message: 'Too many requests from this IP, please try again after a minute',
     standardHeaders: true,
     legacyHeaders: false

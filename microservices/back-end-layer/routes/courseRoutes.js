@@ -82,6 +82,11 @@ router.post('/:id/finish', async (req, res) => {
 
         // Find or create course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
+        
+        // Check if this is the first completion
+        // It's first completion if:
+        // 1. No progress entry exists, OR
+        // 2. Progress entry exists but course was never completed
         const isFirstCompletion = !courseProgress || !courseProgress.completed;
 
         if (!courseProgress) {
@@ -108,7 +113,8 @@ router.post('/:id/finish', async (req, res) => {
             course,
             isPassed,
             progress: courseProgress,
-            isFirstCompletion
+            isFirstCompletion,
+            isPracticeSession: !isFirstCompletion
         });
     } catch (err) {
         console.error('Error completing course:', err);

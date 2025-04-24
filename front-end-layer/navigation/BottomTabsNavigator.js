@@ -56,21 +56,19 @@ const tabBarIcon = ({ route }) => ({ focused }) => {
         />
     );
 };
-
-const BottomTabsNavigator = () => (
-    
+const BottomTabsNavigator = ({ route }) => (
     <Tab.Navigator 
         screenOptions={({ route }) => ({
-        tabBarIcon: tabBarIcon({ route }),
-        tabBarShowLabel: false,
-        tabBarStyle: styles.bottomBarContainer,
-        
+            tabBarIcon: tabBarIcon({ route }),
+            tabBarShowLabel: false,
+            tabBarStyle: styles.bottomBarContainer,
         })}
-        >
+        initialRouteName="Courses"
+    >
         <Tab.Screen
             name="Courses"
             component={Courses}
-            // Do not show the default header.
+            initialParams={route.params}
             options={{
                 headerShown: false,
             }}

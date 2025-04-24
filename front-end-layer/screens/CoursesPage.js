@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, SectionList, ActivityIndicator, RefreshControl, Alert, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, SectionList, ActivityIndicator, RefreshControl, Alert, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import styles from '../styles/CoursesPageStyles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CourseInfoCard from '../components/CourseInfoCard';
@@ -27,6 +27,8 @@ import {
 } from '../utils/apiService';
 import StreakPopup from '../components/StreakPopup';
 
+const { width } = Dimensions.get('window');
+
 const CoursesPage = ({ navigation, route }) => {
     const [showCard, setShowCard] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -37,7 +39,11 @@ const CoursesPage = ({ navigation, route }) => {
     const [userLanguage, setUserLanguage] = useState(null);
     const [isUserPremium, setIsUserPremium] = useState(false);
     const [showCompletionMessage, setShowCompletionMessage] = useState(false);
-    const [userData, setUserData] = useState(null);
+    const [userData, setUserData] = useState({
+        streakCount: 0,
+        languagePreference: 'ASL',
+        unreadNotifications: 0
+    });
     const [showStreakPopup, setShowStreakPopup] = useState(false);
     const [streakMessage, setStreakMessage] = useState('');
 

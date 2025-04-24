@@ -69,9 +69,7 @@ const MainNavigator = () => (
         />
         <Stack.Screen
             name="Home"
-            component={
-                BottomTabsNavigator
-            }
+            component={BottomTabsNavigator}
             options={{
                 headerShown: false,
                 title: '',

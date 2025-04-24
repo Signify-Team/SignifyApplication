@@ -64,7 +64,7 @@ const LoginPage = () => {
             if (!serverLanguagePreference) {
                 navigation.replace('LanguagePreference', { userId: data.user._id });
             } else {
-                navigation.replace('Courses', { streakMessage: data.streakMessage });
+                navigation.replace('Home', { streakMessage: data.streakMessage });
             }
         } catch (error) {
             setErrorMessage(error.message || 'Unable to connect to the server');

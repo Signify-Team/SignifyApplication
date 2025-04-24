@@ -91,7 +91,7 @@ const SignUpPage = () => {
                 navigation.replace('Authentication', { email, username, password });
             }
         } catch (error) {
-            setErrorMessage(error.message || 'Failed to proceed');
+            setErrorMessage(error.message);
         } finally {
             setIsLoading(false);
         }

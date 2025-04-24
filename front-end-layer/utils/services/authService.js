@@ -98,6 +98,13 @@ export const registerUser = async (username, email, password) => {
     }
     return response.data;
   } catch (error) {
+    if (error.response?.status === 409) {
+      if (error.response?.data?.message?.includes('username')) {
+        throw new Error('Username already exists. Please choose another username.');
+      } else if (error.response?.data?.message?.includes('email')) {
+        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
+      }
+    }
     throw new Error(error.response?.data?.message || 'Registration failed');
   }
 };

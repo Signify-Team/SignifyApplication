@@ -22,14 +22,6 @@ export const fetchUserNotifications = async () => {
   }
 };
 
-/**
- * Creates a new notification
- * @param {string} type - Type of notification ('streak', 'badge', 'course', 'general', 'follow')
- * @param {string} title - Title of the notification
- * @param {string} message - Message content of the notification
- * @param {string} [targetUserId] - Optional ID of the user to notify. If not provided, uses current user's ID
- * @returns {Promise<Object>} The created notification
- */
 export const createNotification = async (type, title, message, targetUserId) => {
   try {
     let userId = targetUserId;

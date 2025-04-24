@@ -9,6 +9,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { getUserId } from './authService';
 import { updateUserPoints } from './userService';
+import { createNotification } from './notificationService';
 
 export const fetchUserCourses = async () => {
   try {
@@ -75,6 +76,9 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
 
         if (isPassed) {
             await updateUserPoints(50, 'Course completion');
+            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with flying colors!');
+        } else {
+            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Keep practicing to improve your score!');
         }
 
         return response.data;

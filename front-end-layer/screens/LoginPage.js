@@ -19,6 +19,7 @@ import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
 import { loginUser, fetchUserProfile } from '../utils/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import StreakPopup from '../components/StreakPopup';
 
 // Login Page layout
 const LoginPage = () => {
@@ -27,6 +28,8 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
+    const [showStreakPopup, setShowStreakPopup] = useState(false);
+    const [streakMessage, setStreakMessage] = useState('');
     const navigation = useNavigation();
 
     const validateEmail = (email) => {
@@ -57,16 +60,32 @@ const LoginPage = () => {
             const serverLanguagePreference = data.user?.languagePreference;
             
             setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
-                    
-            if (!serverLanguagePreference) {
-                navigation.replace('LanguagePreference', { userId: data.user._id });
+            
+            // Show streak popup if there's a streak message
+            if (data.streakMessage) {
+                setStreakMessage(data.streakMessage);
+                setShowStreakPopup(true);
             } else {
-                navigation.replace('Home');
+                if (!serverLanguagePreference) {
+                    navigation.replace('LanguagePreference', { userId: data.user._id });
+                } else {
+                    navigation.replace('Home');
+                }
             }
         } catch (error) {
             setErrorMessage(error.message || 'Unable to connect to the server');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleStreakPopupClose = () => {
+        setShowStreakPopup(false);
+        const serverLanguagePreference = statusMessage.replace('Server Language: ', '');
+        if (serverLanguagePreference === 'None') {
+            navigation.replace('LanguagePreference', { userId: data.user._id });
+        } else {
+            navigation.replace('Home');
         }
     };
 
@@ -135,6 +154,12 @@ const LoginPage = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            <StreakPopup
+                visible={showStreakPopup}
+                message={streakMessage}
+                onClose={handleStreakPopupClose}
+            />
         </View>
     );
 };

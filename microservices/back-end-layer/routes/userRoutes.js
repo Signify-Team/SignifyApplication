@@ -117,18 +117,24 @@ router.post('/login', async (req, res) => {
         const yesterdayFormatted = formatDate(yesterday);
         const lastLoginFormatted = user.lastLoginDate ? formatDate(user.lastLoginDate) : null;
 
+        let streakMessage = null;
+        const oldStreakCount = user.streakCount;
+
         // Update streak count based on login pattern
         if (!lastLoginFormatted) {
             // First time login
             user.streakCount = 1;
+            streakMessage = "Welcome! Start your learning streak today!";
         } else if (currentDateFormatted.getTime() === lastLoginFormatted.getTime()) {
             // Already logged in today - do nothing
         } else if (yesterdayFormatted.getTime() === lastLoginFormatted.getTime()) {
             // Logged in yesterday - increment streak
             user.streakCount += 1;
+            streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
         } else {
             // Missed a day - reset streak
             user.streakCount = 1;
+            streakMessage = "Try to log in every day to maintain your streak!";
         }
 
         // Update last login date
@@ -144,6 +150,7 @@ router.post('/login', async (req, res) => {
                 languagePreference: user.languagePreference,
                 streakCount: user.streakCount
             },
+            streakMessage: streakMessage
         });
     } catch (error) {
         console.error('Login Error:', error);

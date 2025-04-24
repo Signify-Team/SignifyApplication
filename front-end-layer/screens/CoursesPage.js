@@ -70,8 +70,7 @@ const CoursesPage = ({ navigation, route }) => {
 
     useEffect(() => {
         if (route.params?.streakMessage) {
-            setStreakMessage(route.params.streakMessage);
-            setShowStreakPopup(true);
+            checkAndShowStreakPopup(route.params.streakMessage);
         }
     }, [route.params]);
 
@@ -267,6 +266,17 @@ const CoursesPage = ({ navigation, route }) => {
                 }
             ]
         );
+    };
+
+    const checkAndShowStreakPopup = async (message) => {
+        try {
+            console.log('Showing streak popup with message:', message);
+            setStreakMessage(message);
+            setShowStreakPopup(true);
+            navigation.setParams({ streakMessage: null });
+        } catch (error) {
+            console.error('Error showing streak popup:', error);
+        }
     };
 
     const handleStreakPopupClose = () => {

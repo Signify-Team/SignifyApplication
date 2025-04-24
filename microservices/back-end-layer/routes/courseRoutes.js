@@ -82,6 +82,8 @@ router.post('/:id/finish', async (req, res) => {
 
         // Find or create course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
+        const isFirstCompletion = !courseProgress || !courseProgress.completed;
+
         if (!courseProgress) {
             user.courseProgress.push({
                 courseId: courseId,
@@ -105,7 +107,8 @@ router.post('/:id/finish', async (req, res) => {
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
-            progress: courseProgress
+            progress: courseProgress,
+            isFirstCompletion
         });
     } catch (err) {
         console.error('Error completing course:', err);

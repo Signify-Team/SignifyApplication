@@ -80,15 +80,39 @@ router.post('/:id/finish', async (req, res) => {
         if (!course) return res.status(404).json({ message: 'Course not found' });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        // Find or create course progress entry
+        // Find course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         
         // Check if this is the first completion
         const isFirstCompletion = !courseProgress || !courseProgress.completed;
 
-        // Determine if points should be awarded
-        const shouldAwardPoints = isFirstCompletion && isPassed && !isPracticeSession;
+        // If this is a practice session, return immediately without any updates
+        if (isPracticeSession) {
+            return res.status(200).json({ 
+                message: 'Practice session completed', 
+                course,
+                isPassed,
+                progress: courseProgress || { progress: 0, completed: false },
+                isFirstCompletion: false,
+                isPracticeSession: true,
+                pointsAwarded: 0
+            });
+        }
 
+        // If course is already completed, return without awarding points
+        if (courseProgress?.completed) {
+            return res.status(200).json({ 
+                message: 'Course already completed', 
+                course,
+                isPassed,
+                progress: courseProgress,
+                isFirstCompletion: false,
+                isPracticeSession: true,
+                pointsAwarded: 0
+            });
+        }
+
+        // Create new progress entry if it doesn't exist
         if (!courseProgress) {
             user.courseProgress.push({
                 courseId: courseId,
@@ -108,20 +132,22 @@ router.post('/:id/finish', async (req, res) => {
         // Save user with updated progress
         await user.save();
 
-        // Only award points if shouldAwardPoints is true
-        if (shouldAwardPoints) {
+        // Only award points for first completion and passing grade
+        let pointsAwarded = 0;
+        if (isFirstCompletion && isPassed) {
             user.points += 50;
+            pointsAwarded = 50;
             await user.save();
         }
 
         res.status(200).json({ 
-            message: isPracticeSession ? 'Practice session completed' : `Course '${course.name}' completed!`, 
+            message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
             progress: courseProgress,
             isFirstCompletion,
-            isPracticeSession: isPracticeSession || !isFirstCompletion,
-            pointsAwarded: shouldAwardPoints ? 50 : 0
+            isPracticeSession: false,
+            pointsAwarded
         });
     } catch (err) {
         console.error('Error completing course:', err);

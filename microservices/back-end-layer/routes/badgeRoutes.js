@@ -216,7 +216,7 @@ router.post('/users/:userId/:badgeId', async (req, res) => {
         });
 
         // Create notification for badge earned
-        await createNotification('badge', 'New Badge!', `Congratulations! You've earned the "${badge.name}" badge!`);
+        await createNotification('badge', 'New Badge!', `Congratulations! You've earned the "${badge.name}" badge!`, userId);
 
         // Save the updated user
         await user.save();

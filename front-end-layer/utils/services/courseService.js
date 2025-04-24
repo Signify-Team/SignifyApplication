@@ -76,9 +76,9 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
 
         if (isPassed) {
             await updateUserPoints(50, 'Course completion');
-            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!');
+            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
         } else {
-            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!');
+            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
         }
 
         return response.data;

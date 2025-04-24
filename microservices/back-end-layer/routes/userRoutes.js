@@ -595,6 +595,10 @@ router.post('/follow', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        // Initialize following/followers arrays if they don't exist
+        if (!follower.following) follower.following = [];
+        if (!followed.followers) followed.followers = [];
+
         // Check if already following
         const isAlreadyFollowing = follower.following.some(id => id.equals(followedObjectId));
         if (isAlreadyFollowing) {
@@ -603,9 +607,9 @@ router.post('/follow', async (req, res) => {
 
         // Update both users
         follower.following.push(followedObjectId);
-        follower.followingCount += 1;
+        follower.followingCount = (follower.followingCount || 0) + 1;
         followed.followers.push(followerObjectId);
-        followed.followerCount += 1;
+        followed.followerCount = (followed.followerCount || 0) + 1;
 
         // Save both users
         await Promise.all([follower.save(), followed.save()]);

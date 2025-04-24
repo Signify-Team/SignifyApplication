@@ -27,6 +27,7 @@ import ResetPasswordPage from '../screens/ResetPasswordPage';
 import ChangePasswordPage from '../screens/ChangePasswordPage';
 import DictionaryPage from '../screens/DictionaryPage';
 import WordVideoPage from '../screens/WordVideoPage';
+import AddFriendsPage from '../screens/AddFriendsPage';
 
 const Stack =
 createStackNavigator();
@@ -143,6 +144,13 @@ const MainNavigator = () => (
         <Stack.Screen
             name="ChangePassword"
             component={ChangePasswordPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="AddFriends"
+            component={AddFriendsPage}
             options={{
                 headerShown: false,
             }}

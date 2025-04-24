@@ -568,6 +568,7 @@ router.post('/follow', async (req, res) => {
     try {
         const { followerId, followedId } = req.body;
 
+        // Input validation
         if (!followerId || !followedId) {
             return res.status(400).json({ message: 'Follower and followed IDs are required' });
         }
@@ -577,10 +578,11 @@ router.post('/follow', async (req, res) => {
             return res.status(400).json({ message: 'Invalid user ID format' });
         }
 
-        // Convert string IDs to MongoDB ObjectIds
+        // Convert to ObjectIds
         const followerObjectId = new mongoose.Types.ObjectId(followerId);
         const followedObjectId = new mongoose.Types.ObjectId(followedId);
 
+        // Prevent self-following
         if (followerObjectId.equals(followedObjectId)) {
             return res.status(400).json({ message: 'Cannot follow yourself' });
         }
@@ -591,33 +593,53 @@ router.post('/follow', async (req, res) => {
             User.findById(followedObjectId)
         ]);
 
+        // Check if users exist
         if (!follower || !followed) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if already following by comparing string IDs
+        // Initialize arrays if they don't exist
+        if (!follower.following) {
+            follower.following = [];
+        }
+        if (!followed.followers) {
+            followed.followers = [];
+        }
+
+        // Check if already following
         const isAlreadyFollowing = follower.following.some(id => id.toString() === followedId);
         if (isAlreadyFollowing) {
             return res.status(400).json({ message: 'Already following this user' });
         }
 
-        // Update both users
-        follower.following = [...(follower.following || []), followedObjectId];
+        // Update follower's following list
+        follower.following.push(followedObjectId);
         follower.followingCount = (follower.followingCount || 0) + 1;
-        followed.followers = [...(followed.followers || []), followerObjectId];
+
+        // Update followed's followers list
+        followed.followers.push(followerObjectId);
         followed.followerCount = (followed.followerCount || 0) + 1;
 
         // Save both users
-        await Promise.all([follower.save(), followed.save()]);
+        await Promise.all([
+            follower.save(),
+            followed.save()
+        ]);
 
-        res.status(200).json({ 
+        // Return success response
+        res.status(200).json({
             message: 'Successfully followed user',
             followerCount: followed.followerCount,
             followingCount: follower.followingCount
         });
+
     } catch (error) {
         console.error('Follow user error:', error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+        res.status(500).json({ 
+            message: 'Internal server error',
+            error: error.message,
+            stack: error.stack
+        });
     }
 });
 

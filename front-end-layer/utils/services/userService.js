@@ -110,4 +110,49 @@ export const updateUserPoints = async (points, reason) => {
         }); 
         throw new Error(error.response?.data?.message || 'Failed to update user points');
     }
+};
+
+export const getAllUsers = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/users`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch users');
+  }
+};
+
+export const followUser = async (followedUserId) => {
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      throw new Error('No user ID found. Please log in again.');
+    }
+    const response = await axios.post(`${API_BASE_URL}/users/follow`, {
+      followerId: userId,
+      followedId: followedUserId
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Follow user error:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Failed to follow user');
+  }
+};
+
+export const getUserProfile = async (userId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/users/profile`, {
+            params: { userId },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Get user profile error:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || 'Failed to fetch user profile');
+    }
 }; 

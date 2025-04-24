@@ -13,6 +13,8 @@ import User from '../models/UserDB.js'; // User model
 import rateLimit from 'express-rate-limit';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../config/emailService.js';
 import crypto from 'crypto';
+import Notification from '../models/NotificationDB.js'; // Notification model
+import { createNotification } from '../utils/notificationUtils.js'; // Import createNotification function
 const router = express.Router(); // Router middleware
 
 const MINUTES_15 = 15000 * 60 * 1000;
@@ -125,16 +127,25 @@ router.post('/login', async (req, res) => {
             // First time login
             user.streakCount = 1;
             streakMessage = "Welcome! Start your learning streak today!";
+            await createNotification('streak', 'New Streak!', 'You\'ve started your first learning streak!', user._id);
         } else if (currentDateFormatted.getTime() === lastLoginFormatted.getTime()) {
             // Already logged in today - do nothing
         } else if (yesterdayFormatted.getTime() === lastLoginFormatted.getTime()) {
             // Logged in yesterday - increment streak
             user.streakCount += 1;
             streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
+            if (user.streakCount === 3) {
+                await createNotification('streak', 'New Streak!', 'You\'ve completed your first 3-day streak!', user._id);
+            } else if (user.streakCount === 7) {
+                await createNotification('streak', 'New Streak!', 'You\'ve completed your first 7-day streak!', user._id);
+            } else if (user.streakCount === 30) {
+                await createNotification('streak', 'New Streak!', 'You\'ve completed your first 30-day streak!', user._id);
+            }
         } else {
             // Missed a day - reset streak
             user.streakCount = 1;
             streakMessage = "Try to log in every day to maintain your streak!";
+            await createNotification('streak', 'Streak Lost', 'Your streak has been reset. Try to log in every day!', user._id);
         }
 
         // Update last login date

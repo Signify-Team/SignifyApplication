@@ -61,11 +61,19 @@ const AddFriendsPage = () => {
             const currentUser = allUsers.find(user => user._id === currentUserId);
             const followingIds = currentUser?.following || [];
             
-            // Add isFollowing flag to each user
-            const usersWithFollowingStatus = otherUsers.map(user => ({
-                ...user,
-                isFollowing: followingIds.includes(user._id)
-            }));
+            // Add isFollowing flag to each user and sort them
+            const usersWithFollowingStatus = otherUsers
+                .map(user => ({
+                    ...user,
+                    isFollowing: followingIds.includes(user._id)
+                }))
+                .sort((a, b) => {
+                    // Sort by following status: non-followed users first
+                    if (a.isFollowing && !b.isFollowing) return 1;
+                    if (!a.isFollowing && b.isFollowing) return -1;
+                    // If both have same following status, sort alphabetically by username
+                    return a.username.localeCompare(b.username);
+                });
             
             setUsers(usersWithFollowingStatus);
             setFilteredUsers(usersWithFollowingStatus);

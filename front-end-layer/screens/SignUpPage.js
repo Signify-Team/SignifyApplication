@@ -95,7 +95,6 @@ const SignUpPage = () => {
                 }
             }
         } catch (error) {
-            console.log('Error in handleContinue:', error);
             setErrorMessage(error.message);
             // Don't navigate on error
         } finally {

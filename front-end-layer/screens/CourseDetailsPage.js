@@ -184,15 +184,16 @@ const CourseDetailPage = ({ route, navigation }) => {
             const isCoursePassed = successRate >= 60;
 
             try {
-                // update course progress by 100 (because it is done but in the future maybe we should keep the success rate)
+                // update course progress and completion status
                 await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
+                await updateCourseCompletion(route.params.courseId, isCoursePassed);
                 
-                // back to courses page
-                navigation.navigate('Home', { 
+                // Navigate to Courses tab with completion message
+                navigation.navigate('Home', {
                     screen: 'Courses',
-                    params: { 
+                    params: {
                         showCompletionMessage: true,
-                        successRate: successRate,
+                        successRate,
                         isPassed: isCoursePassed
                     }
                 });
@@ -200,24 +201,6 @@ const CourseDetailPage = ({ route, navigation }) => {
                 console.error('Error updating course progress:', error);
                 navigation.navigate('Home', { screen: 'Courses' });
             }
-        }
-    };
-
-    const handleExerciseComplete = async (successRate) => {
-        const isPassed = successRate >= 60;
-        
-        // update course completion status
-        try {
-            await updateCourseCompletion(route.params.courseId, isPassed);
-            
-            navigation.navigate('Courses', {
-                showCompletionMessage: true,
-                successRate,
-                isPassed
-            });
-        } catch (error) {
-            console.error('Error updating course completion:', error);
-            Alert.alert('Error', 'Failed to update course completion status');
         }
     };
 

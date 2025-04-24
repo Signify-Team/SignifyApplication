@@ -565,13 +565,18 @@ router.get('/test', (req, res) => {
 
 // Follow a user
 router.post('/follow', async (req, res) => {
-    const { followerId, followedId } = req.body;
-
-    if (!followerId || !followedId) {
-        return res.status(400).json({ message: 'Follower and followed IDs are required' });
-    }
-
     try {
+        const { followerId, followedId } = req.body;
+
+        if (!followerId || !followedId) {
+            return res.status(400).json({ message: 'Follower and followed IDs are required' });
+        }
+
+        // Validate ObjectIds
+        if (!mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followedId)) {
+            return res.status(400).json({ message: 'Invalid user ID format' });
+        }
+
         // Convert string IDs to MongoDB ObjectIds
         const followerObjectId = new mongoose.Types.ObjectId(followerId);
         const followedObjectId = new mongoose.Types.ObjectId(followedId);
@@ -580,6 +585,7 @@ router.post('/follow', async (req, res) => {
             return res.status(400).json({ message: 'Cannot follow yourself' });
         }
 
+        // Find both users
         const [follower, followed] = await Promise.all([
             User.findById(followerObjectId),
             User.findById(followedObjectId)
@@ -590,7 +596,8 @@ router.post('/follow', async (req, res) => {
         }
 
         // Check if already following
-        if (follower.following.some(id => id.equals(followedObjectId))) {
+        const isAlreadyFollowing = follower.following.some(id => id.equals(followedObjectId));
+        if (isAlreadyFollowing) {
             return res.status(400).json({ message: 'Already following this user' });
         }
 
@@ -600,6 +607,7 @@ router.post('/follow', async (req, res) => {
         followed.followers.push(followerObjectId);
         followed.followerCount += 1;
 
+        // Save both users
         await Promise.all([follower.save(), followed.save()]);
 
         res.status(200).json({ 
@@ -608,8 +616,8 @@ router.post('/follow', async (req, res) => {
             followingCount: follower.followingCount
         });
     } catch (error) {
-        console.error('Follow Error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error('Follow user error:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 });
 

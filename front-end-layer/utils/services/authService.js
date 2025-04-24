@@ -88,16 +88,23 @@ export const loginUser = async (email, password) => {
 
 export const registerUser = async (username, email, password) => {
   try {
+    console.log('Attempting to register user:', { username, email });
     const response = await axios.post(`${API_BASE_URL}/users/register`, {
       username,
       email,
       password,
     });
+    console.log('Registration response:', response.data);
     if (response.data.user?._id) {
       await setUserId(response.data.user._id);
     }
     return response.data;
   } catch (error) {
+    console.log('Registration error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
     if (error.response?.status === 409) {
       if (error.response?.data?.message?.includes('username')) {
         throw new Error('Username already exists. Please choose another username.');

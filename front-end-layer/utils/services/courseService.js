@@ -37,6 +37,7 @@ export const updateCourseProgress = async (courseId, progress, completed = false
     });
     return response.data;
   } catch (error) {
+    console.error('Error updating course progress:', error);
     throw new Error(error.response?.data?.message || 'Failed to update course progress');
   }
 };
@@ -77,10 +78,10 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
         if (isPassed) {
             await updateUserPoints(50, 'Course completion');
             // Create notification for passing the course
-            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!');
+            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
         } else {
             // Create notification for failing the course
-            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!');
+            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
         }
 
         return response.data;

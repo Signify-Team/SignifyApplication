@@ -10,7 +10,6 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
-    StyleSheet,
     FlatList,
     TouchableOpacity,
     Image,
@@ -20,9 +19,10 @@ import {
 import { getAllUsers, followUser, getUserProfile } from '../utils/services/userService';
 import { createNotification } from '../utils/services/notificationService';
 import { getUserId } from '../utils/services/authService';
-import { COLORS, SIZES } from '../utils/constants';
+import { COLORS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
 import { useNavigation } from '@react-navigation/native';
+import { styles } from '../styles/AddFriendsPageStyles';
 
 const AddFriendsPage = () => {
     const [users, setUsers] = useState([]);
@@ -162,8 +162,9 @@ const AddFriendsPage = () => {
 
     if (loading) {
         return (
-            <View style={styles.container}>
+            <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={COLORS.bright_button_color} />
+                <Text style={styles.loadingText}>Loading users...</Text>
             </View>
         );
     }
@@ -206,84 +207,5 @@ const AddFriendsPage = () => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: SIZES.padding,
-    },
-    searchBar: {
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        marginBottom: 15,
-    },
-    listContainer: {
-        paddingBottom: 20,
-    },
-    userItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    userInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    profilePic: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginRight: 10,
-    },
-    username: {
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    followButton: {
-        backgroundColor: COLORS.bright_button_color,
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 15,
-    },
-    followingButton: {
-        backgroundColor: '#eee',
-    },
-    followButtonText: {
-        color: '#fff',
-        fontWeight: '500',
-    },
-    followingButtonText: {
-        color: '#666',
-    },
-    errorText: {
-        color: 'red',
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    backButton: {
-        padding: 10,
-    },
-    backIcon: {
-        width: 24,
-        height: 24,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginLeft: 10,
-    },
-});
 
 export default AddFriendsPage; 

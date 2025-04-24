@@ -27,13 +27,18 @@ export const fetchUserNotifications = async () => {
  * @param {string} type - Type of notification ('streak', 'badge', 'course', 'general', 'follow')
  * @param {string} title - Title of the notification
  * @param {string} message - Message content of the notification
- * @param {string} userId - ID of the user to notify
+ * @param {string} [targetUserId] - Optional ID of the user to notify. If not provided, uses current user's ID
  * @returns {Promise<Object>} The created notification
  */
-export const createNotification = async (type, title, message, userId) => {
+export const createNotification = async (type, title, message, targetUserId) => {
   try {
+    let userId = targetUserId;
+    // If no targetUserId is provided, use the current user's ID
     if (!userId) {
-      throw new Error('User ID is required');
+      userId = await getUserId();
+      if (!userId) {
+        throw new Error('No user ID found. Please log in again.');
+      }
     }
     const response = await axios.post(`${API_BASE_URL}/notifications`, {
       userId,

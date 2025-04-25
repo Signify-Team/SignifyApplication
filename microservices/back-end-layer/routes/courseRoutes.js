@@ -83,21 +83,8 @@ router.post('/:id/finish', async (req, res) => {
         // Find course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         
-        // Create new progress entry if it doesn't exist
-        if (!courseProgress) {
-            user.courseProgress.push({
-                courseId: courseId,
-                isLocked: true,
-                progress: 0,
-                completed: false,
-                pointsAwarded: false,
-                lastAccessed: new Date()
-            });
-            courseProgress = user.courseProgress[user.courseProgress.length - 1];
-        }
-
-        // If points were already awarded, this is a practice session
-        if (courseProgress.pointsAwarded) {
+        // If course is already completed, this is a practice session
+        if (courseProgress?.completed) {
             return res.status(200).json({ 
                 message: 'Practice session completed', 
                 course,
@@ -109,17 +96,28 @@ router.post('/:id/finish', async (req, res) => {
             });
         }
 
+        // Create new progress entry if it doesn't exist
+        if (!courseProgress) {
+            user.courseProgress.push({
+                courseId: courseId,
+                isLocked: true,
+                progress: 0,
+                completed: false,
+                lastAccessed: new Date()
+            });
+            courseProgress = user.courseProgress[user.courseProgress.length - 1];
+        }
+
         // Update progress
         courseProgress.progress = 100;
         courseProgress.completed = true;
         courseProgress.lastAccessed = new Date();
 
-        // Only award points if not already awarded and user passed
+        // Only award points for first completion and passing grade
         let pointsAwarded = 0;
-        if (isPassed && !courseProgress.pointsAwarded) {
+        if (isPassed) {
             user.points += 50;
             pointsAwarded = 50;
-            courseProgress.pointsAwarded = true;
         }
 
         // Save user with updated progress
@@ -130,8 +128,8 @@ router.post('/:id/finish', async (req, res) => {
             course,
             isPassed,
             progress: courseProgress,
-            isFirstCompletion: !courseProgress.pointsAwarded,
-            isPracticeSession: courseProgress.pointsAwarded,
+            isFirstCompletion: true,
+            isPracticeSession: false,
             pointsAwarded
         });
     } catch (err) {

@@ -63,11 +63,11 @@ router.post('/:id/start', async (req, res) => {
 // Finish a course (Mark course as completed)
 router.post('/:id/finish', async (req, res) => {
     try {
-        const { userId, isPassed, completed, progress, isPracticeSession } = req.body;
+        const { userId, isPassed } = req.body;
         const courseId = req.params.id;
 
         // Validate required fields
-        if (!userId || isPassed === undefined || completed === undefined || progress === undefined) {
+        if (!userId || isPassed === undefined) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
@@ -83,26 +83,10 @@ router.post('/:id/finish', async (req, res) => {
         // Find course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         
-        // Check if this is the first completion
-        const isFirstCompletion = !courseProgress || !courseProgress.completed;
-
-        // If this is a practice session, return immediately without any updates
-        if (isPracticeSession) {
-            return res.status(200).json({ 
-                message: 'Practice session completed', 
-                course,
-                isPassed,
-                progress: courseProgress || { progress: 0, completed: false },
-                isFirstCompletion: false,
-                isPracticeSession: true,
-                pointsAwarded: 0
-            });
-        }
-
-        // If course is already completed, return without awarding points
+        // If course is already completed, this is a practice session
         if (courseProgress?.completed) {
             return res.status(200).json({ 
-                message: 'Course already completed', 
+                message: 'Practice session completed', 
                 course,
                 isPassed,
                 progress: courseProgress,
@@ -125,8 +109,8 @@ router.post('/:id/finish', async (req, res) => {
         }
 
         // Update progress
-        courseProgress.progress = progress;
-        courseProgress.completed = completed;
+        courseProgress.progress = 100;
+        courseProgress.completed = true;
         courseProgress.lastAccessed = new Date();
 
         // Save user with updated progress
@@ -134,7 +118,7 @@ router.post('/:id/finish', async (req, res) => {
 
         // Only award points for first completion and passing grade
         let pointsAwarded = 0;
-        if (isFirstCompletion && isPassed) {
+        if (isPassed) {
             user.points += 50;
             pointsAwarded = 50;
             await user.save();
@@ -145,7 +129,7 @@ router.post('/:id/finish', async (req, res) => {
             course,
             isPassed,
             progress: courseProgress,
-            isFirstCompletion,
+            isFirstCompletion: true,
             isPracticeSession: false,
             pointsAwarded
         });

@@ -16,6 +16,7 @@ import {
     ActivityIndicator,
     RefreshControl,
     TouchableOpacity,
+    Share
 } from 'react-native';
 import styles from '../styles/ProfileCardStyle.js';
 import { SIZES, COLORS } from '../utils/constants.js';
@@ -145,6 +146,17 @@ const ProfilePage = () => {
         setSelectedBadge(null);
     };
 
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+                message: `Check out my profile on Signify! Username: ${userData?.username || 'User'}`,
+                // add any url we might want to direct in the future here 
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -216,7 +228,7 @@ const ProfilePage = () => {
                             icon={require('../assets/icons/header/share.png')}
                             onlyIcon={true}
                             color={COLORS.bright_button_color}
-                            onPress={() => console.log('Share button pressed')} //TODO
+                            onPress={onShare}
                         />
                     </View>
                     {/* Statistics */}

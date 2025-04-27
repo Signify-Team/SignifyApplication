@@ -16,6 +16,7 @@ import KoalaIcon from '../assets/icons/header/koala-hand.png';
 import FollowerIcon from '../assets/icons/header/followerIcon.png'
 import BackIcon from '../assets/icons/header/back.png';
 import { fetchUserNotifications, markNotificationAsRead, deleteNotification } from '../utils/services/notificationService';
+import { fetchUserProfile } from '../utils/apiService';
 import NotificationPopup from '../components/NotificationPopup';
 
 const NotificationsPage = ({ navigation }) => {
@@ -105,6 +106,13 @@ const NotificationsPage = ({ navigation }) => {
         }
     };
 
+    const updateTopBarNotificationCount = async () => {
+        // Trigger a refresh of user data in the parent navigation component
+        if (navigation.getParent()) {
+            navigation.getParent().setParams({ refreshTrigger: Date.now() });
+        }
+    };
+
     const handlePopupClose = async () => {
         if (selectedNotification && !selectedNotification.isRead) {
             try {
@@ -115,6 +123,9 @@ const NotificationsPage = ({ navigation }) => {
                         : notification
                 );
                 setNotifications(updatedNotifications);
+                
+                // Update notification count in top bar
+                await updateTopBarNotificationCount();
             } catch (error) {
                 console.error('Error marking notification as read:', error);
             }
@@ -129,6 +140,11 @@ const NotificationsPage = ({ navigation }) => {
                 notification => notification.id !== item.id
             );
             setNotifications(updatedNotifications);
+            
+            // Update notification count in top bar if the deleted notification was unread
+            if (!item.isRead) {
+                await updateTopBarNotificationCount();
+            }
         } catch (error) {
             console.error('Error deleting notification:', error);
             Alert.alert('Error', 'Failed to delete notification. Please try again.');

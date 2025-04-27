@@ -26,6 +26,7 @@ import {
 } from '../utils/apiService';
 import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
+import CourseCompletionPopup from '../components/CourseCompletionPopup';
 
 const { width } = Dimensions.get('window');
 
@@ -38,14 +39,23 @@ const CoursesPage = ({ navigation, route }) => {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [userLanguage, setUserLanguage] = useState(null);
     const [isUserPremium, setIsUserPremium] = useState(false);
-    const [showCompletionMessage, setShowCompletionMessage] = useState(false);
     const [userData, setUserData] = useState({
         streakCount: 0,
         languagePreference: 'ASL',
-        unreadNotifications: 0
+        unreadNotifications: 0,
+        totalPoints: 0
     });
     const [showStreakPopup, setShowStreakPopup] = useState(false);
     const [streakMessage, setStreakMessage] = useState('');
+    
+    // New state for course completion popup
+    const [showCompletionPopup, setShowCompletionPopup] = useState(false);
+    const [completionData, setCompletionData] = useState({
+        isPracticeMode: false,
+        isPassed: false,
+        successRate: 0,
+        userPoints: 0
+    });
 
     useEffect(() => {
         loadUserLanguageAndSections();
@@ -62,26 +72,45 @@ const CoursesPage = ({ navigation, route }) => {
 
     useEffect(() => {
         if (route?.params?.showCompletionMessage) {
-            // Custom message for practice mode
-            if (route.params.isPracticeMode && route.params.customMessage) {
-                Alert.alert(
-                    route.params.isPassed ? 'Practice Complete' : 'Practice Complete',
-                    route.params.customMessage
-                );
-            } else {
-                // Regular course completion
-                const completionMessage = route.params.isPassed
-                    ? 'Congratulations! You\'ve completed the course with a passing grade!'
-                    : 'You\'ve completed the course. Try again to improve your score!';
-
-                Alert.alert(
-                    route.params.isPassed ? 'Course Completed!' : 'Course Completed',
-                    completionMessage
-                );
-            }
+            // Prepare data for the completion popup
+            const handleCompletionMessage = async () => {
+                try {
+                    // For regular courses, always fetch fresh user profile to get updated points
+                    if (!route.params.isPracticeMode) {
+                        const userProfile = await fetchUserProfile();
+                        console.log('User profile for completion popup:', userProfile);
+                        
+                        setCompletionData({
+                            isPracticeMode: route.params.isPracticeMode || false,
+                            isPassed: route.params.isPassed || false,
+                            successRate: route.params.successRate || 0,
+                            userPoints: userProfile.totalPoints || 0
+                        });
+                    } else {
+                        // For practice mode, points aren't relevant
+                        setCompletionData({
+                            isPracticeMode: true,
+                            isPassed: route.params.isPassed || false,
+                            successRate: route.params.successRate || 0,
+                            userPoints: 0
+                        });
+                    }
+                    
+                    setShowCompletionPopup(true);
+                } catch (error) {
+                    console.error('Error preparing completion popup:', error);
+                    // Fallback to simple alert if there's an error
+                    Alert.alert(
+                        route.params.isPassed ? 'Course Completed!' : 'Course Completed',
+                        'Course completed. Check your progress in the courses screen.'
+                    );
+                }
+                
+                // Reset the params
+                navigation.setParams({ showCompletionMessage: false });
+            };
             
-            // Reset the params
-            navigation.setParams({ showCompletionMessage: false });
+            handleCompletionMessage();
         }
     }, [route?.params?.showCompletionMessage]);
 
@@ -90,6 +119,13 @@ const CoursesPage = ({ navigation, route }) => {
             checkAndShowStreakPopup(route.params.streakMessage);
         }
     }, [route.params]);
+    
+    const handleCompletionPopupClose = () => {
+        setShowCompletionPopup(false);
+        // Force a complete refresh of the course list
+        setRefreshing(true);
+        loadUserLanguageAndSections();
+    };
 
     const loadUserPremiumStatus = async () => {
         try {
@@ -268,39 +304,6 @@ const CoursesPage = ({ navigation, route }) => {
         loadUserPremiumStatus();
     };
 
-    const showCourseCompletionAlert = async (successRate, isPassed) => {
-        let message;
-        if (isPassed) {
-            try {
-                // Points are already updated in courseService.js
-                // Get the user's profile to show current points
-                const userProfile = await fetchUserProfile();
-                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! Your total points are now ${userProfile.points}. The next course is now unlocked!`;
-            } catch (error) {
-                console.error('Error getting user profile:', error);
-                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! The next course is now unlocked!`;
-            }
-        } else {
-            message = `You completed the course with ${successRate.toFixed(1)}% success rate. Please try again to unlock the next course.`;
-        }
-
-        Alert.alert(
-            isPassed ? 'Course Completed!' : 'Course Completed',
-            message,
-            [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        setShowCompletionMessage(false);
-                        // Force a complete refresh of the course list
-                        setRefreshing(true);
-                        loadUserLanguageAndSections();
-                    }
-                }
-            ]
-        );
-    };
-
     const checkAndShowStreakPopup = async (message) => {
         try {
             console.log('Showing streak popup with message:', message);
@@ -382,6 +385,16 @@ const CoursesPage = ({ navigation, route }) => {
                 visible={showStreakPopup}
                 message={streakMessage}
                 onClose={handleStreakPopupClose}
+            />
+            
+            <CourseCompletionPopup
+                visible={showCompletionPopup}
+                onClose={handleCompletionPopupClose}
+                isPracticeMode={completionData.isPracticeMode}
+                isPassed={completionData.isPassed}
+                successRate={completionData.successRate}
+                userPoints={completionData.userPoints}
+                pointsEarned={50}
             />
         </View>
     );

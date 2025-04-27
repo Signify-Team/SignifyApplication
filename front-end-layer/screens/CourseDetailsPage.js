@@ -191,13 +191,6 @@ const CourseDetailPage = ({ route, navigation }) => {
                     await updateCourseCompletion(route.params.courseId, isCoursePassed);
                 }
                 
-                // Different messages for practice mode
-                const completionMessage = isPracticeMode 
-                    ? isCoursePassed 
-                        ? "Great job practicing! You've passed the practice session."
-                        : "Practice session completed. Keep practicing to improve your skills."
-                    : null; // Use default message for regular mode
-                
                 // Navigate to Courses tab with completion message
                 navigation.navigate('Home', {
                     screen: 'Courses',
@@ -205,8 +198,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                         showCompletionMessage: true,
                         successRate,
                         isPassed: isCoursePassed,
-                        isPracticeMode: isPracticeMode,
-                        customMessage: completionMessage
+                        isPracticeMode: isPracticeMode
                     }
                 });
             } catch (error) {

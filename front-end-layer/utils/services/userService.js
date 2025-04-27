@@ -16,6 +16,7 @@ export const fetchUserProfile = async () => {
       throw new Error('No user ID found. Please log in again.');
     }
     const response = await axios.get(`${API_BASE_URL}/users/profile?userId=${userId}`);
+    console.log('Fetched user profile:', response.data);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch user profile');

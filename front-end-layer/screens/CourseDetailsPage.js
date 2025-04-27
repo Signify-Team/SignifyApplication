@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Dimensions, Alert } from 'react-native';
+import { View, ScrollView, Dimensions, Alert, StatusBar } from 'react-native';
 import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
 import TrueFalseQuestion from '../components/TrueFalseQuestion';
 import FillInTheBlankQuestion from '../components/FillInTheBlankQuestion';
-import CourseDetailsTopBar from '../components/CourseDetailsTopBar';
+import ProgressTopBar from '../components/ProgressTopBar';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 import MatchingQuestion from '../components/MatchingQuestion';
@@ -106,6 +106,11 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [isCorrect, setIsCorrect] = useState(null);
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
+
+    // Calculate progress percentage
+    const progressPercentage = exercises.length > 0 
+        ? ((currentExerciseIndex) / exercises.length) * 100 
+        : 0;
 
     const handleAnswer = (answer) => {
         if (answer === undefined || answer === null) {
@@ -278,32 +283,61 @@ const CourseDetailPage = ({ route, navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <CourseDetailsTopBar
-                navigation={navigation}
-                currentCourseId={route.params.courseId}
-            />
-            <View style={{ flex: 1 }}>
-                <ScrollView contentContainerStyle={styles.questionsContainer}>
-                    {renderExercise()}
-                </ScrollView>
-                {userAnswer !== null && exercises[currentExerciseIndex]?.type !== 'gesture' && (
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        alignItems: 'center',
-                        marginBottom: 20,
-                    }}>
-                        <RectangularButton
-                            text="Continue"
-                            width={width * 0.85}
-                            color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
-                            onPress={handleContinue}
-                        />
-                    </View>
-                )}
+        <View style={{ flex: 1 }}>
+            <StatusBar backgroundColor={COLORS.primary} barStyle="dark-content" />
+            <View style={[styles.container, { paddingTop: 0, paddingBottom: 0, marginTop: 0 }]}>
+                <ProgressTopBar 
+                    navigation={navigation}
+                    currentProgress={progressPercentage}
+                    onBackPress={() => {
+                        if (exercises.length > 0) {
+                            // Show confirmation dialog before leaving
+                            Alert.alert(
+                                "Leave Course?",
+                                "Your progress will not be saved if you leave now.",
+                                [
+                                    { text: "Stay", style: "cancel" },
+                                    { text: "Leave", style: "destructive", onPress: () => navigation.goBack() }
+                                ]
+                            );
+                        } else {
+                            navigation.goBack();
+                        }
+                    }}
+                />
+                <View style={{ 
+                    flex: 1,
+                    paddingTop: 20,
+                    paddingBottom: 0,
+                }}>
+                    <ScrollView 
+                        contentContainerStyle={[
+                            styles.questionsContainer,
+                            { paddingBottom: userAnswer !== null ? 60 : 0 }
+                        ]}
+                    >
+                        {renderExercise()}
+                    </ScrollView>
+                    {userAnswer !== null && exercises[currentExerciseIndex]?.type !== 'gesture' && (
+                        <View style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            alignItems: 'center',
+                            paddingBottom: 40,
+                            marginBottom: 0,
+                        }}>
+                            <RectangularButton
+                                text="Continue"
+                                width={width * 0.85}
+                                color={isCorrect ? COLORS.tertiary : COLORS.highlight_color_2}
+                                onPress={handleContinue}
+                                style={{ marginBottom: 0 }}
+                            />
+                        </View>
+                    )}
+                </View>
             </View>
         </View>
     );

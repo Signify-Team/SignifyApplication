@@ -16,6 +16,7 @@ const { width } = Dimensions.get('window');
 
 const CourseDetailPage = ({ route, navigation }) => {
     const courseExercises = route?.params?.exercises || [];
+    const isPracticeMode = route?.params?.isPracticeMode || false;
     const transformExercises = (exercises) => {
 
         if (!exercises || !Array.isArray(exercises)) {
@@ -184,9 +185,18 @@ const CourseDetailPage = ({ route, navigation }) => {
             const isCoursePassed = successRate >= 60;
 
             try {
-                // update course progress and completion status
-                await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
-                await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                if (!isPracticeMode) {
+                    // Only update course progress and completion for regular mode
+                    await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
+                    await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                }
+                
+                // Different messages for practice mode
+                const completionMessage = isPracticeMode 
+                    ? isCoursePassed 
+                        ? "Great job practicing! You've passed the practice session."
+                        : "Practice session completed. Keep practicing to improve your skills."
+                    : null; // Use default message for regular mode
                 
                 // Navigate to Courses tab with completion message
                 navigation.navigate('Home', {
@@ -194,7 +204,9 @@ const CourseDetailPage = ({ route, navigation }) => {
                     params: {
                         showCompletionMessage: true,
                         successRate,
-                        isPassed: isCoursePassed
+                        isPassed: isCoursePassed,
+                        isPracticeMode: isPracticeMode,
+                        customMessage: completionMessage
                     }
                 });
             } catch (error) {

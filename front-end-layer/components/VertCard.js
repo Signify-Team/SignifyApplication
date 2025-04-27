@@ -21,6 +21,7 @@ const VertCard = ({
     onPress,
     onDictionaryPress,
     courseId,
+    isPracticeMode = false
 }) => {
     return (
         <View style={[styles.cardWrapper, { backgroundColor: darkenColor(COLORS.soft_pink_background, 40) }]}>
@@ -31,8 +32,8 @@ const VertCard = ({
                 <View style={styles.buttonRow}>
                     <RectangularButton
                         width={width * 0.25}
-                        text={buttonText}
-                        color={buttonColor}
+                        text={isPracticeMode ? "PRACTICE" : buttonText}
+                        color={isPracticeMode ? COLORS.secondary : buttonColor}
                         onPress={() => { onPress(); }}
                     />
                     {onDictionaryPress && (
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'center',
         gap: width * 0.17,
-      },
+    },
 });
 
 export default VertCard;

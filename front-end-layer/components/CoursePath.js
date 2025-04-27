@@ -106,6 +106,7 @@ const CoursePath = ({ courses, onCoursePress, isUserPremium }) => {
                                     color={baseColor}
                                     onPress={() => handleCoursePress(course)}
                                     disabled={course.isLocked}
+                                    completed={course.completed}
                                 />
                             </View>
                         </View>

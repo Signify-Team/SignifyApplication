@@ -21,6 +21,7 @@ const CircularButton = ({
     onPress,
     disabled = false, // Added disabled prop
     textColor = '#FFFFFF', // Added textColor prop
+    completed = false, // Added completed prop but not showing badge
 }) => {
     const [isPressed, setIsPressed] = useState(false);
 

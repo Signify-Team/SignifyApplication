@@ -22,9 +22,9 @@ import {
     updateCourseProgress,
     getUserPremiumStatus,
     fetchCourseExercises,
-    updateUserPoints,
     fetchUserProfile,
 } from '../utils/apiService';
+import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
 
 const { width } = Dimensions.get('window');
@@ -61,12 +61,29 @@ const CoursesPage = ({ navigation, route }) => {
     }, [userLanguage]);
 
     useEffect(() => {
-        if (route.params?.showCompletionMessage) {
-            const { successRate, isPassed } = route.params;
-            showCourseCompletionAlert(successRate, isPassed);
+        if (route?.params?.showCompletionMessage) {
+            // Custom message for practice mode
+            if (route.params.isPracticeMode && route.params.customMessage) {
+                Alert.alert(
+                    route.params.isPassed ? 'Practice Complete' : 'Practice Complete',
+                    route.params.customMessage
+                );
+            } else {
+                // Regular course completion
+                const completionMessage = route.params.isPassed
+                    ? 'Congratulations! You\'ve completed the course with a passing grade!'
+                    : 'You\'ve completed the course. Try again to improve your score!';
+
+                Alert.alert(
+                    route.params.isPassed ? 'Course Completed!' : 'Course Completed',
+                    completionMessage
+                );
+            }
+            
+            // Reset the params
             navigation.setParams({ showCompletionMessage: false });
         }
-    }, [route.params]);
+    }, [route?.params?.showCompletionMessage]);
 
     useEffect(() => {
         if (route.params?.streakMessage) {
@@ -203,16 +220,29 @@ const CoursesPage = ({ navigation, route }) => {
                 return;
             }
 
-            const [exercises, progressUpdate] = await Promise.all([
-                fetchCourseExercises(selectedCourse._id),
-                updateCourseProgress(selectedCourse._id, selectedCourse.progress || 0),
-            ]);
+            // Check if this is a practice session (completed course)
+            const isPracticeMode = selectedCourse.completed === true;
+            
+            let exercises;
+            if (isPracticeMode) {
+                // Use startPracticeSession for completed courses
+                const practiceSession = await startPracticeSession(selectedCourse._id);
+                exercises = practiceSession.exercises || [];
+            } else {
+                // Normal course start
+                const [fetchedExercises, progressUpdate] = await Promise.all([
+                    fetchCourseExercises(selectedCourse._id),
+                    updateCourseProgress(selectedCourse._id, selectedCourse.progress || 0),
+                ]);
+                exercises = fetchedExercises || [];
+            }
 
             navigation.navigate('CourseDetails', {
                 title: selectedCourse.name,
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
                 exercises: exercises || [],
+                isPracticeMode: isPracticeMode
             });
         } catch (error) {
             console.error('Error preparing course:', error);
@@ -222,6 +252,7 @@ const CoursesPage = ({ navigation, route }) => {
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
                 exercises: [],
+                isPracticeMode: false
             });
         }
     };
@@ -241,11 +272,13 @@ const CoursesPage = ({ navigation, route }) => {
         let message;
         if (isPassed) {
             try {
-                const updatedPoints = await updateUserPoints(50, 'Course completion');
-                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! Your total points are now ${updatedPoints}. The next course is now unlocked!`;
+                // Points are already updated in courseService.js
+                // Get the user's profile to show current points
+                const userProfile = await fetchUserProfile();
+                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! Your total points are now ${userProfile.points}. The next course is now unlocked!`;
             } catch (error) {
-                console.error('Error updating points:', error);
-                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. The next course is now unlocked!`;
+                console.error('Error getting user profile:', error);
+                message = `Congratulations! You completed the course with ${successRate.toFixed(1)}% success rate. You earned 50 points! The next course is now unlocked!`;
             }
         } else {
             message = `You completed the course with ${successRate.toFixed(1)}% success rate. Please try again to unlock the next course.`;
@@ -317,6 +350,7 @@ const CoursesPage = ({ navigation, route }) => {
                                 icon={GreetingsIcon}
                                 title={section.name}
                                 isLocked={section.isLocked}
+                                completed={section.courses.every(course => course.completed)}
                             />
                         </View>
                     )}
@@ -339,6 +373,7 @@ const CoursesPage = ({ navigation, route }) => {
                         buttonText="START"
                         onPress={handleNavigateToCourse}
                         onDictionaryPress={() => navigation.navigate('Dictionary', { courseId: selectedCourse._id })}
+                        isPracticeMode={selectedCourse.completed === true}
                     />
                 )}
             </View>

@@ -90,3 +90,16 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
         throw new Error(error.response?.data?.message || 'Failed to update course completion');
     }
 }; 
+
+export const startPracticeSession = async (courseId) => {
+    try {
+        const exercises = await fetchCourseExercises(courseId);
+        return {
+            exercises,
+            isPracticeMode: true,
+        };
+    } catch (error) {
+        console.error('Error starting practice session:', error);
+        throw new Error(error.response?.data?.message || 'Failed to start practice session');
+    }
+}; 

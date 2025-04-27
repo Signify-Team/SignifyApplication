@@ -3,7 +3,7 @@
  * @description This file handles the badge routes.
  *
  * @datecreated 15.02.2025
- * @lastmodified 18.02.2025
+ * @lastmodified 27.04.2025
  */
 
 import express from 'express';
@@ -13,6 +13,7 @@ import validator from 'validator';
 import rateLimit from 'express-rate-limit'; // Import rate limiter
 import mongoose from 'mongoose';
 import { createNotification } from '../utils/notificationUtils.js';
+import { checkAndAwardBadges } from '../services/badgeAwardService.js';
 
 const router = express.Router();
 
@@ -224,6 +225,33 @@ router.post('/users/:userId/:badgeId', async (req, res) => {
         res.status(200).json({
             message: 'Badge added to user successfully',
             user: user
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.post('/check', async (req, res) => {
+    try {
+        const { userId, eventType, eventData } = req.body;
+
+        if (!userId || !eventType) {
+            return res.status(400).json({ error: 'userId and eventType are required' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ error: 'Invalid userId format' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        await checkAndAwardBadges(userId, eventType, eventData || {});
+
+        res.status(200).json({
+            message: 'Badge check triggered successfully'
         });
     } catch (error) {
         res.status(400).json({ error: error.message });

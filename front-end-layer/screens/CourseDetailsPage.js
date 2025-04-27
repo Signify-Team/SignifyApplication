@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Dimensions, Alert, StatusBar } from 'react-native';
+import { View, ScrollView, Dimensions, Alert, StatusBar, Text, StyleSheet, Image } from 'react-native';
 import Lesson from '../components/Lesson';
 import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
@@ -106,7 +106,8 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [isCorrect, setIsCorrect] = useState(null);
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
-
+    const [lives, setLives] = useState(5); // Initialize with 1 life
+    
     // Calculate progress percentage
     const progressPercentage = exercises.length > 0 
         ? ((currentExerciseIndex) / exercises.length) * 100 
@@ -163,6 +164,12 @@ const CourseDetailPage = ({ route, navigation }) => {
             // increment correct answers count by 1 if correct
             if (correct) {
                 setCorrectAnswers(prev => prev + 1);
+            } else {
+                // Decrement lives when answer is incorrect
+                setLives(prev => {
+                    const newLives = prev - 1;
+                    return newLives;
+                });
             }
 
             // Set new state
@@ -176,6 +183,34 @@ const CourseDetailPage = ({ route, navigation }) => {
     };
 
     const handleContinue = async () => {
+        // Check if lives are depleted
+        if (lives <= 0) {
+            try {
+                if (!isPracticeMode) {
+                    // Calculate progress percentage based on completed exercises
+                    const progress = (currentExerciseIndex + 1) / exercises.length * 100;
+                    await updateCourseProgress(route.params.courseId, progress, false);
+                }
+                
+                // Navigate to Courses tab with out of lives message
+                navigation.navigate('Home', {
+                    screen: 'Courses',
+                    params: {
+                        showCompletionMessage: true,
+                        successRate: (correctAnswers / (currentExerciseIndex + 1)) * 100,
+                        isPassed: false,
+                        isPracticeMode: isPracticeMode,
+                        outOfLives: true
+                    }
+                });
+                return;
+            } catch (error) {
+                console.error('Error updating course progress:', error);
+                navigation.navigate('Home', { screen: 'Courses' });
+                return;
+            }
+        }
+
         // add to completed exercises list
         setCompletedExercises(prev => [...prev, currentExerciseIndex]);
 
@@ -203,7 +238,8 @@ const CourseDetailPage = ({ route, navigation }) => {
                         showCompletionMessage: true,
                         successRate,
                         isPassed: isCoursePassed,
-                        isPracticeMode: isPracticeMode
+                        isPracticeMode: isPracticeMode,
+                        remainingLives: lives
                     }
                 });
             } catch (error) {
@@ -289,6 +325,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                 <ProgressTopBar 
                     navigation={navigation}
                     currentProgress={progressPercentage}
+                    lives={lives}
                     onBackPress={() => {
                         if (exercises.length > 0) {
                             // Show confirmation dialog before leaving

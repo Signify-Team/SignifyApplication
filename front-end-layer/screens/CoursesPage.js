@@ -84,7 +84,9 @@ const CoursesPage = ({ navigation, route }) => {
                             isPracticeMode: route.params.isPracticeMode || false,
                             isPassed: route.params.isPassed || false,
                             successRate: route.params.successRate || 0,
-                            userPoints: userProfile.totalPoints || 0
+                            userPoints: userProfile.totalPoints || 0,
+                            outOfLives: route.params.outOfLives || false,
+                            remainingLives: route.params.remainingLives || 0
                         });
                     } else {
                         // For practice mode, points aren't relevant
@@ -92,7 +94,9 @@ const CoursesPage = ({ navigation, route }) => {
                             isPracticeMode: true,
                             isPassed: route.params.isPassed || false,
                             successRate: route.params.successRate || 0,
-                            userPoints: 0
+                            userPoints: 0,
+                            outOfLives: route.params.outOfLives || false,
+                            remainingLives: route.params.remainingLives || 0
                         });
                     }
                     
@@ -101,7 +105,8 @@ const CoursesPage = ({ navigation, route }) => {
                     console.error('Error preparing completion popup:', error);
                     // Fallback to simple alert if there's an error
                     Alert.alert(
-                        route.params.isPassed ? 'Course Completed!' : 'Course Completed',
+                        route.params.outOfLives ? 'Out of Lives!' : 
+                        (route.params.isPassed ? 'Course Completed!' : 'Course Completed'),
                         'Course completed. Check your progress in the courses screen.'
                     );
                 }
@@ -395,6 +400,8 @@ const CoursesPage = ({ navigation, route }) => {
                 successRate={completionData.successRate}
                 userPoints={completionData.userPoints}
                 pointsEarned={50}
+                outOfLives={completionData.outOfLives}
+                remainingLives={completionData.remainingLives}
             />
         </View>
     );

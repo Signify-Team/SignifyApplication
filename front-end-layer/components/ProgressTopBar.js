@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
 import { COLORS } from '../utils/constants';
+import HeartIcon from '../assets/icons/header/heart.png';
 
-const ProgressTopBar = ({ navigation, currentProgress = 0, onBackPress }) => {
+const ProgressTopBar = ({ navigation, currentProgress = 0, onBackPress, lives = 5 }) => {
   const handleBackPress = () => {
     if (onBackPress) {
       onBackPress();
@@ -29,6 +30,11 @@ const ProgressTopBar = ({ navigation, currentProgress = 0, onBackPress }) => {
             ]}
           />
         </View>
+      </View>
+      
+      <View style={styles.livesContainer}>
+        <Image source={HeartIcon} style={styles.heartIcon} />
+        <Text style={styles.livesText}>{lives}</Text>
       </View>
     </View>
   );
@@ -68,6 +74,22 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     backgroundColor: COLORS.lemonade,
+  },
+  livesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  heartIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+  livesText: {
+    marginLeft: 3,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
   }
 });
 

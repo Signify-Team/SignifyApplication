@@ -12,6 +12,7 @@ import mongoose from 'mongoose'; // For MongoDB ObjectId validation
 import User from '../models/UserDB.js'; // User model
 import rateLimit from 'express-rate-limit';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../config/emailService.js';
+import { createNotification } from '../utils/notificationUtils.js';
 import crypto from 'crypto';
 const router = express.Router(); // Router middleware
 
@@ -133,8 +134,24 @@ router.post('/login', async (req, res) => {
             streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
         } else {
             // Missed a day - reset streak
+            const lostStreak = oldStreakCount > 1;
             user.streakCount = 1;
             streakMessage = "Try to log in every day to maintain your streak!";
+            
+            // Create a streak loss notification if they actually lost a streak
+            if (lostStreak) {
+                try {
+                    await createNotification(
+                        'streak',
+                        'Streak Lost',
+                        `You've lost your ${oldStreakCount}-day streak! Log in daily to build it back up.`,
+                        user._id
+                    );
+                } catch (notifError) {
+                    console.error('Error creating streak loss notification:', notifError);
+                    // Continue with login process even if notification creation fails
+                }
+            }
         }
 
         // Update last login date

@@ -112,6 +112,35 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Get user's badges
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        // Find user and populate their badges
+        const user = await User.findById(userId)
+            .populate('badges.badgeId');
+            
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Transform the badges data to include badge details
+        const badges = user.badges.map(userBadge => ({
+            id: userBadge.badgeId._id,
+            name: userBadge.badgeId.name,
+            description: userBadge.badgeId.description,
+            iconUrl: userBadge.badgeId.iconUrl,
+            dateEarned: userBadge.dateEarned
+        }));
+
+        res.status(200).json(badges);
+    } catch (error) {
+        console.error('Error fetching user badges:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Update badge with input validation
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
@@ -227,35 +256,6 @@ router.post('/users/:userId/:badgeId', async (req, res) => {
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
-    }
-});
-
-// Get user's badges
-router.get('/user/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        
-        // Find user and populate their badges
-        const user = await User.findById(userId)
-            .populate('badges.badgeId');
-            
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Transform the badges data to include badge details
-        const badges = user.badges.map(userBadge => ({
-            id: userBadge.badgeId._id,
-            name: userBadge.badgeId.name,
-            description: userBadge.badgeId.description,
-            iconUrl: userBadge.badgeId.iconUrl,
-            dateEarned: userBadge.dateEarned
-        }));
-
-        res.status(200).json(badges);
-    } catch (error) {
-        console.error('Error fetching user badges:', error);
-        res.status(500).json({ error: error.message });
     }
 });
 

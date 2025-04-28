@@ -238,5 +238,26 @@ export default StyleSheet.create(
             marginBottom: height * 0.02,
             width: '75%',
         },
+        rememberMeContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '75%',
+            marginBottom: height * 0.03,
+            marginTop: -height * 0.01,
+        },
+        rememberMeText: {
+            fontFamily: FONTS.poppins_font,
+            fontSize: 13,
+            color: COLORS.neutral_base_dark,
+        },
+        forgotPasswordContainer: {
+            marginBottom: height * 0.03,
+        },
+        forgotPasswordText: {
+            fontFamily: FONTS.poppins_font,
+            color: COLORS.neutral_base_dark,
+            textAlign: 'center',
+        },
     },
 );

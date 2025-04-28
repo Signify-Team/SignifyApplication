@@ -67,10 +67,8 @@ router.post('/:id/finish', async (req, res) => {
         const { userId, isPassed, completed, progress } = req.body;
         const courseId = req.params.id;
 
-        // Validate required fields
-        if (!userId || isPassed === undefined || completed === undefined || progress === undefined) {
-            return res.status(400).json({ message: 'Missing required fields' });
-        }
+        console.log('\n=== Course Completion Debug ===');
+        console.log('Request data:', { userId, courseId, completed, progress, isPassed });
 
         // Find course and user
         const [course, user] = await Promise.all([
@@ -78,12 +76,29 @@ router.post('/:id/finish', async (req, res) => {
             User.findById(userId)
         ]);
 
-        if (!course) return res.status(404).json({ message: 'Course not found' });
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        if (!course) {
+            console.log('Course not found');
+            return res.status(404).json({ message: 'Course not found' });
+        }
+        if (!user) {
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Initialize badges array if it doesn't exist
+        if (!user.badges) {
+            user.badges = [];
+        }
+
+        console.log('\nUser data before update:');
+        console.log('Username:', user.username);
+        console.log('Current badges:', user.badges);
+        console.log('Raw badges array:', JSON.stringify(user.badges, null, 2));
 
         // Find or create course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         if (!courseProgress) {
+            console.log('Creating new course progress entry');
             user.courseProgress.push({
                 courseId: courseId,
                 isLocked: true,
@@ -100,28 +115,53 @@ router.post('/:id/finish', async (req, res) => {
         courseProgress.lastAccessed = new Date();
 
         // Check if this is the first completed course and award badge if needed
-        if (completed && (!user.badges || user.badges.length === 0)) {
+        if (completed && user.badges.length === 0) {
+            console.log('\nAttempting to award first course badge');
             // Find the "First Course Completed" badge
             const firstCourseBadge = await Badge.findOne({ badgeId: 'first_course_completed' });
+            console.log('Found badge in database:', firstCourseBadge);
             
             if (firstCourseBadge) {
+                console.log('Found first course badge:', firstCourseBadge.name);
                 // Add badge to user's badges array
                 user.badges.push({
                     badgeId: firstCourseBadge._id,
                     dateEarned: new Date()
                 });
+                console.log('Added badge to user');
+                console.log('Updated badges array:', JSON.stringify(user.badges, null, 2));
+            } else {
+                console.log('First course badge not found in database');
             }
+        } else {
+            console.log('\nNot awarding badge because:');
+            console.log('- Course completed:', completed);
+            console.log('- Number of badges:', user.badges.length);
         }
 
         // Save user with updated progress and badges
-        await user.save();
+        const savedUser = await user.save();
+        console.log('\nUser saved with updated data:');
+        console.log('Saved user badges:', JSON.stringify(savedUser.badges, null, 2));
+
+        // Fetch the updated user with populated badges
+        const updatedUser = await User.findById(userId).populate('badges.badgeId');
+        
+        console.log('\nFinal user data:');
+        console.log('Final badges:', updatedUser.badges.map(b => ({
+            name: b.badgeId?.name,
+            dateEarned: b.dateEarned
+        })));
+
+        console.log('\n=== End Course Completion Debug ===\n');
 
         res.status(200).json({ 
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
             progress: courseProgress,
-            newBadge: user.badges.length === 1 ? true : false // Indicate if a new badge was awarded
+            newBadge: user.badges.length === 1,
+            badges: updatedUser.badges
         });
     } catch (err) {
         console.error('Error completing course:', err);

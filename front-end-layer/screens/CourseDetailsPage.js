@@ -227,8 +227,26 @@ const CourseDetailPage = ({ route, navigation }) => {
             try {
                 if (!isPracticeMode) {
                     // Only update course progress and completion for regular mode
-                    await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
+                    const response = await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
                     await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                    
+                    // If a new badge was awarded, show notification
+                    if (response?.data?.newBadge) {
+                        Alert.alert(
+                            "Congratulations! 🎉",
+                            "You've earned your first badge for completing a course!",
+                            [
+                                {
+                                    text: "View Badge",
+                                    onPress: () => navigation.navigate('Profile')
+                                },
+                                {
+                                    text: "Continue",
+                                    style: "cancel"
+                                }
+                            ]
+                        );
+                    }
                 }
                 
                 // Navigate to Courses tab with completion message

@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit';
 import Course from '../models/CourseDB.js';
 import User from '../models/UserDB.js';
 import mongoose from 'mongoose';
+import Badge from '../models/BadgeDB.js';
 
 const router = express.Router();
 
@@ -98,14 +99,29 @@ router.post('/:id/finish', async (req, res) => {
         courseProgress.completed = completed;
         courseProgress.lastAccessed = new Date();
 
-        // Save user with updated progress
+        // Check if this is the first completed course and award badge if needed
+        if (completed && !user.badges || user.badges.length === 0) {
+            // Find the "First Course Completed" badge
+            const firstCourseBadge = await Badge.findOne({ badgeId: 'first_course_completed' });
+            
+            if (firstCourseBadge) {
+                // Add badge to user's badges array
+                user.badges.push({
+                    badgeId: firstCourseBadge._id,
+                    dateEarned: new Date()
+                });
+            }
+        }
+
+        // Save user with updated progress and badges
         await user.save();
 
         res.status(200).json({ 
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
-            progress: courseProgress
+            progress: courseProgress,
+            newBadge: user.badges.length === 1 ? true : false // Indicate if a new badge was awarded
         });
     } catch (err) {
         console.error('Error completing course:', err);

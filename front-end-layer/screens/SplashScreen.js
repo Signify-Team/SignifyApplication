@@ -11,6 +11,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Sound from 'react-native-sound';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/SplashScreenStyles.js';
 
 const SplashScreen = () => {
@@ -18,6 +19,25 @@ const SplashScreen = () => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const waveAnim = useRef(new Animated.Value(0)).current;
     const bounceAnim = useRef(new Animated.Value(0)).current;
+
+    const checkRememberedCredentials = async () => {
+        try {
+            const rememberedEmail = await AsyncStorage.getItem('rememberedEmail');
+            const rememberedUsername = await AsyncStorage.getItem('rememberedUsername');
+            
+            if (rememberedEmail && rememberedUsername) {
+                navigation.replace('Home', { 
+                    email: rememberedEmail,
+                    username: rememberedUsername
+                });
+            } else {
+                navigation.replace('Welcome');
+            }
+        } catch (error) {
+            console.error('Error checking remembered credentials:', error);
+            navigation.replace('Welcome');
+        }
+    };
 
     useEffect(() => {
         Sound.setCategory('Playback');
@@ -77,9 +97,7 @@ const SplashScreen = () => {
                 useNativeDriver: true,
             }),
             Animated.delay(1500),
-        ]).start(() => {
-            navigation.replace('Welcome');
-        });
+        ]).start(checkRememberedCredentials);
 
         // Clean up
         return () => {

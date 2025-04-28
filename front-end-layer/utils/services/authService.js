@@ -58,6 +58,8 @@ export const loginUser = async (email, password) => {
           }
         } else if (xhr.status === 400 || xhr.status === 401) {
           reject(new Error('Incorrect credentials'));
+        } else if (xhr.status === 403) {
+          reject(new Error('Please verify your email before logging in. Check your inbox for the verification code.'));
         } else if (xhr.status === 404) {
           reject(new Error('User not found. Please check your email or sign up'));
         } else if (xhr.status === 0) {

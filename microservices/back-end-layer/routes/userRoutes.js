@@ -487,6 +487,22 @@ router.delete('/:userId', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const followingUsers = await User.find({ _id: { $in: user.following } });
+        
+        for (const followingUser of followingUsers) {
+            followingUser.followerCount = Math.max(0, followingUser.followerCount - 1);
+            followingUser.followers = followingUser.followers.filter(id => !id.equals(user._id));
+            await followingUser.save();
+        }
+
+        const followerUsers = await User.find({ _id: { $in: user.followers } });
+        
+        for (const followerUser of followerUsers) {
+            followerUser.followingCount = Math.max(0, followerUser.followingCount - 1);
+            followerUser.following = followerUser.following.filter(id => !id.equals(user._id));
+            await followerUser.save();
+        }
+
         await User.findByIdAndDelete(userId);
         res.status(200).json({ message: 'Account deleted successfully' });
     } catch (error) {

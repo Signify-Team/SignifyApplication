@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === 'production') {
 // Get all users (Admin only)
 router.get('/', async (req, res) => {
     try {
-        const users = await User.find().select('-password'); // Exclude passwords for security
+        const users = await User.find({ isEmailVerified: true }).select('-password'); // Exclude passwords for security
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
@@ -96,6 +96,11 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ email: { $eq: email } });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if email is verified
+        if (!user.isEmailVerified) {
+            return res.status(403).json({ message: 'Please verify your email before logging in' });
         }
 
         // Compare password
@@ -232,12 +237,12 @@ router.post('/send-verification', async (req, res) => {
     try {
         // Check if user already exists
         const existingUser = await User.findOne({ email: { $eq: email } });
-        if (existingUser) {
+        if (existingUser && existingUser.isEmailVerified) {
             return res.status(409).json({ message: 'Email is already registered' });
         }
 
         const existingUsername = await User.findOne({ username: { $eq: username } });
-        if (existingUsername) {
+        if (existingUsername && existingUsername.isEmailVerified) {
             return res.status(409).json({ message: 'Username is already registered' });
         }
 
@@ -249,15 +254,26 @@ router.post('/send-verification', async (req, res) => {
             return res.status(400).json({ message: 'Password is required for new users' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({
-            email,
-            username,
-            password: hashedPassword,
-            verificationCode,
-            verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
-            isEmailVerified: false
-        });
-        await newUser.save();
+
+        // If user exists but not verified, update their info
+        if (existingUser) {
+            existingUser.username = username;
+            existingUser.password = hashedPassword;
+            existingUser.verificationCode = verificationCode;
+            existingUser.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+            await existingUser.save();
+        } else {
+            // Create new user
+            const newUser = new User({
+                email,
+                username,
+                password: hashedPassword,
+                verificationCode,
+                verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
+                isEmailVerified: false
+            });
+            await newUser.save();
+        }
 
         // Send verification email
         await sendVerificationEmail(email, verificationCode);

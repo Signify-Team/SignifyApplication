@@ -19,10 +19,12 @@ const PROFILE_PICTURES_BUCKET = process.env.S3_BUCKET_NAME;
 
 export const uploadToS3 = async (file, key) => {
     try {
+        const bufferStream = new Buffer.from(file.buffer);
+        
         const params = {
             Bucket: PROFILE_PICTURES_BUCKET,
             Key: key,
-            Body: file.buffer,
+            Body: bufferStream,
             ContentType: file.mimetype,
             ACL: 'public-read'
         };

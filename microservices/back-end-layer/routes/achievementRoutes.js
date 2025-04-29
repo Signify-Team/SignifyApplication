@@ -165,7 +165,7 @@ router.post('/users/:userId/:achievementId/collect', async (req, res) => {
             return res.status(404).json({ message: 'User or Achievement not found' });
         }
         
-        const achievementIndex = user.achievements.findIndex(a => a.achievementId.equals(achievement._id));
+        const achievementIndex = user.achievements.findIndex(a => a._id.equals(achievement._id));
         if (achievementIndex === -1) {
             return res.status(400).json({ message: 'Achievement not unlocked' });
         }
@@ -183,6 +183,7 @@ router.post('/users/:userId/:achievementId/collect', async (req, res) => {
             totalPoints: user.totalPoints 
         });
     } catch (error) {
+        console.error('Error collecting achievement:', error);
         res.status(500).json({ error: error.message });
     }
 });

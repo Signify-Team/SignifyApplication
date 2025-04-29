@@ -56,6 +56,12 @@ export const loginUser = async (email, password) => {
           } catch (e) {
             reject(new Error('Invalid response from server'));
           }
+        } else if (xhr.status === 400 || xhr.status === 401) {
+          reject(new Error('Incorrect credentials'));
+        } else if (xhr.status === 404) {
+          reject(new Error('User not found. Please check your email or sign up'));
+        } else if (xhr.status === 0) {
+          reject(new Error('No internet connection. Please check your network and try again.'));
         } else {
           reject(new Error(`Server returned status ${xhr.status}`));
         }
@@ -63,11 +69,11 @@ export const loginUser = async (email, password) => {
     };
 
     xhr.onerror = function(e) {
-      reject(new Error('Network request failed'));
+      reject(new Error('Network error. Please check your internet connection'));
     };
 
     xhr.ontimeout = function() {
-      reject(new Error('Request timed out'));
+      reject(new Error('Connection timed out. Please try again'));
     };
 
     try {
@@ -82,7 +88,7 @@ export const loginUser = async (email, password) => {
       
       xhr.send(body);
     } catch (error) {
-      reject(error);
+      reject(new Error('Failed to connect to server. Please try again later'));
     }
   });
 };
@@ -99,22 +105,25 @@ export const registerUser = async (username, email, password) => {
     }
     return response.data;
   } catch (error) {
-    
     // Check for specific error messages in the response
     const errorMessage = error.response?.data?.message?.toLowerCase() || '';
     
-    if (errorMessage.includes('username') || errorMessage.includes('user')) {
-      throw new Error('Username already exists. Please choose another username.');
-    } else if (errorMessage.includes('email') || errorMessage.includes('account')) {
-      throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
-    }
-    
-    // If we get a 409 status but no specific message, assume it's a duplicate
     if (error.response?.status === 409) {
+      if (errorMessage.includes('username')) {
+        throw new Error('Username already exists. Please choose another username.');
+      } else if (errorMessage.includes('email')) {
+        throw new Error('An account with this email already exists. Please try logging in or use the forgot password option.');
+      }
       throw new Error('Username or email already exists. Please try a different username or email.');
+    } else if (error.response?.status === 400) {
+      throw new Error('Invalid input. Please check your username, email, and password format.');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error. Please try again later.');
+    } else if (!error.response) {
+      throw new Error('Network error. Please check your internet connection.');
     }
     
-    throw error;
+    throw new Error('Failed to create account. Please try again.');
   }
 };
 

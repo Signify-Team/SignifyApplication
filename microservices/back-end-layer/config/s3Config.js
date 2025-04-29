@@ -8,9 +8,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Configure AWS with region
+AWS.config.update({
+    region: process.env.AWS_REGION
+});
+
 const s3 = new AWS.S3();
 
-const PROFILE_PICTURES_BUCKET = process.env.S3_PROFILE_PICTURES_BUCKET;
+const PROFILE_PICTURES_BUCKET = process.env.S3_BUCKET_NAME;
 
 export const uploadToS3 = async (file, key) => {
     try {

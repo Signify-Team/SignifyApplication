@@ -14,7 +14,6 @@ import rateLimit from 'express-rate-limit'; // Import rate limiter
 import mongoose from 'mongoose';
 import { createNotification } from '../utils/notificationUtils.js';
 import { checkAndAwardBadges } from '../services/badgeAwardService.js';
-import { s3 } from '../config/s3Config.js';
 
 const router = express.Router();
 
@@ -256,31 +255,6 @@ router.post('/check', async (req, res) => {
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
-    }
-});
-
-router.get('/icon/:badgeId', async (req, res) => {
-    try {
-        const { badgeId } = req.params;
-
-        const badge = await Badge.findById(badgeId);
-        if (!badge) {
-            return res.status(404).json({ error: 'Badge not found' });
-        }
-
-        const iconUrl = new URL(badge.iconUrl);
-        const key = iconUrl.pathname.substring(1);
-
-        const signedUrl = await s3.getSignedUrlPromise('getObject', {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: key,
-            Expires: 3600
-        });
-
-        res.status(200).json({ signedUrl });
-    } catch (error) {
-        console.error('Error generating pre-signed URL:', error);
-        res.status(500).json({ error: error.message });
     }
 });
 

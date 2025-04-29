@@ -48,6 +48,10 @@ const AchievementsPage = () => {
             
             setAllAchievements(allAchievementsData);
             setUserAchievements(userAchievementsData);
+            // Set initial total points from user data
+            if (userAchievementsData && userAchievementsData.totalPoints !== undefined) {
+                setTotalPoints(userAchievementsData.totalPoints);
+            }
             setError(null);
         } catch (err) {
             setError(err.message);
@@ -88,6 +92,8 @@ const AchievementsPage = () => {
             const achievement = allAchievements.find(a => a._id === achievementId);
             if (achievement) {
                 setAchievementXp(achievement.rewardPoints);
+                // Update total points with the new value from the server
+                setTotalPoints(result.totalPoints);
             }
             
             setShowAchievementPopup(true);

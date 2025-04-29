@@ -54,9 +54,29 @@ export default StyleSheet.create({
         marginRight: width * 0.00,
         resizeMode: 'contain',
     },
+    titleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
     title: {
         fontSize: 24,
         fontFamily: FONTS.baloo_font,
         color: COLORS.neutral_base_dark,
+        flex: 1,
+    },
+    completedBadge: {
+        backgroundColor: COLORS.secondary,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: width * 0.03,
+    },
+    completedText: {
+        color: COLORS.white,
+        fontSize: 14,
+        fontWeight: 'bold',
     },
 });

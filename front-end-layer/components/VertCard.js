@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { COLORS, darkenColor } from '../utils/constants';
+import { COLORS, darkenColor, FONTS } from '../utils/constants';
 import RectangularButton from './RectangularButton';
 import DictionaryIcon from '../assets/icons/header/dictionary_icon.png';
 const { width, height } = Dimensions.get('window');
@@ -21,6 +21,7 @@ const VertCard = ({
     onPress,
     onDictionaryPress,
     courseId,
+    isPracticeMode = false
 }) => {
     return (
         <View style={[styles.cardWrapper, { backgroundColor: darkenColor(COLORS.soft_pink_background, 40) }]}>
@@ -30,9 +31,9 @@ const VertCard = ({
 
                 <View style={styles.buttonRow}>
                     <RectangularButton
-                        width={width * 0.25}
-                        text={buttonText}
-                        color={buttonColor}
+                        width={isPracticeMode ? width * 0.35 : width * 0.25}
+                        text={isPracticeMode ? "PRACTICE" : buttonText}
+                        color={isPracticeMode ? COLORS.secondary : buttonColor}
                         onPress={() => { onPress(); }}
                     />
                     {onDictionaryPress && (
@@ -55,7 +56,7 @@ const VertCard = ({
 const styles = StyleSheet.create({
     cardWrapper: {
         position: 'absolute',
-        bottom: 0,
+        bottom: height * 0.005,
         left: width * 0.05,
         right: width * 0.05,
         borderRadius: 12,
@@ -76,12 +77,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        fontSize: 30,
+        fontSize: 24,
+        fontFamily: FONTS.poppins_font,
         color: COLORS.neutral_base_dark,
         marginBottom: height * 0.01,
+        textAlign: 'center',
     },
     description: {
-        fontSize: 16,
+        fontSize: 14,
+        fontFamily: FONTS.poppins_font,
         color: COLORS.dark_gray_1,
         textAlign: 'center',
         marginBottom: height * 0.02,
@@ -89,10 +93,10 @@ const styles = StyleSheet.create({
     buttonRow: {
         width: '100%',
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
         alignItems: 'center',
         gap: width * 0.17,
-      },
+    },
 });
 
 export default VertCard;

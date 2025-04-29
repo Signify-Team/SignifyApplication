@@ -16,7 +16,7 @@ const router = express.Router();
 // Rate limiter for notification routes
 const notificationRateLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 60,
+    max: 3000,
     message: 'Too many requests from this IP, please try again after a minute',
     standardHeaders: true,
     legacyHeaders: false
@@ -73,15 +73,28 @@ router.put('/:id/read', async (req, res) => {
     }
 
     try {
+        // Find the notification first to check if it's already read
+        const notification = await Notification.findById(id);
+        
+        if (!notification) {
+            return res.status(404).json({ error: 'Notification not found' });
+        }
+        
+        // Only decrement the counter if the notification wasn't already read
+        if (!notification.isRead) {
+            // Find the user and decrement unreadNotifications
+            await User.findByIdAndUpdate(
+                notification.userId,
+                { $inc: { unreadNotifications: -1 } }
+            );
+        }
+
+        // Update the notification to be read
         const updatedNotification = await Notification.findByIdAndUpdate(
             id,
             { isRead: true },
             { new: true }
         );
-
-        if (!updatedNotification) {
-            return res.status(404).json({ error: 'Notification not found' });
-        }
 
         res.status(200).json(updatedNotification);
     } catch (error) {
@@ -99,10 +112,25 @@ router.delete('/:id', async (req, res) => {
     }
 
     try {
-        const deletedNotification = await Notification.findByIdAndDelete(id);
-        if (!deletedNotification) {
+        // Find the notification first to check if it's unread
+        const notification = await Notification.findById(id);
+        
+        if (!notification) {
             return res.status(404).json({ error: 'Notification not found' });
         }
+        
+        // Only decrement the counter if the notification is unread
+        if (!notification.isRead) {
+            // Find the user and decrement unreadNotifications
+            await User.findByIdAndUpdate(
+                notification.userId,
+                { $inc: { unreadNotifications: -1 } }
+            );
+        }
+        
+        // Delete the notification
+        await Notification.findByIdAndDelete(id);
+        
         res.status(200).json({ message: 'Notification deleted successfully' });
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -4,10 +4,10 @@
  *              Includes a settings button for the user to change their preferences.
  *
  * @datecreated 05.11.2024
- * @lastmodified 19.12.2024
+ * @lastmodified 27.04.2025
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     View,
     Text,
@@ -16,11 +16,16 @@ import {
     ActivityIndicator,
     RefreshControl,
     TouchableOpacity,
+    Share
 } from 'react-native';
 import styles from '../styles/ProfileCardStyle.js';
 import { SIZES, COLORS } from '../utils/constants.js';
-import { fetchUserProfile } from '../utils/apiService.js';
-import { fetchUserBadges } from '../utils/apiService.js';
+import {
+    fetchUserProfile,
+    fetchUserBadges,
+    fetchUserCourses,         
+    fetchSectionsByLanguage 
+} from '../utils/apiService.js';
 import { useNavigation } from '@react-navigation/native';
 
 // Components
@@ -47,20 +52,38 @@ const ProfilePage = () => {
     const [badges, setBadges] = useState([]);
     const [selectedBadge, setSelectedBadge] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [userCourses, setUserCourses] = useState([]); 
+    const [languageSections, setLanguageSections] = useState([]); 
 
-    const loadUserProfile = async () => {
+    const loadData = async () => {
+        setLoading(true); 
+        setError(null);
         try {
-            const data = await fetchUserProfile();
-            setUserData(data);
+            const profileData = await fetchUserProfile();
+            setUserData(profileData);
+
+            if (!profileData) {
+                throw new Error("User profile data is missing.");
+            }
+
+            const [fetchedUserCourses, fetchedSections] = await Promise.all([
+                fetchUserCourses(),
+                profileData.languagePreference ? fetchSectionsByLanguage(profileData.languagePreference) : Promise.resolve([]) // Fetch sections based on preference
+            ]);
+
+            setUserCourses(fetchedUserCourses || []); 
+            setLanguageSections(fetchedSections || []);
+
             // Fetch badges after getting user data
-            if (data.badges && data.badges.length > 0) {
-                // Create badge objects with earned dates
-                const badgeData = await fetchUserBadges(data.badges.map(badge => badge.badgeId));
+            if (profileData.badges && profileData.badges.length > 0) {
+                const badgeData = await fetchUserBadges(profileData.badges.map(badge => badge.badgeId)) || [];
                 const badgesWithDates = badgeData.map((badge, index) => ({
                     ...badge,
-                    dateEarned: data.badges[index].dateEarned
+                    dateEarned: profileData.badges[index]?.dateEarned
                 }));
                 setBadges(badgesWithDates);
+            } else {
+                setBadges([]); 
             }
         } catch (err) {
             setError(err.message);
@@ -72,13 +95,46 @@ const ProfilePage = () => {
     };
 
     useEffect(() => {
-        loadUserProfile();
+        loadData();
     }, []);
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        loadUserProfile();
+        loadData();
     }, []);
+
+    const progressPercentage = useMemo(() => {
+        if (!userData || !Array.isArray(userCourses) || !Array.isArray(languageSections)) {
+            console.log("Progress calculation skipped: Missing data", {userData, userCourses, languageSections});
+            return 0;
+        }
+
+        const userLang = userData.languagePreference;
+        if (!userLang) {
+            console.log("Progress calculation skipped: Missing language preference");
+            return 0; 
+        }
+
+        const completedCount = userCourses.filter(uc =>
+            uc && uc.completed && uc.language === userLang 
+        ).length;
+
+        let totalCount = 0;
+        languageSections.forEach(section => {
+            if (section && section.courses && Array.isArray(section.courses) && section.language === userLang) {
+                totalCount += section.courses.length;
+            }
+        });
+
+        console.log("Progress calculation:", { userLang, completedCount, totalCount });
+
+        if (totalCount === 0) {
+            return 0; // Avoid division by zero
+        }
+
+        return Math.round((completedCount / totalCount) * 100);
+    }, [userData, userCourses, languageSections]);
+
 
     const handleBadgePress = (badge) => {
         setSelectedBadge(badge);
@@ -89,6 +145,17 @@ const ProfilePage = () => {
         setModalVisible(false);
         setSelectedBadge(null);
     };
+
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+                message: `Check out my profile on Signify! Username: ${userData?.username || 'User'}`,
+                // add any url we might want to direct in the future here 
+            });
+        } catch (error) {
+            alert(error.message);
+        }
+    }
 
     if (loading && !refreshing) {
         return (
@@ -161,7 +228,7 @@ const ProfilePage = () => {
                             icon={require('../assets/icons/header/share.png')}
                             onlyIcon={true}
                             color={COLORS.bright_button_color}
-                            onPress={() => console.log('Icon button pressed')}
+                            onPress={onShare}
                         />
                     </View>
                     {/* Statistics */}
@@ -187,7 +254,7 @@ const ProfilePage = () => {
                             height={height * SIZES.statsContainer}
                             width={'49%'}
                             text="Progress"
-                            value={`${userData?.learningLanguages?.[0]?.progress || 0}%`}
+                            value={`${progressPercentage}%`} // Use calculated percentage
                             showIcon={false}
                             showText={true}
                         />

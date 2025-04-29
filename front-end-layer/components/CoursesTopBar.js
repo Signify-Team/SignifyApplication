@@ -6,8 +6,9 @@
  * @lastmodified 21.04.2025
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Image, Text, TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import styles from '../styles/topBarStyles';
 import TurkishFlagIcon from '../assets/icons/header/turkish-flag.png';
 import AmericanFlagIcon from '../assets/icons/header/american-flag.png';
@@ -25,11 +26,7 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
     }); // the default top bar if the needed information cannot be found
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
-    useEffect(() => {
-        loadUserData(); //load the data from the userId stored from login or register
-    }, [refreshTrigger]); // Add refreshTrigger as a dependency
-
-    const loadUserData = async () => {
+    const loadUserData = useCallback(async () => {
         try {
             const userProfile = await fetchUserProfile();
             setUserData({
@@ -44,7 +41,19 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
                 console.log('User needs to log in again');
             }
         }
-    };
+    }, []);
+
+    // Refresh when component mounts or refreshTrigger changes
+    useEffect(() => {
+        loadUserData();
+    }, [refreshTrigger, loadUserData]);
+    
+    // Refresh data when the screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            loadUserData();
+        }, [loadUserData])
+    );
 
     const getLanguageFlag = (language) => {
         switch (language) {

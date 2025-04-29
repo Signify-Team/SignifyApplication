@@ -44,4 +44,22 @@ export default StyleSheet.create({
         height: height * 0.2,
         resizeMode: 'contain',
     },
+    completedBadge: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: COLORS.secondary,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: COLORS.white,
+    },
+    completedText: {
+        color: COLORS.white,
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
 });

@@ -22,7 +22,7 @@ export const fetchUserNotifications = async () => {
   }
 };
 
-export const createNotification = async (type, title, message, targetUserId) => {
+export const createNotification = async (type, title, message, targetUserId, onCountUpdated = null) => {
   try {
     let userId = targetUserId;
     // If no targetUserId is provided, use the current user's ID
@@ -38,6 +38,12 @@ export const createNotification = async (type, title, message, targetUserId) => 
       title,
       message
     });
+    
+    // If a callback was provided to refresh the UI, call it
+    if (onCountUpdated) {
+      onCountUpdated();
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Error creating notification:', error);

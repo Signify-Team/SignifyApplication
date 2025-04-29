@@ -5,6 +5,7 @@
  */
 
 import Notification from '../models/NotificationDB.js';
+import User from '../models/UserDB.js';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -28,6 +29,13 @@ export const createNotification = async (type, title, message, userId) => {
         });
 
         await notification.save();
+        
+        // Increment unreadNotifications count for the user
+        await User.findByIdAndUpdate(
+            userId,
+            { $inc: { unreadNotifications: 1 } }
+        );
+        
         return notification;
     } catch (error) {
         console.error('Error creating notification:', error);

@@ -30,6 +30,7 @@ export const getUserId = async () => {
 export const clearUserId = async () => {
   try {
     await AsyncStorage.removeItem(USER_ID_KEY);
+    await AsyncStorage.removeItem('hasShownStreakPopup');
   } catch (error) {
     console.error('Error clearing user ID:', error);
   }

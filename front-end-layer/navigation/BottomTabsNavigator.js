@@ -56,42 +56,49 @@ const tabBarIcon = ({ route }) => ({ focused }) => {
         />
     );
 };
-const BottomTabsNavigator = ({ route }) => (
-    <Tab.Navigator 
-        screenOptions={({ route }) => ({
-            tabBarIcon: tabBarIcon({ route }),
-            tabBarShowLabel: false,
-            tabBarStyle: styles.bottomBarContainer,
-        })}
-        initialRouteName="Courses"
-    >
-        <Tab.Screen
-            name="Courses"
-            component={Courses}
-            initialParams={route.params}
-            options={{
-                headerShown: false,
-            }}
-        />
-        <Tab.Screen
-            name="Quests"
-            component={Quests}
-            options={{
-                headerShown: false,
-            }}
-        />
-        <Tab.Screen
-            name="Profile"
-            component={Profile}
-            options={{
-                headerShown: false,
-            }}
-        />
-        <Tab.Screen
-            name="Achievements"
-            component={Achievements}
-        />
-    </Tab.Navigator>
-);
+const BottomTabsNavigator = ({ route }) => {
+    const initialParams = {
+        ...route.params,
+        streakMessage: route.params?.streakMessage
+    };
+
+    return (
+        <Tab.Navigator 
+            screenOptions={({ route }) => ({
+                tabBarIcon: tabBarIcon({ route }),
+                tabBarShowLabel: false,
+                tabBarStyle: styles.bottomBarContainer,
+            })}
+            initialRouteName="Courses"
+        >
+            <Tab.Screen
+                name="Courses"
+                component={Courses}
+                initialParams={initialParams}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Tab.Screen
+                name="Quests"
+                component={Quests}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={Profile}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Tab.Screen
+                name="Achievements"
+                component={Achievements}
+            />
+        </Tab.Navigator>
+    );
+};
 
 export default BottomTabsNavigator;

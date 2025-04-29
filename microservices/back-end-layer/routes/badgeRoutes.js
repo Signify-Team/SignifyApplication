@@ -12,6 +12,7 @@ import User from '../models/UserDB.js';
 import validator from 'validator';
 import rateLimit from 'express-rate-limit'; // Import rate limiter
 import mongoose from 'mongoose';
+import { createNotification } from '../utils/notificationUtils.js';
 
 const router = express.Router();
 
@@ -213,6 +214,9 @@ router.post('/users/:userId/:badgeId', async (req, res) => {
             badgeId: badge._id,
             dateEarned: new Date(),
         });
+
+        // Create notification for badge earned
+        await createNotification('badge', 'New Badge!', `Congratulations! You've earned the "${badge.name}" badge!`, userId);
 
         // Save the updated user
         await user.save();

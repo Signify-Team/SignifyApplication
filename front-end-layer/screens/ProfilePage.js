@@ -21,6 +21,7 @@ import styles from '../styles/ProfileCardStyle.js';
 import { SIZES, COLORS } from '../utils/constants.js';
 import { fetchUserProfile } from '../utils/apiService.js';
 import { fetchUserBadges } from '../utils/apiService.js';
+import { useNavigation } from '@react-navigation/native';
 
 // Components
 import ProfileTopBar from '../components/ProfileTopBar';
@@ -38,6 +39,7 @@ import BadgeModal from '../components/BadgeModal';
 const {height} = Dimensions.get('window');
 
 const ProfilePage = () => {
+    const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -151,7 +153,7 @@ const ProfilePage = () => {
                             width={305}
                             text="ADD FRIENDS"
                             color={COLORS.bright_button_color}
-                            onPress={() => console.log('Add Friends button pressed')}
+                            onPress={() => navigation.navigate('AddFriends')}
                         />
 
                         <RectangularButton

@@ -18,6 +18,8 @@ const UserSchema = new mongoose.Schema({
     profilePicture: { type: String },
     followerCount: { type: Number, default: 0 },
     followingCount: { type: Number, default: 0 },
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     languagePreference: { type: String, enum: ['ASL', 'TID'] },
     lastLoginDate: { type: Date, default: null }, // Track last login date
     learningLanguages: [

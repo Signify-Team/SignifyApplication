@@ -93,27 +93,16 @@ export default StyleSheet.create({
     },
     notificationIconContainer: {
         position: 'relative',
-        marginRight: 8,
-        width: 16,
-        height: 16,
+        marginRight: 12,
+        width: 36,
+        height: 36,
         justifyContent: 'center',
         alignItems: 'center',
     },
     notificationIcon: {
-        width: 16,
-        height: 16,
-        borderRadius: 8,
-    },
-    unreadDot: {
-        position: 'absolute',
-        top: -2,
-        right: -2,
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: COLORS.secondary,
-        borderWidth: 1,
-        borderColor: COLORS.white,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
     },
     notificationContent: {
         flex: 1,
@@ -151,5 +140,17 @@ export default StyleSheet.create({
     backIcon: {
         width: 24,
         height: 24,
+    },
+    deleteButton: {
+        width: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    deleteButtonText: {
+        fontSize: 20,
+        color: COLORS.dark_gray_1,
+        fontFamily: 'Poppins-Regular',
     },
 }); 

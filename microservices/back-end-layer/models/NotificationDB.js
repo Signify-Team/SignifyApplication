@@ -14,6 +14,13 @@ const NotificationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     message: { type: String, required: true }, // Notification message
     isRead: { type: Boolean, default: false }, // Read status
+    type: { 
+        type: String, 
+        required: true,
+        enum: ['streak', 'badge', 'course', 'general', 'follow'],
+        default: 'general'
+    },
+    title: { type: String },
     date: { type: Date, default: Date.now },
 });
 

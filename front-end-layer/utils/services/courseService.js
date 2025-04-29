@@ -9,6 +9,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { getUserId } from './authService';
 import { updateUserPoints } from './userService';
+import { createNotification } from './notificationService';
 
 export const fetchUserCourses = async () => {
   try {
@@ -36,6 +37,7 @@ export const updateCourseProgress = async (courseId, progress, completed = false
     });
     return response.data;
   } catch (error) {
+    console.error('Error updating course progress:', error);
     throw new Error(error.response?.data?.message || 'Failed to update course progress');
   }
 };
@@ -59,7 +61,7 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             throw new Error('No user ID found. Please log in again.');
         }
 
-        const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/completion`, {
+        const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/finish`, {
             userId,
             isPassed,
             completed: true,
@@ -70,11 +72,16 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             throw new Error('Failed to update course completion');
         }
 
-        // should we update the course progress to 100% or keep the progress as 75% and make the user be able to try again
+        // Update course progress to 100%
         await updateCourseProgress(courseId, 100, true);
 
         if (isPassed) {
             await updateUserPoints(50, 'Course completion');
+            // Create notification for passing the course
+            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
+        } else {
+            // Create notification for failing the course
+            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
         }
 
         return response.data;

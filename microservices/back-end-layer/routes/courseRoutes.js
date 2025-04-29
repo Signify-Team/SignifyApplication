@@ -63,11 +63,52 @@ router.post('/:id/start', async (req, res) => {
 // Finish a course (Mark course as completed)
 router.post('/:id/finish', async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id);
-        if (!course) return res.status(404).json({ message: 'Course not found' });
+        const { userId, isPassed, completed, progress } = req.body;
+        const courseId = req.params.id;
 
-        res.status(200).json({ message: `Course '${course.name}' completed!`, course });
+        // Validate required fields
+        if (!userId || isPassed === undefined || completed === undefined || progress === undefined) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Find course and user
+        const [course, user] = await Promise.all([
+            Course.findById(courseId),
+            User.findById(userId)
+        ]);
+
+        if (!course) return res.status(404).json({ message: 'Course not found' });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Find or create course progress entry
+        let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
+        if (!courseProgress) {
+            user.courseProgress.push({
+                courseId: courseId,
+                isLocked: true,
+                progress: 0,
+                completed: false,
+                lastAccessed: new Date()
+            });
+            courseProgress = user.courseProgress[user.courseProgress.length - 1];
+        }
+
+        // Update progress
+        courseProgress.progress = progress;
+        courseProgress.completed = completed;
+        courseProgress.lastAccessed = new Date();
+
+        // Save user with updated progress
+        await user.save();
+
+        res.status(200).json({ 
+            message: `Course '${course.name}' completed!`, 
+            course,
+            isPassed,
+            progress: courseProgress
+        });
     } catch (err) {
+        console.error('Error completing course:', err);
         res.status(500).json({ error: err.message });
     }
 });

@@ -6,7 +6,7 @@
  * @lastmodified 19.12.2024
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import styles from '../styles/ProfileCardStyle';
@@ -16,7 +16,11 @@ import { getUserId } from '../utils/services/authService';
 const ProfileCard = ({ profilePic, username, handle, memberSince, onProfilePicUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [newUsername, setNewUsername] = useState(username);
-    const [newProfilePic, setNewProfilePic] = useState(profilePic);
+    const [newProfilePic, setNewProfilePic] = useState(null);
+
+    useEffect(() => {
+        setNewProfilePic(null);
+    }, [profilePic]);
 
     const handleProfilePicChange = async () => {
         try {
@@ -103,8 +107,11 @@ const ProfileCard = ({ profilePic, username, handle, memberSince, onProfilePicUp
                     </TouchableOpacity>
                 ) : (
                     <Image 
-                        source={newProfilePic ? { uri: newProfilePic } : profilePic} 
+                        source={newProfilePic ? { uri: newProfilePic } : (profilePic?.uri ? profilePic : profilePic)} 
                         style={styles.avatar} 
+                        onError={(e) => {
+                            setNewProfilePic(null);
+                        }}
                     />
                 )}
             </View>

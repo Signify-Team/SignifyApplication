@@ -791,10 +791,16 @@ router.put('/profile', upload.single('profilePicture'), async (req, res) => {
                 // Upload to S3
                 const imageUrl = await uploadToS3(file, key);
                 
-                // If user had a previous profile picture, we could delete it here
+                // Delete old profile picture from S3 if it exists
                 if (user.profilePicture) {
-                    const oldKey = user.profilePicture.split('/').pop();
-                    await deleteFromS3(oldKey);
+                    const oldKey = user.profilePicture.split('/profile-pictures/')[1];
+                    if (oldKey) {
+                        try {
+                            await deleteFromS3(`profile-pictures/${oldKey}`);
+                        } catch (error) {
+                            console.error('Error deleting old profile picture:', error);
+                        }
+                    }
                 }
                 
                 user.profilePicture = imageUrl;

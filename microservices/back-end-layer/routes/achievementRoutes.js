@@ -186,4 +186,37 @@ router.post('/users/:userId/:achievementId/collect', async (req, res) => {
     }
 });
 
+// Daily reward route
+router.post('/daily-reward/:userId', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if user has already collected reward today
+        const today = new Date();
+        const lastRewardDate = user.lastRewardDate ? new Date(user.lastRewardDate) : null;
+
+        if (lastRewardDate && 
+            lastRewardDate.getDate() === today.getDate() &&
+            lastRewardDate.getMonth() === today.getMonth() &&
+            lastRewardDate.getFullYear() === today.getFullYear()) {
+            return res.status(400).json({ message: 'Daily reward already collected today' });
+        }
+
+        // Award 50 points and update last reward date
+        user.totalPoints += 50;
+        user.lastRewardDate = today;
+        await user.save();
+
+        res.json({ 
+            message: 'Daily reward collected!', 
+            totalPoints: user.totalPoints 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

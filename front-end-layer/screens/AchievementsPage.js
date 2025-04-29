@@ -7,14 +7,14 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, Image, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Image, Alert, RefreshControl, TouchableOpacity, Animated } from 'react-native';
 import styles from '../styles/AchievementsStyles';
 import CircularButton from '../components/CircularButton';
 import AchievementCard from '../components/AchievementCard';
 import AchievementPopup from '../components/AchievementPopup';
 import { COLORS } from '../utils/constants';
 import rewardIcon from '../assets/icons/course-info/rewardIcon.png';
-import { fetchAllAchievements, fetchUserAchievements, collectAchievementReward } from '../utils/services/achievementService';
+import { fetchAllAchievements, fetchUserAchievements, collectAchievementReward, collectDailyReward } from '../utils/services/achievementService';
 
 const AchievementsPage = () => {
     const [currentDay, setCurrentDay] = useState(3); // Example: Day 3 is the current day
@@ -28,13 +28,9 @@ const AchievementsPage = () => {
     const [showAchievementPopup, setShowAchievementPopup] = useState(false);
     const [achievementXp, setAchievementXp] = useState(0);
     const [totalPoints, setTotalPoints] = useState(0);
-
-    const dailyRewards = [
-        { id: 1, day: 1 },
-        { id: 2, day: 2 },
-        { id: 3, day: 3 },
-        { id: 4, day: 4 },
-    ];
+    const [dailyRewardCollected, setDailyRewardCollected] = useState(false);
+    const [lastRewardDate, setLastRewardDate] = useState(null);
+    const [shakeAnimation] = useState(new Animated.Value(0));
 
     const loadAchievements = async () => {
         try {
@@ -50,6 +46,17 @@ const AchievementsPage = () => {
             if (userAchievementsData && userAchievementsData.totalPoints !== undefined) {
                 setTotalPoints(userAchievementsData.totalPoints);
             }
+            // Set daily reward status
+            if (userAchievementsData && userAchievementsData.lastRewardDate) {
+                setLastRewardDate(new Date(userAchievementsData.lastRewardDate));
+                const today = new Date();
+                const lastReward = new Date(userAchievementsData.lastRewardDate);
+                setDailyRewardCollected(
+                    lastReward.getDate() === today.getDate() &&
+                    lastReward.getMonth() === today.getMonth() &&
+                    lastReward.getFullYear() === today.getFullYear()
+                );
+            }
             setError(null);
         } catch (err) {
             setError(err.message);
@@ -63,6 +70,52 @@ const AchievementsPage = () => {
     useEffect(() => {
         loadAchievements();
     }, []);
+
+    useEffect(() => {
+        if (!dailyRewardCollected) {
+            const startShakeAnimation = () => {
+                Animated.loop(
+                    Animated.sequence([
+                        Animated.timing(shakeAnimation, {
+                            toValue: 1,
+                            duration: 1000,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(shakeAnimation, {
+                            toValue: -1,
+                            duration: 1000,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(shakeAnimation, {
+                            toValue: 0.5,
+                            duration: 1000,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(shakeAnimation, {
+                            toValue: -0.5,
+                            duration: 1000,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(shakeAnimation, {
+                            toValue: 0,
+                            duration: 1000,
+                            useNativeDriver: true,
+                        }),
+                    ])
+                ).start();
+            };
+
+            startShakeAnimation();
+        } else {
+            // Reset animation when collected
+            shakeAnimation.setValue(0);
+        }
+    }, [dailyRewardCollected]);
+
+    const rotateInterpolate = shakeAnimation.interpolate({
+        inputRange: [-1, 1],
+        outputRange: ['-10deg', '10deg']
+    });
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -113,6 +166,24 @@ const AchievementsPage = () => {
         return userAchievements.some(achievement => achievement._id === achievementId);
     };
 
+    const handleDailyReward = async () => {
+        if (dailyRewardCollected) {
+            Alert.alert('Already Collected', 'You have already collected your daily reward today. Come back tomorrow!');
+            return;
+        }
+
+        try {
+            const result = await collectDailyReward();
+            setDailyRewardCollected(true);
+            setLastRewardDate(new Date());
+            setTotalPoints(result.totalPoints);
+            setAchievementXp(50);
+            setShowAchievementPopup(true);
+        } catch (err) {
+            Alert.alert('Error', err.message || 'Failed to collect daily reward');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView
@@ -125,36 +196,45 @@ const AchievementsPage = () => {
                     />
                 }
             >
-                {/* Claim Daily Reward Section */}
+                {/* Daily Reward Section */}
                 <View style={styles.cardContainer}>
-                    <Text style={styles.sectionTitle}>Claim Daily Reward</Text>
+                    <Text style={styles.sectionTitle}>Daily Reward</Text>
                     <View style={styles.rewardBox}>
-                        {dailyRewards.map((reward) => (
-                            <View key={reward.id} style={styles.rewardContainer}>
-                                <Image
-                                    source={rewardIcon}
-                                    style={[
-                                        styles.rewardImage,
-                                        reward.day < currentDay && styles.rewardImageDisabled,
-                                    ]}
-                                />
-                                <CircularButton
-                                    size={40}
-                                    text={`${reward.day}`}
-                                    color={
-                                        reward.day === selectedDay
-                                            ? COLORS.secondary
-                                            : COLORS.gray
-                                    }
-                                    textColor={
-                                        reward.day === currentDay ? COLORS.soft_pink_background : COLORS.neutral_base_dark
-                                    }
-                                    onPress={() => handlePress(reward.day)}
-                                    onlyText={true}
-                                    disabled={reward.day < currentDay}
-                                />
+                        <View style={styles.rewardContainer}>
+                            <View style={styles.rewardLeft}>
+                                <View style={styles.rewardInfo}>
+                                    <Text style={styles.rewardTitle}>Daily Gift</Text>
+                                    <Text style={styles.rewardSubtitle}>
+                                        {dailyRewardCollected 
+                                            ? "Come back tomorrow for another gift! 🎁" 
+                                            : "Tap the gift box to collect your daily reward! ✨"}
+                                    </Text>
+                                </View>
                             </View>
-                        ))}
+                            <View style={styles.rewardRight}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.rewardImageContainer,
+                                        {
+                                            transform: [
+                                                { rotate: rotateInterpolate },
+                                                { scale: 1.1 }
+                                            ]
+                                        }
+                                    ]}
+                                    onPress={handleDailyReward}
+                                    disabled={dailyRewardCollected}
+                                >
+                                    <Image
+                                        source={rewardIcon}
+                                        style={[
+                                            styles.rewardImage,
+                                            dailyRewardCollected && styles.rewardImageDisabled,
+                                        ]}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
                 </View>
 

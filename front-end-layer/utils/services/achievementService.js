@@ -53,4 +53,30 @@ export const collectAchievementReward = async (achievementId) => {
     } catch (error) {
         throw error;
     }
+};
+
+export const collectDailyReward = async () => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/achievements/daily-reward/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to collect daily reward');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        throw error;
+    }
 }; 

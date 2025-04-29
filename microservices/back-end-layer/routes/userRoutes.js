@@ -14,6 +14,8 @@ import rateLimit from 'express-rate-limit';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../config/emailService.js';
 import { createNotification } from '../utils/notificationUtils.js';
 import crypto from 'crypto';
+import multer from 'multer';
+import { uploadToS3, generateProfilePictureKey, deleteFromS3 } from '../config/s3Config.js';
 const router = express.Router(); // Router middleware
 
 const MINUTES_15 = 15000 * 60 * 1000;
@@ -487,6 +489,22 @@ router.delete('/:userId', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const followingUsers = await User.find({ _id: { $in: user.following } });
+        
+        for (const followingUser of followingUsers) {
+            followingUser.followerCount = Math.max(0, followingUser.followerCount - 1);
+            followingUser.followers = followingUser.followers.filter(id => !id.equals(user._id));
+            await followingUser.save();
+        }
+
+        const followerUsers = await User.find({ _id: { $in: user.followers } });
+        
+        for (const followerUser of followerUsers) {
+            followerUser.followingCount = Math.max(0, followerUser.followingCount - 1);
+            followerUser.following = followerUser.following.filter(id => !id.equals(user._id));
+            await followerUser.save();
+        }
+
         await User.findByIdAndDelete(userId);
         res.status(200).json({ message: 'Account deleted successfully' });
     } catch (error) {
@@ -721,6 +739,90 @@ router.post('/unfollow', async (req, res) => {
             error: error.message,
             stack: error.stack 
         });
+    }
+});
+
+// Configure multer for memory storage
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+});
+
+// Update user profile
+router.put('/profile', upload.single('profilePicture'), async (req, res) => {
+    try {
+        const { userId, username } = req.body;
+        
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update username if provided
+        if (username) {
+            user.username = username;
+        }
+
+        // Handle profile picture upload
+        if (req.file) {
+            try {
+                // Generate a unique key for the new profile picture
+                const key = generateProfilePictureKey(userId);
+                
+                // Create a proper file object for S3
+                const file = {
+                    buffer: req.file.buffer,
+                    mimetype: req.file.mimetype
+                };
+                
+                // Upload to S3
+                const imageUrl = await uploadToS3(file, key);
+                
+                // Delete old profile picture from S3 if it exists
+                if (user.profilePicture) {
+                    const oldKey = user.profilePicture.split('/profile-pictures/')[1];
+                    if (oldKey) {
+                        try {
+                            await deleteFromS3(`profile-pictures/${oldKey}`);
+                        } catch (error) {
+                            console.error('Error deleting old profile picture:', error);
+                        }
+                    }
+                }
+                
+                user.profilePicture = imageUrl;
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                return res.status(500).json({ message: 'Error uploading profile picture' });
+            }
+        }
+
+        await user.save();
+        
+        res.status(200).json({
+            message: 'Profile updated successfully',
+            user: {
+                userId: user.userId,
+                username: user.username,
+                profilePicture: user.profilePicture
+            }
+        });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 

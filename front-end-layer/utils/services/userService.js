@@ -175,4 +175,18 @@ export const unfollowUser = async (followedId) => {
         console.error('Error unfollowing user:', error);
         throw error;
     }
+};
+
+export const updateUserProfile = async (formData) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/users/profile`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data.user;
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        throw new Error(error.response?.data?.message || 'Failed to update profile');
+    }
 }; 

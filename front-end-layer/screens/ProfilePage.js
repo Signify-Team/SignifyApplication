@@ -189,7 +189,7 @@ const ProfilePage = () => {
                     }
                 >
                     <ProfileCard
-                        profilePic={KoalaHand}
+                        profilePic={userData?.profilePicture ? { uri: userData.profilePicture } : KoalaHand}
                         username={userData?.username || 'Loading...'}
                         handle={`@${userData?.username || 'username'}`}
                         memberSince={new Date(userData?.createdAt).getFullYear().toString()}

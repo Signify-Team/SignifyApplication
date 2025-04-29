@@ -3,7 +3,7 @@
  * @description Displays the achievements and daily rewards of the user.
  *
  * @datecreated 20.12.2024
- * @lastmodified 20.12.2024
+ * @lastmodified 30.04.2025
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -11,6 +11,7 @@ import { View, Text, ScrollView, Image, Alert, RefreshControl } from 'react-nati
 import styles from '../styles/AchievementsStyles';
 import CircularButton from '../components/CircularButton';
 import AchievementCard from '../components/AchievementCard';
+import AchievementPopup from '../components/AchievementPopup';
 import { COLORS } from '../utils/constants';
 import rewardIcon from '../assets/icons/course-info/rewardIcon.png';
 import { fetchAllAchievements, fetchUserAchievements, collectAchievementReward } from '../utils/services/achievementService';
@@ -24,6 +25,9 @@ const AchievementsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
+    const [showAchievementPopup, setShowAchievementPopup] = useState(false);
+    const [achievementXp, setAchievementXp] = useState(0);
+    const [totalPoints, setTotalPoints] = useState(0);
 
     const dailyRewards = [
         { id: 1, day: 1 },
@@ -79,10 +83,21 @@ const AchievementsPage = () => {
                 return achievement;
             });
             setUserAchievements(updatedUserAchievements);
-            Alert.alert('Success', `Achievement collected! You earned ${result.totalPoints} XP!`);
+            
+            // Find the achievement in allAchievements to get its rewardPoints
+            const achievement = allAchievements.find(a => a._id === achievementId);
+            if (achievement) {
+                setAchievementXp(achievement.rewardPoints);
+            }
+            
+            setShowAchievementPopup(true);
         } catch (err) {
             Alert.alert('Error', err.message || 'Failed to collect achievement');
         }
+    };
+
+    const handlePopupClose = () => {
+        setShowAchievementPopup(false);
     };
 
     const isAchievementCollected = (achievementId) => {
@@ -187,6 +202,13 @@ const AchievementsPage = () => {
                         })
                 )}
             </ScrollView>
+
+            <AchievementPopup
+                visible={showAchievementPopup}
+                onClose={handlePopupClose}
+                xp={achievementXp}
+                totalPoints={totalPoints}
+            />
         </View>
     );
 };

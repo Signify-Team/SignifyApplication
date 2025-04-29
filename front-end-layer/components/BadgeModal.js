@@ -15,16 +15,24 @@ const BadgeModal = ({ visible, onClose, badge, userBadges }) => {
     if (!badge) return null;
 
     const hasBadge = userBadges?.some(userBadge => userBadge._id === badge._id);
+    const earnedBadge = userBadges?.find(userBadge => userBadge._id === badge._id);
 
     const formatDate = (dateString) => {
         try {
-            // Create a new Date object directly from the dateString
+            if (!dateString) return 'Date not available';
+            
             const date = new Date(dateString);
             if (isNaN(date.getTime())) {
                 return 'Date not available';
             }
-            return date.toLocaleDateString();
+            
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
         } catch (error) {
+            console.error('Error formatting date:', error);
             return 'Date not available';
         }
     };
@@ -64,7 +72,7 @@ const BadgeModal = ({ visible, onClose, badge, userBadges }) => {
                         {badge.iconUrl ? (
                             <Image 
                                 source={{ uri: badge.iconUrl }} 
-                                style={[styles.badgeIcon, !hasBadge && { opacity: 0.5 }]}
+                                style={[styles.badgeIcon, !hasBadge && { opacity: 0.7 }]}
                                 resizeMode="contain"
                                 onError={handleImageError}
                                 onLoad={handleImageLoad}
@@ -75,7 +83,7 @@ const BadgeModal = ({ visible, onClose, badge, userBadges }) => {
                         <Text style={[styles.modalDescription, textStyle]}>{badge.description}</Text>
                         {hasBadge ? (
                             <Text style={[styles.modalDate, textStyle]}>
-                                Earned on {formatDate(badge.dateEarned)}
+                                Earned on {formatDate(earnedBadge?.dateEarned)}
                             </Text>
                         ) : (
                             <Text style={[styles.modalDate, textStyle, { color: COLORS.neutral_base_dark, opacity: 0.7 }]}>

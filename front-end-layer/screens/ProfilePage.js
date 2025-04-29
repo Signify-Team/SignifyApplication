@@ -167,7 +167,7 @@ const ProfilePage = () => {
             <View style={styles.badgesGrid}>
                 {[...Array(4)].map((_, index) => {
                     const badge = badges[startIndex + index];
-                    const hasBadge = userBadges.some(userBadge => userBadge._id === badge._id);
+                    const hasBadge = userBadges.some(userBadge => userBadge._id === badge?._id);
                     
                     return (
                         <View key={index} style={styles.badgeCard}>
@@ -182,7 +182,7 @@ const ProfilePage = () => {
                                         icon={badge.iconUrl ? { uri: badge.iconUrl } : AchievementIcon}
                                         showIcon={true}
                                         showText={false}
-                                        iconStyle={!hasBadge ? { opacity: 0.3 } : {}}
+                                        iconStyle={!hasBadge ? { opacity: 0.7 } : {}}
                                     />
                                 </TouchableOpacity>
                             ) : (
@@ -277,6 +277,9 @@ const ProfilePage = () => {
                             width={'49%'}
                             icon={FireIcon}
                             value={userData?.streakCount || 0}
+                            showIcon={true}
+                            showText={false}
+                            iconStyle={{ width: 24, height: 24 }}
                         />
                         <StatsCard
                             height={height * SIZES.statsContainer}
@@ -292,7 +295,7 @@ const ProfilePage = () => {
                             height={height * SIZES.statsContainer}
                             width={'49%'}
                             text="Progress"
-                            value={`${progressPercentage}%`} // Use calculated percentage
+                            value={`${progressPercentage}%`}
                             showIcon={false}
                             showText={true}
                         />

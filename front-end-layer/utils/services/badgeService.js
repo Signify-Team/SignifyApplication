@@ -10,20 +10,25 @@ import { API_BASE_URL } from '../config';
 
 export const fetchUserBadges = async (badgeIds) => {
   try {
+    if (!badgeIds || badgeIds.length === 0) {
+      return [];
+    }
     const response = await axios.get(`${API_BASE_URL}/badges/batch`, {
       params: { badgeIds: badgeIds.join(',') }
     });
-    return response.data;
+    return response.data || [];
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to fetch user badges');
+    console.error('Error fetching user badges:', error);
+    return [];
   }
 };
 
 export const fetchAllBadges = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/badges`);
-    return response.data;
+    return response.data || [];
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to fetch all badges');
+    console.error('Error fetching all badges:', error);
+    return [];
   }
 }; 

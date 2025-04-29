@@ -11,8 +11,10 @@ import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { COLORS, FONTS } from '../utils/constants';
 import styles from '../styles/ProfileCardStyle';
 
-const BadgeModal = ({ visible, onClose, badge }) => {
+const BadgeModal = ({ visible, onClose, badge, userBadges }) => {
     if (!badge) return null;
+
+    const hasBadge = userBadges?.some(userBadge => userBadge._id === badge._id);
 
     const formatDate = (dateString) => {
         try {
@@ -51,9 +53,15 @@ const BadgeModal = ({ visible, onClose, badge }) => {
                     </View>
                     <View style={styles.modalBody}>
                         <Text style={[styles.modalDescription, textStyle]}>{badge.description}</Text>
-                        <Text style={[styles.modalDate, textStyle]}>
-                            Earned on {formatDate(badge.dateEarned)}
-                        </Text>
+                        {hasBadge ? (
+                            <Text style={[styles.modalDate, textStyle]}>
+                                Earned on {formatDate(badge.dateEarned)}
+                            </Text>
+                        ) : (
+                            <Text style={[styles.modalDate, textStyle, { color: COLORS.neutral_base_dark, opacity: 0.7 }]}>
+                                Not earned yet
+                            </Text>
+                        )}
                     </View>
                 </View>
             </View>

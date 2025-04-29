@@ -17,4 +17,13 @@ export const fetchUserBadges = async (badgeIds) => {
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch user badges');
   }
+};
+
+export const fetchAllBadges = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/badges`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch all badges');
+  }
 }; 

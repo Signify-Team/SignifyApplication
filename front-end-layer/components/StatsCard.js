@@ -27,7 +27,7 @@ const StatsCard = ({
     return (
         <View style={[styles.statsContainer, { height: statsHeight, width: statsWidth }]}>
             {isBadgeCard ? (
-                <View style={styles.badgeContainer}>
+                <View style={[styles.badgeContainer, iconStyle]}>
                     <Image source={icon} style={[styles.statsIcon, iconStyle]} />
                 </View>
             ) : (

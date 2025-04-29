@@ -19,7 +19,7 @@ export const uploadToS3 = async (file, key) => {
             Key: key,
             Body: file.buffer,
             ContentType: file.mimetype,
-            ACL: 'aws-exec-read'
+            ACL: 'public-read'
         };
 
         const result = await s3.upload(params).promise();

@@ -91,6 +91,16 @@ export default StyleSheet.create({
         fontFamily: 'Poppins-Bold',
         fontWeight: 'bold',
     },
+    editButton: {
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20,
+    },
+    editButtonText: {
+        color: COLORS.white,
+        fontWeight: 'bold',
+    },
     header: {
         fontFamily: FONTS.baloo_font,
         fontSize: 30,

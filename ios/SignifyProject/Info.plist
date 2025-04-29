@@ -56,6 +56,8 @@
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need access to your microphone to record videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to let you choose a profile picture</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PassionOne-Black.ttf</string>

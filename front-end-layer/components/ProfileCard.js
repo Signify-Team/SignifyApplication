@@ -7,18 +7,82 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import styles from '../styles/ProfileCardStyle';
 import { updateUserProfile } from '../utils/services/userService';
+import { getUserId } from '../utils/services/authService';
 
-const ProfileCard = ({ profilePic, username, handle, memberSince }) => {
+const ProfileCard = ({ profilePic, username, handle, memberSince, onProfilePicUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [newUsername, setNewUsername] = useState(username);
+    const [newProfilePic, setNewProfilePic] = useState(profilePic);
+
+    const handleProfilePicChange = async () => {
+        try {
+            const options = {
+                mediaType: 'photo',
+                quality: 0.8,
+                maxWidth: 500,
+                maxHeight: 500,
+                includeBase64: false,
+                selectionLimit: 1,
+                saveToPhotos: false,
+                presentationStyle: 'fullScreen'
+            };
+
+            const response = await launchImageLibrary(options);
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+                return;
+            }
+
+            if (response.errorCode) {
+                console.error('ImagePicker Error: ', response.errorMessage);
+                return;
+            }
+
+            if (!response.assets || response.assets.length === 0) {
+                console.log('No assets selected');
+                return;
+            }
+
+            const userId = await getUserId();
+            if (!userId) {
+                throw new Error('No user ID found. Please log in again.');
+            }
+
+            const formData = new FormData();
+            formData.append('userId', userId);
+            
+            const imageFile = {
+                uri: response.assets[0].uri,
+                type: response.assets[0].type || 'image/jpeg',
+                name: response.assets[0].fileName || 'profile.jpg',
+            };
+            
+            formData.append('profilePicture', imageFile);
+
+            const updatedUser = await updateUserProfile(formData);
+            setNewProfilePic(updatedUser.profilePicture);
+            if (onProfilePicUpdate) {
+                onProfilePicUpdate(updatedUser.profilePicture);
+            }
+        } catch (error) {
+            console.error('Error updating profile picture:', error);
+        }
+    };
 
     const handleSave = async () => {
         try {
+            const userId = await getUserId();
+            if (!userId) {
+                throw new Error('No user ID found. Please log in again.');
+            }
+            
             const formData = new FormData();
-            formData.append('userId', handle.replace('@', ''));
+            formData.append('userId', userId);
             formData.append('username', newUsername);
             await updateUserProfile(formData);
             setIsEditing(false);
@@ -30,7 +94,19 @@ const ProfileCard = ({ profilePic, username, handle, memberSince }) => {
     return (
         <View style={styles.profileCard}>
             <View style={styles.avatarContainer}>
-                <Image source={profilePic} style={styles.avatar} />
+                {isEditing ? (
+                    <TouchableOpacity 
+                        style={[styles.avatar, { justifyContent: 'center', alignItems: 'center' }]}
+                        onPress={handleProfilePicChange}
+                    >
+                        <Text style={styles.addPhotoButtonText}>+</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <Image 
+                        source={newProfilePic ? { uri: newProfilePic } : profilePic} 
+                        style={styles.avatar} 
+                    />
+                )}
             </View>
             <View style={styles.infoContainer}>
                 {isEditing ? (

@@ -42,7 +42,7 @@ export const awardFirstSignMasterBadge = async (userId) => {
         badgeId: 'firstSignMaster',
         name: 'First Sign Master',
         description: 'Complete your very first course.',
-        iconUrl: ''
+        iconUrl: 'https://signifyappbucket.s3.eu-north-1.amazonaws.com/BADGE_DATA/First-Sign-Master.png'
       });
       
       if (createResponse.data && createResponse.data.badge) {

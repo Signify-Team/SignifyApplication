@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, Image } from 'react-native';
 import { COLORS, FONTS } from '../utils/constants';
 import styles from '../styles/ProfileCardStyle';
 
@@ -36,6 +36,15 @@ const BadgeModal = ({ visible, onClose, badge, userBadges }) => {
         color: COLORS.neutral_base_dark
     };
 
+    const handleImageError = (error) => {
+        console.error('Error loading badge icon:', error.nativeEvent.error);
+        console.error('Badge icon URL:', badge.iconUrl);
+    };
+
+    const handleImageLoad = () => {
+        console.log('Badge icon loaded successfully:', badge.iconUrl);
+    };
+
     return (
         <Modal
             visible={visible}
@@ -52,6 +61,17 @@ const BadgeModal = ({ visible, onClose, badge, userBadges }) => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.modalBody}>
+                        {badge.iconUrl ? (
+                            <Image 
+                                source={{ uri: badge.iconUrl }} 
+                                style={[styles.badgeIcon, !hasBadge && { opacity: 0.5 }]}
+                                resizeMode="contain"
+                                onError={handleImageError}
+                                onLoad={handleImageLoad}
+                            />
+                        ) : (
+                            <Text style={[textStyle, { marginBottom: 10 }]}>No icon available</Text>
+                        )}
                         <Text style={[styles.modalDescription, textStyle]}>{badge.description}</Text>
                         {hasBadge ? (
                             <Text style={[styles.modalDate, textStyle]}>

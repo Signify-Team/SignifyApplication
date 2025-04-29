@@ -179,7 +179,7 @@ const ProfilePage = () => {
                                     <StatsCard
                                         height={height * SIZES.badgesContainer}
                                         width={'100%'}
-                                        icon={AchievementIcon}
+                                        icon={badge.iconUrl ? { uri: badge.iconUrl } : AchievementIcon}
                                         showIcon={true}
                                         showText={false}
                                         iconStyle={!hasBadge ? { opacity: 0.3 } : {}}

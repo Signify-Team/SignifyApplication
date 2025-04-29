@@ -24,17 +24,31 @@ const StatsCard = ({
     const isStreakCard = icon && !text;
     const isBadgeCard = icon && !text && !value;
 
+    const handleImageError = (error) => {
+        console.error('Error loading image:', error.nativeEvent.error);
+    };
+
     return (
         <View style={[styles.statsContainer, { height: statsHeight, width: statsWidth }]}>
             {isBadgeCard ? (
                 <View style={[styles.badgeContainer, iconStyle]}>
-                    <Image source={icon} style={[styles.statsIcon, iconStyle]} />
+                    <Image 
+                        source={icon} 
+                        style={[styles.statsIcon, iconStyle]} 
+                        onError={handleImageError}
+                        onLoad={() => console.log('Image loaded successfully:', icon)}
+                    />
                 </View>
             ) : (
                 <View style={styles.statsContent}>
                     {isStreakCard ? (
                         <View style={styles.statsRow}>
-                            <Image source={icon} style={[styles.statsIcon, iconStyle]} />
+                            <Image 
+                                source={icon} 
+                                style={[styles.statsIcon, iconStyle]} 
+                                onError={handleImageError}
+                                onLoad={() => console.log('Image loaded successfully:', icon)}
+                            />
                             <Text style={[styles.statsValue, textStyle]}>{value}</Text>
                         </View>
                     ) : (

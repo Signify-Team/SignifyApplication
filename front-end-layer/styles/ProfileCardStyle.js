@@ -222,8 +222,13 @@ export default StyleSheet.create({
         lineHeight: 24,
     },
     modalBody: {
-        alignItems: 'flex-start',
-        width: '100%',
+        padding: 20,
+        alignItems: 'center',
+    },
+    badgeIcon: {
+        width: 100,
+        height: 100,
+        marginBottom: 20,
     },
     modalDate: {
         fontFamily: FONTS.poppins_font,

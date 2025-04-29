@@ -15,6 +15,7 @@ import {
     Image,
     StyleSheet,
     Dimensions,
+    TextInput,
 } from 'react-native';
 import { COLORS, FONTS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
@@ -24,6 +25,8 @@ const { width, height } = Dimensions.get('window');
 
 const DictionaryPage = ({ navigation, route }) => {
   const [words, setWords] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredWords, setFilteredWords] = useState([]);
 
   useEffect(() => {
     const loadDictionary = async () => {
@@ -37,6 +40,7 @@ const DictionaryPage = ({ navigation, route }) => {
           fetchedWords = await fetchAllUnlockedCourseWords();
         }
         setWords(fetchedWords);
+        setFilteredWords(fetchedWords);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -47,6 +51,17 @@ const DictionaryPage = ({ navigation, route }) => {
 
     loadDictionary();
   }, [route.params?.courseId]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredWords(words);
+    } else {
+      const filtered = words.filter(word => 
+        word.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredWords(filtered);
+    }
+  }, [searchQuery, words]);
 
   const handleWordPress = (wordObj) => {
     navigation.navigate('WordVideo', {
@@ -66,9 +81,19 @@ const DictionaryPage = ({ navigation, route }) => {
                 <Text style={styles.pageTitle}>Dictionary</Text>
             </View>
 
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search words..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholderTextColor={COLORS.neutral_base_dark}
+                />
+            </View>
+
             <FlatList
               contentContainerStyle={styles.wordList}
-              data={words}
+              data={filteredWords}
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -128,6 +153,24 @@ const styles = StyleSheet.create({
         fontSize: width * 0.045,
         fontFamily: FONTS.poppins_font,
         color: COLORS.neutral_base_dark,
+    },
+    searchContainer: {
+        paddingHorizontal: width * 0.04,
+        marginBottom: height * 0.015,
+    },
+    searchInput: {
+        backgroundColor: COLORS.white,
+        borderRadius: 12,
+        paddingVertical: height * 0.015,
+        paddingHorizontal: width * 0.04,
+        fontSize: width * 0.04,
+        fontFamily: FONTS.poppins_font,
+        color: COLORS.neutral_base_dark,
+        elevation: 2,
+        shadowColor: COLORS.neutral_base_dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
 });
 

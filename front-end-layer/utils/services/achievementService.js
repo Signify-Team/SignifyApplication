@@ -6,42 +6,51 @@
  */
 
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_BASE_URL } from '../config';
 import { getUserId } from './authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const achievementService = {
-    // Fetch all achievements
-    fetchAllAchievements: async () => {
-        try {
-            const response = await axios.get(`${API_URL}/achievements`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching achievements:', error);
-            throw error;
-        }
-    },
-
-    // Fetch user's achievements
-    fetchUserAchievements: async (userId) => {
-        try {
-            const response = await axios.get(`${API_URL}/achievements/users/${userId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching user achievements:', error);
-            throw error;
-        }
-    },
-
-    // Collect achievement reward
-    collectAchievementReward: async (userId, achievementId) => {
-        try {
-            const response = await axios.post(`${API_URL}/achievements/users/${userId}/${achievementId}/collect`);
-            return response.data;
-        } catch (error) {
-            console.error('Error collecting achievement reward:', error);
-            throw error;
-        }
+export const fetchAllAchievements = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/achievements`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch all achievements');
     }
 };
 
-export default achievementService; 
+export const fetchUserAchievements = async () => {
+    try {
+        const userId = await getUserId();
+        if (!userId) {
+            throw new Error('No user ID found. Please log in again.');
+        }
+        const response = await axios.get(`${API_BASE_URL}/achievements/users/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch user achievements');
+    }
+};
+
+export const collectAchievementReward = async (achievementId) => {
+    try {
+        const userId = await AsyncStorage.getItem('userId');
+        const response = await fetch(`${API_BASE_URL}/achievements/users/${userId}/${achievementId}/collect`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to collect achievement');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error collecting achievement:', error);
+        throw error;
+    }
+}; 

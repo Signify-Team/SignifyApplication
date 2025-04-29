@@ -6,30 +6,48 @@
  * @lastmodified 20.12.2024
  */
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
-import { COLORS } from '../utils/constants';
-import achievementService from '../utils/services/achievementService';
-import { getUserId } from '../utils/services/authService';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, ScrollView, Image, Alert, RefreshControl } from 'react-native';
+import styles from '../styles/AchievementsStyles';
+import CircularButton from '../components/CircularButton';
 import AchievementCard from '../components/AchievementCard';
+import { COLORS } from '../utils/constants';
+import rewardIcon from '../assets/icons/course-info/rewardIcon.png';
+import { fetchAllAchievements, fetchUserAchievements, collectAchievementReward } from '../utils/services/achievementService';
 
 const AchievementsPage = () => {
-    const [achievements, setAchievements] = useState([]);
+    const [currentDay, setCurrentDay] = useState(3); // Example: Day 3 is the current day
+    const [selectedDay, setSelectedDay] = useState(currentDay);
+    const [allAchievements, setAllAchievements] = useState([]);
+    const [userAchievements, setUserAchievements] = useState([]);
+    const [collectedAchievements, setCollectedAchievements] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const fetchAchievements = async () => {
+    const dailyRewards = [
+        { id: 1, day: 1 },
+        { id: 2, day: 2 },
+        { id: 3, day: 3 },
+        { id: 4, day: 4 },
+    ];
+
+    const loadAchievements = async () => {
         try {
+            setLoading(true);
+            const [allAchievementsData, userAchievementsData] = await Promise.all([
+                fetchAllAchievements(),
+                fetchUserAchievements()
+            ]);
+            console.log('All Achievements:', JSON.stringify(allAchievementsData, null, 2));
+            console.log('User Achievements:', JSON.stringify(userAchievementsData, null, 2));
+            
+            setAllAchievements(allAchievementsData);
+            setUserAchievements(userAchievementsData);
             setError(null);
-            const userId = await getUserId();
-            if (!userId) {
-                throw new Error('No user ID found. Please log in again.');
-            }
-            const userAchievements = await achievementService.fetchUserAchievements(userId);
-            setAchievements(userAchievements);
         } catch (err) {
             setError(err.message);
+            Alert.alert('Error', 'Failed to load achievements. Please try again later.');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -37,58 +55,53 @@ const AchievementsPage = () => {
     };
 
     useEffect(() => {
-        fetchAchievements();
+        loadAchievements();
     }, []);
 
-    const handleCollectReward = async (achievementId) => {
-        try {
-            const userId = await getUserId();
-            if (!userId) {
-                throw new Error('No user ID found. Please log in again.');
-            }
-            await achievementService.collectAchievementReward(userId, achievementId);
-            // Refresh achievements after collecting
-            fetchAchievements();
-        } catch (err) {
-            setError(err.message);
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        loadAchievements();
+    }, []);
+
+    const handlePress = (day) => {
+        if (day === currentDay) {
+            setSelectedDay(day);
         }
     };
 
-    const onRefresh = () => {
-        setRefreshing(true);
-        fetchAchievements();
+    const handleCollectAchievement = async (achievementId) => {
+        try {
+            const result = await collectAchievementReward(achievementId);
+            const updatedUserAchievements = userAchievements.map(achievement => {
+                if (achievement._id === achievementId) {
+                    return { ...achievement, collected: true };
+                }
+                return achievement;
+            });
+            setUserAchievements(updatedUserAchievements);
+            Alert.alert('Success', `Achievement collected! You earned 100 XP! Your total XP is now ${result.xp}`);
+        } catch (err) {
+            Alert.alert('Error', err.message || 'Failed to collect achievement');
+        }
     };
 
-    if (loading) {
-        return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color={COLORS.primary} />
-            </View>
-        );
-    }
+    const isAchievementCollected = (achievementId) => {
+        const userAchievement = userAchievements.find(userAchievement => userAchievement._id === achievementId);
+        console.log('Checking achievement:', {
+            achievementId,
+            userAchievement,
+            isCollected: userAchievement?.collected || false
+        });
+        return userAchievement?.collected || false;
+    };
 
-    if (error) {
-        return (
-            <View style={styles.container}>
-                <Text style={styles.errorText}>{error}</Text>
-            </View>
-        );
-    }
+    const isAchievementUnlocked = (achievementId) => {
+        return userAchievements.some(achievement => achievement._id === achievementId);
+    };
 
     return (
         <View style={styles.container}>
-            <FlatList
-                data={achievements}
-                keyExtractor={(item) => item.achievementId._id}
-                renderItem={({ item }) => (
-                    <AchievementCard
-                        achievement={item.achievementId}
-                        unlocked={item.unlocked}
-                        collected={item.collected}
-                        dateEarned={item.dateEarned}
-                        onCollect={() => handleCollectReward(item.achievementId._id)}
-                    />
-                )}
+            <ScrollView
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -97,22 +110,85 @@ const AchievementsPage = () => {
                         tintColor={COLORS.primary}
                     />
                 }
-            />
+            >
+                {/* Claim Daily Reward Section */}
+                <View style={styles.cardContainer}>
+                    <Text style={styles.sectionTitle}>Claim Daily Reward</Text>
+                    <View style={styles.rewardBox}>
+                        {dailyRewards.map((reward) => (
+                            <View key={reward.id} style={styles.rewardContainer}>
+                                <Image
+                                    source={rewardIcon}
+                                    style={[
+                                        styles.rewardImage,
+                                        reward.day < currentDay && styles.rewardImageDisabled,
+                                    ]}
+                                />
+                                <CircularButton
+                                    size={40}
+                                    text={`${reward.day}`}
+                                    color={
+                                        reward.day === selectedDay
+                                            ? COLORS.secondary
+                                            : COLORS.gray
+                                    }
+                                    textColor={
+                                        reward.day === currentDay ? COLORS.soft_pink_background : COLORS.neutral_base_dark
+                                    }
+                                    onPress={() => handlePress(reward.day)}
+                                    onlyText={true}
+                                    disabled={reward.day < currentDay}
+                                />
+                            </View>
+                        ))}
+                    </View>
+                </View>
+
+                {/* Achievements Section */}
+                <Text style={styles.sectionTitle}>Achievements</Text>
+                {loading ? (
+                    <Text style={styles.loadingText}>Loading achievements...</Text>
+                ) : error ? (
+                    <Text style={styles.errorText}>{error}</Text>
+                ) : (
+                    allAchievements
+                        .sort((a, b) => {
+                            const aUnlocked = isAchievementUnlocked(a._id);
+                            const bUnlocked = isAchievementUnlocked(b._id);
+                            const aCollected = isAchievementCollected(a._id);
+                            const bCollected = isAchievementCollected(b._id);
+
+                            // First priority: unlocked but not collected
+                            if (aUnlocked && !aCollected && !(bUnlocked && !bCollected)) return -1;
+                            if (bUnlocked && !bCollected && !(aUnlocked && !aCollected)) return 1;
+
+                            // Second priority: locked achievements
+                            if (!aUnlocked && bUnlocked) return -1;
+                            if (!bUnlocked && aUnlocked) return 1;
+
+                            // Third priority: collected achievements
+                            if (aCollected && !bCollected) return 1;
+                            if (bCollected && !aCollected) return -1;
+
+                            return 0;
+                        })
+                        .map((achievement) => {
+                            const isUnlocked = isAchievementUnlocked(achievement._id);
+                            return (
+                                <AchievementCard
+                                    key={achievement._id}
+                                    title={achievement.name}
+                                    description={achievement.description}
+                                    isCollectable={isUnlocked}
+                                    isCollected={isAchievementCollected(achievement._id)}
+                                    onCollect={() => handleCollectAchievement(achievement._id)}
+                                />
+                            );
+                        })
+                )}
+            </ScrollView>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-        padding: 16,
-    },
-    errorText: {
-        color: COLORS.error,
-        textAlign: 'center',
-        marginTop: 20,
-    },
-});
 
 export default AchievementsPage;

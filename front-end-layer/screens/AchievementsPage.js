@@ -79,7 +79,7 @@ const AchievementsPage = () => {
                 return achievement;
             });
             setUserAchievements(updatedUserAchievements);
-            Alert.alert('Success', `Achievement collected! You earned 100 XP! Your total XP is now ${result.xp}`);
+            Alert.alert('Success', `Achievement collected! You earned ${result.totalPoints} XP!`);
         } catch (err) {
             Alert.alert('Error', err.message || 'Failed to collect achievement');
         }

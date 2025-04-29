@@ -174,11 +174,15 @@ const AchievementsPage = () => {
 
         try {
             const result = await collectDailyReward();
-            setDailyRewardCollected(true);
-            setLastRewardDate(new Date());
-            setTotalPoints(result.totalPoints);
-            setAchievementXp(50);
-            setShowAchievementPopup(true);
+            if (result && result.totalPoints !== undefined) {
+                setDailyRewardCollected(true);
+                setLastRewardDate(new Date());
+                setTotalPoints(result.totalPoints);
+                setAchievementXp(50);
+                setShowAchievementPopup(true);
+            } else {
+                throw new Error('Invalid response from server');
+            }
         } catch (err) {
             Alert.alert('Error', err.message || 'Failed to collect daily reward');
         }

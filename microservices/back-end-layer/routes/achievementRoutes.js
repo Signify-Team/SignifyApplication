@@ -189,20 +189,39 @@ router.post('/users/:userId/:achievementId/collect', async (req, res) => {
 // Daily reward route
 router.post('/daily-reward/:userId', async (req, res) => {
     try {
+        console.log('Daily reward request received for user:', req.params.userId);
+        
+        if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+            console.log('Invalid user ID format:', req.params.userId);
+            return res.status(400).json({ 
+                message: 'Invalid user ID format',
+                error: 'Invalid user ID'
+            });
+        }
+
         const user = await User.findById(req.params.userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            console.log('User not found:', req.params.userId);
+            return res.status(404).json({ 
+                message: 'User not found',
+                error: 'User not found'
+            });
         }
 
         // Check if user has already collected reward today
         const today = new Date();
         const lastRewardDate = user.lastRewardDate ? new Date(user.lastRewardDate) : null;
+        console.log('Last reward date:', lastRewardDate);
 
         if (lastRewardDate && 
             lastRewardDate.getDate() === today.getDate() &&
             lastRewardDate.getMonth() === today.getMonth() &&
             lastRewardDate.getFullYear() === today.getFullYear()) {
-            return res.status(400).json({ message: 'Daily reward already collected today' });
+            console.log('Reward already collected today');
+            return res.status(400).json({ 
+                message: 'Daily reward already collected today',
+                error: 'Reward already collected'
+            });
         }
 
         // Award 50 points and update last reward date
@@ -215,7 +234,11 @@ router.post('/daily-reward/:userId', async (req, res) => {
             totalPoints: user.totalPoints 
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error in daily reward route:', error);
+        res.status(500).json({ 
+            message: 'Error collecting daily reward',
+            error: error.message 
+        });
     }
 });
 

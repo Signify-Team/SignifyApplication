@@ -43,8 +43,6 @@ const AchievementsPage = () => {
                 fetchAllAchievements(),
                 fetchUserAchievements()
             ]);
-            console.log('All Achievements:', JSON.stringify(allAchievementsData, null, 2));
-            console.log('User Achievements:', JSON.stringify(userAchievementsData, null, 2));
             
             setAllAchievements(allAchievementsData);
             setUserAchievements(userAchievementsData);
@@ -108,11 +106,6 @@ const AchievementsPage = () => {
 
     const isAchievementCollected = (achievementId) => {
         const userAchievement = userAchievements.find(userAchievement => userAchievement._id === achievementId);
-        console.log('Checking achievement:', {
-            achievementId,
-            userAchievement,
-            isCollected: userAchievement?.collected || false
-        });
         return userAchievement?.collected || false;
     };
 

@@ -97,7 +97,6 @@ router.put('/:id', updateAchievementValidation, async (req, res) => {
 
         return res.status(200).json(updatedAchievement);
     } catch (error) {
-        console.error('Error updating achievement:', error);
         return res.status(500).json({
             message: 'Error updating achievement',
             error: error,
@@ -183,7 +182,6 @@ router.post('/users/:userId/:achievementId/collect', async (req, res) => {
             totalPoints: user.totalPoints 
         });
     } catch (error) {
-        console.error('Error collecting achievement:', error);
         res.status(500).json({ error: error.message });
     }
 });

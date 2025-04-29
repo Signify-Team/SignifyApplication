@@ -51,7 +51,6 @@ export const collectAchievementReward = async (achievementId) => {
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Error collecting achievement:', error);
         throw error;
     }
 }; 

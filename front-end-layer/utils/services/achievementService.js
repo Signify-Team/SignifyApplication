@@ -34,7 +34,8 @@ export const fetchUserAchievements = async () => {
 
 export const collectAchievementReward = async (achievementId) => {
     try {
-        const userId = await AsyncStorage.getItem('userId');
+        const userId = await getUserId();
+
         const response = await fetch(`${API_BASE_URL}/achievements/users/${userId}/${achievementId}/collect`, {
             method: 'POST',
             headers: {

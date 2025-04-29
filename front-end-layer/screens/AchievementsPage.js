@@ -221,8 +221,8 @@ const AchievementsPage = () => {
                                         styles.rewardImageContainer,
                                         {
                                             transform: [
-                                                { rotate: rotateInterpolate },
-                                                { scale: 1.1 }
+                                                { rotate: dailyRewardCollected ? '0deg' : rotateInterpolate },
+                                                { scale: dailyRewardCollected ? 1 : 1.1 }
                                             ]
                                         }
                                     ]}
@@ -231,10 +231,7 @@ const AchievementsPage = () => {
                                 >
                                     <Image
                                         source={rewardIcon}
-                                        style={[
-                                            styles.rewardImage,
-                                            dailyRewardCollected && styles.rewardImageDisabled,
-                                        ]}
+                                        style={styles.rewardImage}
                                     />
                                 </TouchableOpacity>
                             </View>

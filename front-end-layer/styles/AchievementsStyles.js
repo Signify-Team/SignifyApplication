@@ -15,14 +15,15 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.neutral_base_soft,
         padding: height * 0.02,
-        paddingTop: height * 0.08,
+        paddingTop: height * 0.06,
+        paddingBottom: 0,
     },
     cardContainer: {
         backgroundColor: COLORS.soft_container_color,
         borderRadius: 20,
-        paddingVertical: height * 0.025,
+        paddingVertical: height * 0.02,
         paddingHorizontal: width * 0.05,
-        marginBottom: height * 0.02,
+        marginBottom: height * 0.03,
         shadowColor: COLORS.neutral_base_dark,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
@@ -32,7 +33,7 @@ export default StyleSheet.create({
         fontFamily: FONTS.poppins_font,
         color: COLORS.neutral_base_dark,
         textAlign: 'center',
-        marginBottom: height * 0.018,
+        marginBottom: height * 0.01,
     },
     rewardBox: {
         flexDirection: 'row',
@@ -79,9 +80,6 @@ export default StyleSheet.create({
         width: 60,
         height: 60,
         resizeMode: 'contain',
-    },
-    rewardImageDisabled: {
-        opacity: 0.4,
     },
     rewardInfo: {
         flex: 1,

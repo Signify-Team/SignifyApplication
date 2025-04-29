@@ -15,7 +15,7 @@ import { sendVerificationEmail, sendResetPasswordEmail } from '../config/emailSe
 import { createNotification } from '../utils/notificationUtils.js';
 import crypto from 'crypto';
 import multer from 'multer';
-import { uploadToS3, generateProfilePictureKey } from '../config/s3Config.js';
+import { uploadToS3, generateProfilePictureKey, deleteFromS3 } from '../config/s3Config.js';
 const router = express.Router(); // Router middleware
 
 const MINUTES_15 = 15000 * 60 * 1000;
@@ -782,14 +782,20 @@ router.put('/profile', upload.single('profilePicture'), async (req, res) => {
                 // Generate a unique key for the new profile picture
                 const key = generateProfilePictureKey(userId);
                 
+                // Create a proper file object for S3
+                const file = {
+                    buffer: req.file.buffer,
+                    mimetype: req.file.mimetype
+                };
+                
                 // Upload to S3
-                const imageUrl = await uploadToS3(req.file, key);
+                const imageUrl = await uploadToS3(file, key);
                 
                 // If user had a previous profile picture, we could delete it here
-                // if (user.profilePicture) {
-                //     const oldKey = user.profilePicture.split('/').pop();
-                //     await deleteFromS3(oldKey);
-                // }
+                if (user.profilePicture) {
+                    const oldKey = user.profilePicture.split('/').pop();
+                    await deleteFromS3(oldKey);
+                }
                 
                 user.profilePicture = imageUrl;
             } catch (error) {

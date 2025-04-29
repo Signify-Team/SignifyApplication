@@ -58,8 +58,8 @@ const ProfileCard = ({ profilePic, username, handle, memberSince, onProfilePicUp
             
             const imageFile = {
                 uri: response.assets[0].uri,
-                type: response.assets[0].type || 'image/jpeg',
-                name: response.assets[0].fileName || 'profile.jpg',
+                type: 'image/jpeg',
+                name: 'profile.jpg'
             };
             
             formData.append('profilePicture', imageFile);

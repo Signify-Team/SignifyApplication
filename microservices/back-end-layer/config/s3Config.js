@@ -19,18 +19,18 @@ const PROFILE_PICTURES_BUCKET = process.env.S3_BUCKET_NAME;
 
 export const uploadToS3 = async (file, key) => {
     try {
-        const bufferStream = new Buffer.from(file.buffer);
+        const buffer = Buffer.from(file.buffer);
         
         const params = {
             Bucket: PROFILE_PICTURES_BUCKET,
             Key: key,
-            Body: bufferStream,
+            Body: buffer,
             ContentType: file.mimetype,
             ACL: 'public-read'
         };
 
-        const result = await s3.upload(params).promise();
-        return result.Location; 
+        const result = await s3.putObject(params).promise();
+        return `https://${PROFILE_PICTURES_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     } catch (error) {
         console.error('Error uploading to S3:', error);
         throw error;

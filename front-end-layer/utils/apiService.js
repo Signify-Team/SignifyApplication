@@ -12,3 +12,4 @@ export * from './services/questService';
 export * from './services/courseService';
 export * from './services/badgeService';
 export * from './services/notificationService';
+export * from './services/streakService';

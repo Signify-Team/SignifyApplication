@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import Sound from 'react-native-sound';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/SplashScreenStyles.js';
+import { updateStreakCount } from '../utils/services/streakService';
 
 const SplashScreen = () => {
     const navigation = useNavigation();
@@ -26,10 +27,20 @@ const SplashScreen = () => {
             const rememberedUsername = await AsyncStorage.getItem('rememberedUsername');
             
             if (rememberedEmail && rememberedUsername) {
-                navigation.replace('Home', { 
-                    email: rememberedEmail,
-                    username: rememberedUsername
-                });
+                try {
+                    const streakData = await updateStreakCount(rememberedEmail);
+                    navigation.replace('Home', { 
+                        email: rememberedEmail,
+                        username: rememberedUsername,
+                        streakMessage: streakData.streakMessage
+                    });
+                } catch (error) {
+                    console.error('Error updating streak count:', error);
+                    navigation.replace('Home', { 
+                        email: rememberedEmail,
+                        username: rememberedUsername
+                    });
+                }
             } else {
                 navigation.replace('Welcome');
             }

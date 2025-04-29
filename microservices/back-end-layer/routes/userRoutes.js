@@ -3,7 +3,7 @@
  * @description This file handles the user routes.
  *
  * @datecreated 03.12.2024
- * @lastmodified 17.12.2024
+ * @lastmodified 29.04.2025
  */
 
 import express from 'express'; // Express web server framework
@@ -823,6 +823,63 @@ router.put('/profile', upload.single('profilePicture'), async (req, res) => {
     } catch (error) {
         console.error('Error updating profile:', error);
         res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+router.post('/update-streak', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const currentDate = new Date();
+        const lastLoginDate = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
+        const yesterday = new Date(currentDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        let streakMessage = '';
+        const oldStreakCount = user.streakCount;
+
+        if (!lastLoginDate) {
+            user.streakCount = 1;
+            streakMessage = "Welcome! Start your learning streak today!";
+        } else if (currentDate.toDateString() === lastLoginDate.toDateString()) {
+            streakMessage = `Keep up your ${user.streakCount}-day streak!`;
+        } else if (yesterday.toDateString() === lastLoginDate.toDateString()) {
+            user.streakCount += 1;
+            streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
+        } else {
+            const lostStreak = oldStreakCount > 1;
+            user.streakCount = 1;
+            streakMessage = "Try to log in every day to maintain your streak!";
+            
+            if (lostStreak) {
+                try {
+                    await createNotification(
+                        'streak',
+                        'Streak Lost',
+                        `You've lost your ${oldStreakCount}-day streak! Log in daily to build it back up.`,
+                        user._id
+                    );
+                } catch (notifError) {
+                    console.error('Error creating streak loss notification:', notifError);
+                }
+            }
+        }
+
+        user.lastLoginDate = currentDate;
+        await user.save();
+
+        res.json({ 
+            streakCount: user.streakCount,
+            streakMessage 
+        });
+    } catch (error) {
+        console.error('Error updating streak:', error);
+        res.status(500).json({ message: 'Error updating streak count' });
     }
 });
 

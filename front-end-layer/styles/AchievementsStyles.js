@@ -15,6 +15,7 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.neutral_base_soft,
         padding: height * 0.02,
+        paddingTop: height * 0.08,
     },
     cardContainer: {
         backgroundColor: COLORS.soft_container_color,
@@ -28,7 +29,7 @@ export default StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 30,
-        fontFamily: FONTS.baloo_font,
+        fontFamily: FONTS.poppins_font,
         color: COLORS.neutral_base_dark,
         textAlign: 'center',
         marginBottom: height * 0.018,
@@ -54,5 +55,19 @@ export default StyleSheet.create({
     },
     rewardImageDisabled: {
         opacity: 0.4,
+    },
+    loadingText: {
+        fontFamily: FONTS.poppins_font,
+        fontSize: 16,
+        color: COLORS.neutral_base_dark,
+        textAlign: 'center',
+        marginVertical: height * 0.02,
+    },
+    errorText: {
+        fontFamily: FONTS.poppins_font,
+        fontSize: 16,
+        color: COLORS.highlight_color_2,
+        textAlign: 'center',
+        marginVertical: height * 0.02,
     },
 });

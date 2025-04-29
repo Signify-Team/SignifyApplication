@@ -121,7 +121,7 @@ router.delete('/:id', async (req, res) => {
 // Get all achievements unlocked by a user
 router.get('/users/:userId', async (req, res) => {
     try {
-        const user = await User.findById(req.params.userId).populate('achievements');
+        const user = await User.findById(req.params.userId).populate('achievements.achievementId');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -141,15 +141,56 @@ router.post('/users/:userId/:achievementId', async (req, res) => {
             return res.status(404).json({ message: 'User or Achievement not found' });
         }
         
-        if (user.achievements.includes(achievement._id)) {
+        // Check if achievement already exists in user's achievements
+        const existingAchievement = user.achievements.find(a => a.achievementId.equals(achievement._id));
+        if (existingAchievement) {
             return res.status(400).json({ message: 'Achievement already unlocked' });
         }
         
-        user.achievements.push(achievement._id);
-        user.points += achievement.rewardPoints;
+        // Add achievement with collected set to false
+        user.achievements.push({
+            achievementId: achievement._id,
+            dateEarned: new Date(),
+            collected: false
+        });
+        
         await user.save();
         
         res.json({ message: 'Achievement unlocked!', user });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Collect an achievement reward
+router.post('/users/:userId/:achievementId/collect', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        const achievement = await Achievement.findById(req.params.achievementId);
+        
+        if (!user || !achievement) {
+            return res.status(404).json({ message: 'User or Achievement not found' });
+        }
+        
+        // Find the achievement in user's achievements
+        const userAchievement = user.achievements.find(a => a.achievementId.equals(achievement._id));
+        if (!userAchievement) {
+            return res.status(400).json({ message: 'Achievement not unlocked' });
+        }
+        
+        if (userAchievement.collected) {
+            return res.status(400).json({ message: 'Achievement already collected' });
+        }
+        
+        // Mark as collected and award points
+        userAchievement.collected = true;
+        user.totalPoints += achievement.rewardPoints;
+        await user.save();
+        
+        res.json({ 
+            message: 'Achievement collected!', 
+            totalPoints: user.totalPoints 
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

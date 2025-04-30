@@ -883,4 +883,46 @@ router.post('/update-streak', async (req, res) => {
     }
 });
 
+// Get user's followers
+router.get('/:userId/followers', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid User ID' });
+        }
+
+        const user = await User.findById(userId).populate('followers', 'username profilePicture');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user.followers);
+    } catch (error) {
+        console.error('Error fetching followers:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Get user's following
+router.get('/:userId/following', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid User ID' });
+        }
+
+        const user = await User.findById(userId).populate('following', 'username profilePicture');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user.following);
+    } catch (error) {
+        console.error('Error fetching following:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 export default router;

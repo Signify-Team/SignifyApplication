@@ -101,6 +101,14 @@ const CoursesPage = ({ navigation, route }) => {
                     }
                     
                     setShowCompletionPopup(true);
+
+                    // Handle streak message after completion popup is shown
+                    if (route.params.streakMessage && route.params.shouldShowNotification) {
+                        // Delay streak popup to show after completion popup
+                        setTimeout(() => {
+                            checkAndShowStreakPopup(route.params.streakMessage, route.params.shouldShowNotification);
+                        }, 500);
+                    }
                 } catch (error) {
                     console.error('Error preparing completion popup:', error);
                     // Fallback to simple alert if there's an error
@@ -112,7 +120,11 @@ const CoursesPage = ({ navigation, route }) => {
                 }
                 
                 // Reset the params
-                navigation.setParams({ showCompletionMessage: false });
+                navigation.setParams({ 
+                    showCompletionMessage: false,
+                    streakMessage: null,
+                    shouldShowNotification: false
+                });
             };
             
             handleCompletionMessage();

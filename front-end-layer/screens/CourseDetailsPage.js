@@ -226,22 +226,35 @@ const CourseDetailPage = ({ route, navigation }) => {
 
             try {
                 if (!isPracticeMode) {
-                    // Only update course progress and completion for regular mode
-                    await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
-                    await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                    // Only update course completion for regular mode
+                    const response = await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                    
+                    // Navigate to Courses tab with completion message and streak info
+                    navigation.navigate('Home', {
+                        screen: 'Courses',
+                        params: {
+                            showCompletionMessage: true,
+                            successRate,
+                            isPassed: isCoursePassed,
+                            isPracticeMode: isPracticeMode,
+                            remainingLives: lives,
+                            streakMessage: response.streakMessage,
+                            shouldShowNotification: response.shouldShowNotification
+                        }
+                    });
+                } else {
+                    // For practice mode, don't include streak info
+                    navigation.navigate('Home', {
+                        screen: 'Courses',
+                        params: {
+                            showCompletionMessage: true,
+                            successRate,
+                            isPassed: isCoursePassed,
+                            isPracticeMode: isPracticeMode,
+                            remainingLives: lives
+                        }
+                    });
                 }
-                
-                // Navigate to Courses tab with completion message
-                navigation.navigate('Home', {
-                    screen: 'Courses',
-                    params: {
-                        showCompletionMessage: true,
-                        successRate,
-                        isPassed: isCoursePassed,
-                        isPracticeMode: isPracticeMode,
-                        remainingLives: lives
-                    }
-                });
             } catch (error) {
                 console.error('Error updating course progress:', error);
                 navigation.navigate('Home', { screen: 'Courses' });

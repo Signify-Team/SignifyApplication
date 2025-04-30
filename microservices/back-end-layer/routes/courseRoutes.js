@@ -133,6 +133,29 @@ router.post('/:id/finish', async (req, res) => {
 
             // Update last completed course date
             user.lastCompletedCourseDate = currentDate;
+
+            // Find all courses in the same section
+            const allCourses = await Course.find().sort({ createdAt: 1 });
+            const currentCourseIndex = allCourses.findIndex(c => c._id.toString() === courseId);
+            
+            if (currentCourseIndex !== -1 && currentCourseIndex < allCourses.length - 1) {
+                // Get the next course
+                const nextCourse = allCourses[currentCourseIndex + 1];
+                
+                // Find or create progress entry for the next course
+                let nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
+                if (!nextCourseProgress) {
+                    user.courseProgress.push({
+                        courseId: nextCourse._id,
+                        isLocked: false, // Unlock the next course
+                        progress: 0,
+                        completed: false,
+                        lastAccessed: new Date()
+                    });
+                } else {
+                    nextCourseProgress.isLocked = false; // Unlock the next course
+                }
+            }
         }
 
         // Save user with updated progress

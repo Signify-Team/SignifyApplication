@@ -250,4 +250,14 @@ export default StyleSheet.create({
         width: '100%',
         marginBottom: 10,
     },
+    infoBoxContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    infoBoxTouchable: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });

@@ -241,15 +241,29 @@ const ProfilePage = () => {
                             label="Course"
                         />
                         <View style={styles.divider} />
-                        <InfoBox
-                            value={userData?.followerCount?.toString() || '0'}
-                            label="Followers"
-                        />
+                        <View style={styles.infoBoxContainer}>
+                            <TouchableOpacity 
+                                onPress={() => navigation.navigate('FollowersFollowing', { type: 'followers', userId: userData._id })}
+                                style={styles.infoBoxTouchable}
+                            >
+                                <InfoBox
+                                    value={userData?.followerCount?.toString() || '0'}
+                                    label="Followers"
+                                />
+                            </TouchableOpacity>
+                        </View>
                         <View style={styles.divider} />
-                        <InfoBox
-                            value={userData?.followingCount?.toString() || '0'}
-                            label="Following"
-                        />
+                        <View style={styles.infoBoxContainer}>
+                            <TouchableOpacity 
+                                onPress={() => navigation.navigate('FollowersFollowing', { type: 'following', userId: userData._id })}
+                                style={styles.infoBoxTouchable}
+                            >
+                                <InfoBox
+                                    value={userData?.followingCount?.toString() || '0'}
+                                    label="Following"
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {/* Buttons */}

@@ -830,11 +830,20 @@ router.post('/update-streak', async (req, res) => {
     try {
         const { userId } = req.body;
         
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ message: 'Invalid user ID' });
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
         }
 
-        const user = await User.findById(new mongoose.Types.ObjectId(userId));
+        // Try to find user by MongoDB ObjectId first
+        let user = null;
+        if (mongoose.Types.ObjectId.isValid(userId)) {
+            user = await User.findById(new mongoose.Types.ObjectId(userId));
+        }
+        
+        // If not found by ObjectId, try to find by UUID
+        if (!user) {
+            user = await User.findOne({ userId: userId });
+        }
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });

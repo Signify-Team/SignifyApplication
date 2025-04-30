@@ -829,7 +829,12 @@ router.put('/profile', upload.single('profilePicture'), async (req, res) => {
 router.post('/update-streak', async (req, res) => {
     try {
         const { userId } = req.body;
-        const user = await User.findById(userId);
+        
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+
+        const user = await User.findById(new mongoose.Types.ObjectId(userId));
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });

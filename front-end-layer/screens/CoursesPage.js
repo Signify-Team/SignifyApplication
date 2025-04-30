@@ -23,6 +23,7 @@ import {
     getUserPremiumStatus,
     fetchCourseExercises,
     fetchUserProfile,
+    updateCourseCompletion,
 } from '../utils/apiService';
 import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
@@ -56,6 +57,7 @@ const CoursesPage = ({ navigation, route }) => {
         successRate: 0,
         userPoints: 0
     });
+    const [completionMessage, setCompletionMessage] = useState('');
 
     useEffect(() => {
         loadUserLanguageAndSections();
@@ -336,6 +338,39 @@ const CoursesPage = ({ navigation, route }) => {
 
     const handleStreakPopupClose = () => {
         setShowStreakPopup(false);
+    };
+
+    const handleCourseCompletion = async (courseId, isPassed) => {
+        try {
+            const completionData = await updateCourseCompletion(courseId, isPassed);
+            
+            // Update local state with the new completion data
+            setSections(prevSections => 
+                prevSections.map(section => 
+                    section.courses.map(course => 
+                        course._id === courseId 
+                            ? { ...course, completed: true, progress: 100 }
+                            : course
+                    )
+                )
+            );
+
+            // Show completion popup
+            setShowCompletionPopup(true);
+            setCompletionMessage(isPassed ? 'Congratulations! You passed the course!' : 'You completed the course! Try again to improve your score.');
+
+            // If there's streak info in the response, show streak popup
+            if (completionData.streakMessage) {
+                setShowStreakPopup(true);
+                setStreakMessage(completionData.streakMessage);
+            }
+
+            // Refresh user data to get updated points and progress
+            await loadUserData();
+        } catch (error) {
+            console.error('Error handling course completion:', error);
+            Alert.alert('Error', 'Failed to update course completion. Please try again.');
+        }
     };
 
     if (loading && !refreshing) {

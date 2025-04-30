@@ -95,7 +95,12 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             }
         }
 
-        return response.data;
+        // Return the complete response data including streak info
+        return {
+            ...response.data,
+            isPassed,
+            completed: true
+        };
     } catch (error) {
         console.error('Error updating course completion:', error);
         throw new Error(error.response?.data?.message || 'Failed to update course completion');

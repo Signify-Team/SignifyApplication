@@ -93,13 +93,11 @@ router.post('/:id/finish', async (req, res) => {
             courseProgress = user.courseProgress[user.courseProgress.length - 1];
         }
 
-        // Update progress
-        courseProgress.progress = progress;
-        courseProgress.completed = completed;
-        courseProgress.lastAccessed = new Date();
+        // Only update streak if the course wasn't already completed
+        let streakMessage = null;
+        let shouldShowNotification = false;
 
-        // Handle streak logic if the course is completed successfully
-        if (completed && isPassed) {
+        if (completed && isPassed && !courseProgress.completed) {
             const currentDate = new Date();
             const yesterday = new Date(currentDate);
             yesterday.setDate(yesterday.getDate() - 1);
@@ -112,9 +110,6 @@ router.post('/:id/finish', async (req, res) => {
             const currentDateFormatted = formatDate(currentDate);
             const yesterdayFormatted = formatDate(yesterday);
             const lastCompletedFormatted = user.lastCompletedCourseDate ? formatDate(user.lastCompletedCourseDate) : null;
-
-            let streakMessage = null;
-            let shouldShowNotification = false;
 
             if (!lastCompletedFormatted) {
                 // First course completion
@@ -157,6 +152,11 @@ router.post('/:id/finish', async (req, res) => {
                 }
             }
         }
+
+        // Update progress regardless of completion status
+        courseProgress.progress = progress;
+        courseProgress.completed = completed;
+        courseProgress.lastAccessed = new Date();
 
         // Save user with updated progress
         await user.save();

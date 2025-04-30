@@ -39,4 +39,42 @@ export const getStreakCount = async (userId) => {
         console.error('Error getting streak count:', error);
         throw error;
     }
+};
+
+export const checkStreakLoss = async () => {
+    try {
+        const userId = await getUserId();
+        if (!userId) return false;
+
+        const response = await axios.get(`${API_BASE_URL}/users/${userId}`);
+        const user = response.data;
+
+        if (!user.lastCourseCompletionDate) return false;
+
+        const lastCompletionDate = new Date(user.lastCourseCompletionDate);
+        const currentDate = new Date();
+
+        // Convert to UTC dates for comparison
+        const lastUTCDate = new Date(Date.UTC(
+            lastCompletionDate.getUTCFullYear(),
+            lastCompletionDate.getUTCMonth(),
+            lastCompletionDate.getUTCDate()
+        ));
+        const currentUTCDate = new Date(Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate()
+        ));
+        const yesterdayUTCDate = new Date(Date.UTC(
+            currentDate.getUTCFullYear(),
+            currentDate.getUTCMonth(),
+            currentDate.getUTCDate() - 1
+        ));
+
+        // Check if the last completion was before yesterday
+        return lastUTCDate.getTime() < yesterdayUTCDate.getTime();
+    } catch (error) {
+        console.error('Error checking streak loss:', error);
+        return false;
+    }
 }; 

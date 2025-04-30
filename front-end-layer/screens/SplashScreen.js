@@ -27,21 +27,30 @@ const SplashScreen = () => {
             const rememberedUsername = await AsyncStorage.getItem('rememberedUsername');
             
             if (rememberedEmail && rememberedUsername) {
-                try {
-                    const streakData = await updateStreakCount(rememberedEmail);
-                    navigation.replace('Home', { 
-                        email: rememberedEmail,
-                        username: rememberedUsername,
-                        streakMessage: streakData.streakMessage,
-                        shouldShowNotification: streakData.shouldShowNotification
-                    });
-                } catch (error) {
-                    console.error('Error updating streak count:', error);
-                    navigation.replace('Home', { 
-                        email: rememberedEmail,
-                        username: rememberedUsername
-                    });
+                // Check for streak loss
+                const userProfile = await fetchUserProfile();
+                const lastCourseCompletionDate = userProfile?.lastCourseCompletionDate;
+                
+                if (lastCourseCompletionDate) {
+                    const lastDate = new Date(lastCourseCompletionDate);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    
+                    // If last completion was before yesterday, show streak loss popup
+                    if (lastDate < yesterday) {
+                        navigation.replace('Login', { 
+                            showStreakLoss: true,
+                            streakCount: userProfile.streakCount
+                        });
+                        return;
+                    }
                 }
+                
+                navigation.replace('Home', { 
+                    email: rememberedEmail,
+                    username: rememberedUsername
+                });
             } else {
                 navigation.replace('Welcome');
             }

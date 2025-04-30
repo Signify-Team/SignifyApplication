@@ -23,6 +23,7 @@ import {
     getUserPremiumStatus,
     fetchCourseExercises,
     fetchUserProfile,
+    updateCourseCompletion,
 } from '../utils/apiService';
 import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
@@ -88,6 +89,14 @@ const CoursesPage = ({ navigation, route }) => {
                             outOfLives: route.params.outOfLives || false,
                             remainingLives: route.params.remainingLives || 0
                         });
+                        
+                        // Show streak popup if there's streak data
+                        if (route.params.streakData?.shouldShowNotification) {
+                            setTimeout(() => {
+                                setStreakMessage(route.params.streakData.streakMessage);
+                                setShowStreakPopup(true);
+                            }, 2000);
+                        }
                     } else {
                         // For practice mode, points aren't relevant
                         setCompletionData({

@@ -83,35 +83,21 @@ export const updateCourseCompletion = async (courseId, isPassed, navigation) => 
             // Create notification for passing the course
             await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
             
-            // Update streak count for passing a course
+            // Return streak data to be handled by the UI component
             const streakData = await updateStreakCount(userId);
-            if (streakData.shouldShowNotification && navigation) {
-                // Pass streak message to the navigation params
-                navigation.navigate('Home', {
-                    screen: 'Courses',
-                    params: {
-                        streakMessage: streakData.streakMessage,
-                        shouldShowNotification: true
-                    }
-                });
-            }
+            console.log('Streak data from updateStreakCount:', streakData);
+            return {
+                success: true,
+                streakData
+            };
         } else {
             // Create notification for failing the course
             await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
+            return { success: true };
         }
-
-        // Check and award the "First Sign Master" badge
-        try {
-            await awardFirstSignMasterBadge(userId);
-        } catch (badgeError) {
-            // Don't let badge errors affect the course completion flow
-            console.error('Error checking/awarding First Sign Master badge:', badgeError);
-        }
-
-        return response.data;
     } catch (error) {
         console.error('Error updating course completion:', error);
-        throw new Error(error.response?.data?.message || 'Failed to update course completion');
+        throw error;
     }
 }; 
 

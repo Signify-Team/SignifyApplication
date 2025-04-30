@@ -96,6 +96,9 @@ const BottomTabsNavigator = ({ route }) => {
             <Tab.Screen
                 name="Achievements"
                 component={Achievements}
+                options={{
+                    headerShown: false,
+                }}
             />
         </Tab.Navigator>
     );

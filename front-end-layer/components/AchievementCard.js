@@ -6,13 +6,28 @@
  * @lastmodified 20.12.2024
  */
 
-import React from 'react';
-import { View, Text, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, ActivityIndicator } from 'react-native';
 import { COLORS } from '../utils/constants';
 import styles from '../styles/AchievementCardStyle';
 import RectangularButton from './RectangularButton';
 
-const AchievementCard = ({ title, description, isCollectable }) => {
+const AchievementCard = ({ title, description, isCollectable, isCollected, onCollect }) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleCollect = async () => {
+        if (!isCollectable || isLoading || isCollected) return;
+        
+        setIsLoading(true);
+        try {
+            await onCollect();
+        } catch (error) {
+            console.error('Error collecting achievement:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <View style={styles.achievementCard}>
             <View style={styles.achievementContent}>
@@ -26,14 +41,18 @@ const AchievementCard = ({ title, description, isCollectable }) => {
                 />
             </View>
             <View style={styles.buttonContainer}>
-                <RectangularButton
-                    width={120}
-                    text="COLLECT"
-                    color={isCollectable ? COLORS.secondary : COLORS.gray}
-                    onPress={() => {}}
-                    onlyText={true}
-                    disabled={!isCollectable}
-                />
+                {isLoading ? (
+                    <ActivityIndicator color={COLORS.secondary} />
+                ) : (
+                    <RectangularButton
+                        width={isCollected ? 150 : 120}
+                        text={isCollected ? "COLLECTED" : "COLLECT"}
+                        color={isCollected ? COLORS.gray : (isCollectable ? COLORS.secondary : COLORS.gray)}
+                        onPress={handleCollect}
+                        onlyText={true}
+                        disabled={!isCollectable || isCollected}
+                    />
+                )}
             </View>
         </View>
     );

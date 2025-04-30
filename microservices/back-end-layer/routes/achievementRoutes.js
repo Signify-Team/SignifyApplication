@@ -97,7 +97,6 @@ router.put('/:id', updateAchievementValidation, async (req, res) => {
 
         return res.status(200).json(updatedAchievement);
     } catch (error) {
-        console.error('Error updating achievement:', error);
         return res.status(500).json({
             message: 'Error updating achievement',
             error: error,
@@ -152,6 +151,94 @@ router.post('/users/:userId/:achievementId', async (req, res) => {
         res.json({ message: 'Achievement unlocked!', user });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Mark an achievement as collected
+router.post('/users/:userId/:achievementId/collect', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        const achievement = await Achievement.findById(req.params.achievementId);
+        
+        if (!user || !achievement) {
+            return res.status(404).json({ message: 'User or Achievement not found' });
+        }
+        
+        const achievementIndex = user.achievements.findIndex(a => a._id.equals(achievement._id));
+        if (achievementIndex === -1) {
+            return res.status(400).json({ message: 'Achievement not unlocked' });
+        }
+        
+        if (user.achievements[achievementIndex].collected) {
+            return res.status(400).json({ message: 'Achievement already collected' });
+        }
+        
+        user.achievements[achievementIndex].collected = true;
+        user.totalPoints += achievement.rewardPoints;
+        await user.save();
+        
+        res.json({ 
+            message: 'Achievement collected!', 
+            totalPoints: user.totalPoints 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Daily reward route
+router.post('/daily-reward/:userId', async (req, res) => {
+    try {
+        console.log('Daily reward request received for user:', req.params.userId);
+        
+        if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+            console.log('Invalid user ID format:', req.params.userId);
+            return res.status(400).json({ 
+                message: 'Invalid user ID format',
+                error: 'Invalid user ID'
+            });
+        }
+
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            console.log('User not found:', req.params.userId);
+            return res.status(404).json({ 
+                message: 'User not found',
+                error: 'User not found'
+            });
+        }
+
+        // Check if user has already collected reward today
+        const today = new Date();
+        const lastRewardDate = user.lastRewardDate ? new Date(user.lastRewardDate) : null;
+        console.log('Last reward date:', lastRewardDate);
+
+        if (lastRewardDate && 
+            lastRewardDate.getDate() === today.getDate() &&
+            lastRewardDate.getMonth() === today.getMonth() &&
+            lastRewardDate.getFullYear() === today.getFullYear()) {
+            console.log('Reward already collected today');
+            return res.status(400).json({ 
+                message: 'Daily reward already collected today',
+                error: 'Reward already collected'
+            });
+        }
+
+        // Award 50 points and update last reward date
+        user.totalPoints += 50;
+        user.lastRewardDate = today;
+        await user.save();
+
+        res.json({ 
+            message: 'Daily reward collected!', 
+            totalPoints: user.totalPoints 
+        });
+    } catch (error) {
+        console.error('Error in daily reward route:', error);
+        res.status(500).json({ 
+            message: 'Error collecting daily reward',
+            error: error.message 
+        });
     }
 });
 

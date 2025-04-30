@@ -46,6 +46,7 @@ const UserSchema = new mongoose.Schema({
         {
             achievementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Achievement' },
             dateEarned: { type: Date, default: Date.now },
+            collected: { type: Boolean, default: false },
         },
     ],
     badges: [

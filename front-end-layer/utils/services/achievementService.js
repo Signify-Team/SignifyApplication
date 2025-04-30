@@ -28,6 +28,11 @@ export const fetchUserAchievements = async () => {
         const response = await axios.get(`${API_BASE_URL}/achievements/users/${userId}`);
         return response.data;
     } catch (error) {
+        console.error('Error fetching user achievements:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        });
         throw new Error(error.response?.data?.message || 'Failed to fetch user achievements');
     }
 };

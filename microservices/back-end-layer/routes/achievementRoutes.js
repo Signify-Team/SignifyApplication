@@ -17,7 +17,7 @@ const router = express.Router();
 
 const achievementLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 10,
+    max: 3000,
     message: 'Too many requests, please try again later.'
 });
 
@@ -124,7 +124,11 @@ router.get('/users/:userId', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user.achievements);
+        res.json({
+            achievements: user.achievements,
+            totalPoints: user.totalPoints,
+            lastRewardDate: user.lastRewardDate
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -42,21 +42,26 @@ const AchievementsPage = () => {
             
             setAllAchievements(allAchievementsData);
             setUserAchievements(userAchievementsData);
+            
             // Set initial total points from user data
             if (userAchievementsData && userAchievementsData.totalPoints !== undefined) {
                 setTotalPoints(userAchievementsData.totalPoints);
             }
-            // Set daily reward status
+            
+            // Set daily reward status using server's lastRewardDate
             if (userAchievementsData && userAchievementsData.lastRewardDate) {
-                setLastRewardDate(new Date(userAchievementsData.lastRewardDate));
-                const today = new Date();
                 const lastReward = new Date(userAchievementsData.lastRewardDate);
-                setDailyRewardCollected(
-                    lastReward.getDate() === today.getDate() &&
-                    lastReward.getMonth() === today.getMonth() &&
-                    lastReward.getFullYear() === today.getFullYear()
-                );
+                const now = new Date();
+                const timeSinceLastReward = now.getTime() - lastReward.getTime();
+                const hoursSinceLastReward = timeSinceLastReward / (1000 * 60 * 60);
+                
+                setLastRewardDate(lastReward);
+                setDailyRewardCollected(hoursSinceLastReward < 24);
+            } else {
+                setLastRewardDate(null);
+                setDailyRewardCollected(false);
             }
+            
             setError(null);
         } catch (err) {
             setError(err.message);
@@ -170,8 +175,9 @@ const AchievementsPage = () => {
         try {
             const result = await collectDailyReward();
             if (result && result.totalPoints !== undefined) {
+                // Update the state with the new data from the server
                 setDailyRewardCollected(true);
-                setLastRewardDate(new Date());
+                setLastRewardDate(new Date(result.collectedAt));
                 setTotalPoints(result.totalPoints);
                 setAchievementXp(50);
                 setShowAchievementPopup(true);

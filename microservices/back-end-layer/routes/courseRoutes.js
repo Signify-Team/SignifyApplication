@@ -124,6 +124,11 @@ router.post('/:id/finish', async (req, res) => {
                 user.streakCount += 1;
                 streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
                 shouldShowNotification = true;
+            } else {
+                // Streak broken - reset to 1 instead of 0
+                user.streakCount = 1;
+                streakMessage = "You've started a new streak! Keep it going!";
+                shouldShowNotification = true;
             }
 
             // Update last completed course date

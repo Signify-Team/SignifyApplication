@@ -860,4 +860,45 @@ router.post('/update-streak', async (req, res) => {
     }
 });
 
+// Check if streak was lost
+router.get('/:userId/check-streak-loss', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if last completed course was more than 1 day ago
+        const lastCompletedDate = user.lastCompletedCourseDate;
+        if (!lastCompletedDate) {
+            return res.json({ streakLost: false });
+        }
+
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+        if (lastCompletedDate < oneDayAgo) {
+            // Streak was lost
+            user.streakCount = 0;
+            await user.save();
+            
+            return res.json({
+                streakLost: true,
+                message: 'Your streak has been reset because you haven\'t completed a course in the last 24 hours.'
+            });
+        }
+
+        return res.json({ streakLost: false });
+    } catch (error) {
+        console.error('Error checking streak loss:', error);
+        res.status(500).json({ message: 'Error checking streak loss' });
+    }
+});
+
 export default router;

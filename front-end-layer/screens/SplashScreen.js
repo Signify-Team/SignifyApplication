@@ -13,7 +13,10 @@ import { useNavigation } from '@react-navigation/native';
 import Sound from 'react-native-sound';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/SplashScreenStyles.js';
+import { getUserId } from '../utils/services/authService';
 import { updateStreakCount } from '../utils/services/streakService';
+import axios from 'axios';
+import { API_BASE_URL } from '../utils/config';
 
 const SplashScreen = () => {
     const navigation = useNavigation();
@@ -25,12 +28,32 @@ const SplashScreen = () => {
         try {
             const rememberedEmail = await AsyncStorage.getItem('rememberedEmail');
             const rememberedUsername = await AsyncStorage.getItem('rememberedUsername');
+            const userId = await getUserId();
             
-            if (rememberedEmail && rememberedUsername) {
-                navigation.replace('Home', { 
-                    email: rememberedEmail,
-                    username: rememberedUsername
-                });
+            if (rememberedEmail && rememberedUsername && userId) {
+                try {
+                    // Check if streak was lost
+                    const response = await axios.get(`${API_BASE_URL}/users/${userId}/check-streak-loss`);
+                    if (response.data?.streakLost) {
+                        navigation.replace('Home', { 
+                            email: rememberedEmail,
+                            username: rememberedUsername,
+                            streakMessage: response.data.message,
+                            shouldShowNotification: true
+                        });
+                    } else {
+                        navigation.replace('Home', { 
+                            email: rememberedEmail,
+                            username: rememberedUsername
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error checking streak loss:', error);
+                    navigation.replace('Home', { 
+                        email: rememberedEmail,
+                        username: rememberedUsername
+                    });
+                }
             } else {
                 navigation.replace('Welcome');
             }

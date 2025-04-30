@@ -83,17 +83,31 @@ export const updateCourseCompletion = async (courseId, isPassed, navigation) => 
             // Create notification for passing the course
             await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
             
-            // Update streak count for passing a course
-            const streakData = await updateStreakCount(userId);
-            if (streakData.shouldShowNotification && navigation) {
-                // Pass streak message to the navigation params
+            // Show course completion popup first
+            if (navigation) {
                 navigation.navigate('Home', {
                     screen: 'Courses',
                     params: {
-                        streakMessage: streakData.streakMessage,
-                        shouldShowNotification: true
+                        showCompletionPopup: true,
+                        isPassed: true,
+                        pointsEarned: 50
                     }
                 });
+            }
+
+            // Update streak count for passing a course
+            const streakData = await updateStreakCount(userId);
+            if (streakData.shouldShowNotification && navigation) {
+                // Show streak popup after a delay
+                setTimeout(() => {
+                    navigation.navigate('Home', {
+                        screen: 'Courses',
+                        params: {
+                            streakMessage: streakData.streakMessage,
+                            shouldShowNotification: true
+                        }
+                    });
+                }, 2000); // 2 second delay
             }
         } else {
             // Create notification for failing the course

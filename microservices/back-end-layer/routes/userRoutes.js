@@ -842,21 +842,29 @@ router.post('/update-streak', async (req, res) => {
 
         let streakMessage = '';
         const oldStreakCount = user.streakCount;
+        let shouldShowNotification = false;
 
         if (!lastLoginDate) {
+            // First time login
             user.streakCount = 1;
             streakMessage = "Welcome! Start your learning streak today!";
+            shouldShowNotification = true;
         } else if (currentDate.toDateString() === lastLoginDate.toDateString()) {
+            // Already logged in today - do nothing
             streakMessage = `Keep up your ${user.streakCount}-day streak!`;
         } else if (yesterday.toDateString() === lastLoginDate.toDateString()) {
+            // Logged in yesterday - increment streak
             user.streakCount += 1;
             streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
+            shouldShowNotification = true;
         } else {
+            // Missed a day - reset streak
             const lostStreak = oldStreakCount > 1;
             user.streakCount = 1;
             streakMessage = "Try to log in every day to maintain your streak!";
             
             if (lostStreak) {
+                shouldShowNotification = true;
                 try {
                     await createNotification(
                         'streak',
@@ -875,7 +883,8 @@ router.post('/update-streak', async (req, res) => {
 
         res.json({ 
             streakCount: user.streakCount,
-            streakMessage 
+            streakMessage,
+            shouldShowNotification
         });
     } catch (error) {
         console.error('Error updating streak:', error);

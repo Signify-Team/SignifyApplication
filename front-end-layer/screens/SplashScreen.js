@@ -32,7 +32,8 @@ const SplashScreen = () => {
                     navigation.replace('Home', { 
                         email: rememberedEmail,
                         username: rememberedUsername,
-                        streakMessage: streakData.streakMessage
+                        streakMessage: streakData.streakMessage,
+                        shouldShowNotification: streakData.shouldShowNotification
                     });
                 } catch (error) {
                     console.error('Error updating streak count:', error);

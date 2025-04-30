@@ -6,9 +6,10 @@
  * @lastmodified 19.12.2024
  */
 
-import React from 'react';
-import { View, Text, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, ActivityIndicator } from 'react-native';
 import styles from '../styles/ProfileCardStyle.js';
+import { COLORS } from '../utils/constants';
 
 const StatsCard = ({
     height: statsHeight,
@@ -21,20 +22,52 @@ const StatsCard = ({
     iconStyle,
     textStyle,
 }) => {
-    const isStreakCard = icon && !text;
+    const [imageError, setImageError] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+
+    const isStreakCard = icon && !text && !showText;
     const isBadgeCard = icon && !text && !value;
+
+    const handleImageError = (error) => {
+        console.error('Error loading image:', error.nativeEvent.error);
+        setImageError(true);
+        setImageLoading(false);
+    };
+
+    const handleImageLoad = () => {
+        setImageLoading(false);
+        setImageError(false);
+    };
+
+    // Reset loading state when icon changes
+    useEffect(() => {
+        setImageLoading(true);
+        setImageError(false);
+    }, [icon]);
 
     return (
         <View style={[styles.statsContainer, { height: statsHeight, width: statsWidth }]}>
             {isBadgeCard ? (
-                <View style={styles.badgeContainer}>
-                    <Image source={icon} style={[styles.statsIcon, iconStyle]} />
+                <View style={[styles.badgeContainer, iconStyle]}>
+                    <Image 
+                        source={icon} 
+                        style={[styles.statsIcon, iconStyle]} 
+                        onError={handleImageError}
+                        onLoad={handleImageLoad}
+                        resizeMode="contain"
+                    />
                 </View>
             ) : (
                 <View style={styles.statsContent}>
                     {isStreakCard ? (
                         <View style={styles.statsRow}>
-                            <Image source={icon} style={[styles.statsIcon, iconStyle]} />
+                            <Image 
+                                source={icon} 
+                                style={[styles.statsIcon, iconStyle]} 
+                                onError={handleImageError}
+                                onLoad={handleImageLoad}
+                                resizeMode="contain"
+                            />
                             <Text style={[styles.statsValue, textStyle]}>{value}</Text>
                         </View>
                     ) : (

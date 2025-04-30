@@ -121,7 +121,7 @@ const CoursesPage = ({ navigation, route }) => {
 
     useEffect(() => {
         if (route.params?.streakMessage) {
-            checkAndShowStreakPopup(route.params.streakMessage);
+            checkAndShowStreakPopup(route.params.streakMessage, route.params.shouldShowNotification);
         }
     }, [route.params]);
     
@@ -309,12 +309,14 @@ const CoursesPage = ({ navigation, route }) => {
         loadUserPremiumStatus();
     };
 
-    const checkAndShowStreakPopup = async (message) => {
+    const checkAndShowStreakPopup = async (message, shouldShow) => {
         try {
-            console.log('Showing streak popup with message:', message);
-            setStreakMessage(message);
-            setShowStreakPopup(true);
-            navigation.setParams({ streakMessage: null });
+            if (shouldShow) {
+                console.log('Showing streak popup with message:', message);
+                setStreakMessage(message);
+                setShowStreakPopup(true);
+                navigation.setParams({ streakMessage: null });
+            }
         } catch (error) {
             console.error('Error showing streak popup:', error);
         }

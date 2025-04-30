@@ -134,6 +134,9 @@ export default StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: COLORS.soft_container_color,
+        borderRadius: 12,
+        padding: 8,
     },
     statsContent: {
         flex: 1,
@@ -148,9 +151,17 @@ export default StyleSheet.create({
         justifyContent: 'center',
         gap: 8,
     },
+    statsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        width: '100%',
+        height: '100%',
+    },
     statsIcon: {
-        width: width * 0.15,
-        height: width * 0.15,
+        width: '100%',
+        height: '100%',
         resizeMode: 'contain',
     },
     statsText: {
@@ -168,12 +179,6 @@ export default StyleSheet.create({
         color: COLORS.neutral_base_dark,
         textAlign: 'center',
     },
-    statsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-    },
     badgesGrid: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -184,6 +189,9 @@ export default StyleSheet.create({
     badgeCard: {
         flex: 1,
         aspectRatio: 1,
+        backgroundColor: COLORS.soft_container_color,
+        borderRadius: 12,
+        overflow: 'hidden',
     },
     modalOverlay: {
         flex: 1,
@@ -222,8 +230,14 @@ export default StyleSheet.create({
         lineHeight: 24,
     },
     modalBody: {
-        alignItems: 'flex-start',
-        width: '100%',
+        padding: 20,
+        alignItems: 'center',
+    },
+    badgeIcon: {
+        width: 100,
+        height: 100,
+        marginBottom: 20,
+        resizeMode: 'contain',
     },
     modalDate: {
         fontFamily: FONTS.poppins_font,

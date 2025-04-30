@@ -23,6 +23,7 @@ import { SIZES, COLORS } from '../utils/constants.js';
 import {
     fetchUserProfile,
     fetchUserBadges,
+    fetchAllBadges,
     fetchUserCourses,         
     fetchSectionsByLanguage 
 } from '../utils/apiService.js';
@@ -54,6 +55,8 @@ const ProfilePage = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [userCourses, setUserCourses] = useState([]); 
     const [languageSections, setLanguageSections] = useState([]); 
+    const [allBadges, setAllBadges] = useState([]);
+    const [userBadges, setUserBadges] = useState([]);
 
     const loadData = async () => {
         setLoading(true); 
@@ -66,24 +69,26 @@ const ProfilePage = () => {
                 throw new Error("User profile data is missing.");
             }
 
-            const [fetchedUserCourses, fetchedSections] = await Promise.all([
+            const [fetchedUserCourses, fetchedSections, fetchedAllBadges] = await Promise.all([
                 fetchUserCourses(),
-                profileData.languagePreference ? fetchSectionsByLanguage(profileData.languagePreference) : Promise.resolve([]) // Fetch sections based on preference
+                profileData.languagePreference ? fetchSectionsByLanguage(profileData.languagePreference) : Promise.resolve([]),
+                fetchAllBadges()
             ]);
 
             setUserCourses(fetchedUserCourses || []); 
             setLanguageSections(fetchedSections || []);
+            setAllBadges(fetchedAllBadges || []);
 
-            // Fetch badges after getting user data
+            // Fetch user's earned badges
             if (profileData.badges && profileData.badges.length > 0) {
                 const badgeData = await fetchUserBadges(profileData.badges.map(badge => badge.badgeId)) || [];
                 const badgesWithDates = badgeData.map((badge, index) => ({
                     ...badge,
                     dateEarned: profileData.badges[index]?.dateEarned
                 }));
-                setBadges(badgesWithDates);
+                setUserBadges(badgesWithDates);
             } else {
-                setBadges([]); 
+                setUserBadges([]); 
             }
         } catch (err) {
             setError(err.message);
@@ -156,6 +161,39 @@ const ProfilePage = () => {
             alert(error.message);
         }
     }
+
+    const renderBadgeGrid = (badges, startIndex) => {
+        return (
+            <View style={styles.badgesGrid}>
+                {[...Array(4)].map((_, index) => {
+                    const badge = badges[startIndex + index];
+                    const hasBadge = userBadges.some(userBadge => userBadge._id === badge?._id);
+                    
+                    return (
+                        <View key={index} style={styles.badgeCard}>
+                            {badge ? (
+                                <TouchableOpacity 
+                                    onPress={() => handleBadgePress(badge)}
+                                    style={{ width: '100%', height: '100%' }}
+                                >
+                                    <StatsCard
+                                        height={height * SIZES.badgesContainer}
+                                        width={'100%'}
+                                        icon={badge.iconUrl ? { uri: badge.iconUrl } : AchievementIcon}
+                                        showIcon={true}
+                                        showText={false}
+                                        iconStyle={!hasBadge ? { opacity: 0.7 } : {}}
+                                    />
+                                </TouchableOpacity>
+                            ) : (
+                                <View style={[styles.statsContainer, { height: height * SIZES.badgesContainer, width: '100%' }]} />
+                            )}
+                        </View>
+                    );
+                })}
+            </View>
+        );
+    };
 
     if (loading && !refreshing) {
         return (
@@ -239,6 +277,9 @@ const ProfilePage = () => {
                             width={'49%'}
                             icon={FireIcon}
                             value={userData?.streakCount || 0}
+                            showIcon={true}
+                            showText={false}
+                            iconStyle={{ width: 24, height: 24 }}
                         />
                         <StatsCard
                             height={height * SIZES.statsContainer}
@@ -254,7 +295,7 @@ const ProfilePage = () => {
                             height={height * SIZES.statsContainer}
                             width={'49%'}
                             text="Progress"
-                            value={`${progressPercentage}%`} // Use calculated percentage
+                            value={`${progressPercentage}%`}
                             showIcon={false}
                             showText={true}
                         />
@@ -270,55 +311,14 @@ const ProfilePage = () => {
 
                     {/* Badges */}
                     <Text style={styles.header}>Badges</Text>
-                    <View style={styles.badgesGrid}>
-                        {[...Array(4)].map((_, index) => (
-                            <View key={index} style={styles.badgeCard}>
-                                {badges[index] ? (
-                                    <TouchableOpacity 
-                                        onPress={() => handleBadgePress(badges[index])}
-                                        style={{ width: '100%', height: '100%' }}
-                                    >
-                                        <StatsCard
-                                            height={height * SIZES.badgesContainer}
-                                            width={'100%'}
-                                            icon={AchievementIcon}
-                                            showIcon={true}
-                                            showText={false}
-                                        />
-                                    </TouchableOpacity>
-                                ) : (
-                                    <View style={[styles.statsContainer, { height: height * SIZES.badgesContainer, width: '100%' }]} />
-                                )}
-                            </View>
-                        ))}
-                    </View>
-                    <View style={styles.badgesGrid}>
-                        {[...Array(4)].map((_, index) => (
-                            <View key={index} style={styles.badgeCard}>
-                                {badges[index + 4] ? (
-                                    <TouchableOpacity 
-                                        onPress={() => handleBadgePress(badges[index + 4])}
-                                        style={{ width: '100%', height: '100%' }}
-                                    >
-                                        <StatsCard
-                                            height={height * SIZES.badgesContainer}
-                                            width={'100%'}
-                                            icon={AchievementIcon}
-                                            showIcon={true}
-                                            showText={false}
-                                        />
-                                    </TouchableOpacity>
-                                ) : (
-                                    <View style={[styles.statsContainer, { height: height * SIZES.badgesContainer, width: '100%' }]} />
-                                )}
-                            </View>
-                        ))}
-                    </View>
+                    {renderBadgeGrid(allBadges, 0)}
+                    {renderBadgeGrid(allBadges, 4)}
 
                     <BadgeModal
                         visible={modalVisible}
                         onClose={handleCloseModal}
                         badge={selectedBadge}
+                        userBadges={userBadges}
                     />
                 </ScrollView>
             </View>

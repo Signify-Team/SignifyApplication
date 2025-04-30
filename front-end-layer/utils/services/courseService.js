@@ -10,6 +10,7 @@ import { API_BASE_URL } from '../config';
 import { getUserId } from './authService';
 import { updateUserPoints } from './userService';
 import { createNotification } from './notificationService';
+import { awardFirstSignMasterBadge } from './badgeAwardService';
 
 export const fetchUserCourses = async () => {
   try {
@@ -82,6 +83,14 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
         } else {
             // Create notification for failing the course
             await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
+        }
+
+        // Check and award the "First Sign Master" badge
+        try {
+            await awardFirstSignMasterBadge(userId);
+        } catch (badgeError) {
+            // Don't let badge errors affect the course completion flow
+            console.error('Error checking/awarding First Sign Master badge:', badgeError);
         }
 
         return response.data;

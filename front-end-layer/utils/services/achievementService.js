@@ -68,6 +68,13 @@ export const collectDailyReward = async () => {
             },
         });
 
+        if (response.data && response.data.error === 'Reward already collected') {
+            const nextAvailableTime = new Date(response.data.nextAvailableTime);
+            const hoursSinceLastReward = response.data.hoursSinceLastReward;
+            const hoursRemaining = Math.ceil(24 - hoursSinceLastReward);
+            throw new Error(`Please wait ${hoursRemaining} more hours before collecting your next daily reward.`);
+        }
+
         return response.data;
     } catch (error) {
         console.error('Error collecting daily reward:', {

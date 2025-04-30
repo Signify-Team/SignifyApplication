@@ -214,19 +214,28 @@ router.post('/daily-reward/:userId', async (req, res) => {
         
         // Get last reward date in UTC
         const lastRewardDate = user.lastRewardDate ? new Date(user.lastRewardDate) : null;
+        
         if (lastRewardDate) {
             const utcLastReward = new Date(lastRewardDate.getTime() + lastRewardDate.getTimezoneOffset() * 60000);
             
-            // Check if reward was collected in the last 24 hours
-            const timeSinceLastReward = utcNow - utcLastReward;
+            // Calculate time difference in milliseconds
+            const timeSinceLastReward = utcNow.getTime() - utcLastReward.getTime();
             const hoursSinceLastReward = timeSinceLastReward / (1000 * 60 * 60);
+            
+            console.log('Time since last reward:', {
+                hoursSinceLastReward,
+                lastRewardDate: utcLastReward,
+                currentTime: utcNow
+            });
             
             if (hoursSinceLastReward < 24) {
                 console.log('Reward already collected within 24 hours');
+                const nextAvailableTime = new Date(utcLastReward.getTime() + 24 * 60 * 60 * 1000);
                 return res.status(400).json({ 
                     message: 'Daily reward already collected. Please wait 24 hours between rewards.',
                     error: 'Reward already collected',
-                    nextAvailableTime: new Date(utcLastReward.getTime() + 24 * 60 * 60 * 1000)
+                    nextAvailableTime,
+                    hoursSinceLastReward
                 });
             }
         }

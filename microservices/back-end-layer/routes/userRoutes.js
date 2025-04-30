@@ -71,6 +71,7 @@ router.post('/register', async (req, res) => {
             username,
             email,
             password: hashedPassword,
+            lastRewardDate: null, // Explicitly set to null for new users
         });
 
         await user.save();
@@ -266,7 +267,8 @@ router.post('/send-verification', async (req, res) => {
                 password: hashedPassword,
                 verificationCode,
                 verificationCodeExpires: Date.now() + 5 * 60 * 1000, // 5 minutes
-                isEmailVerified: false
+                isEmailVerified: false,
+                lastRewardDate: null, // Explicitly set to null for new users
             });
             await newUser.save();
         }

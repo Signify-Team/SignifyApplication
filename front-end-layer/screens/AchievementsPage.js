@@ -167,11 +167,6 @@ const AchievementsPage = () => {
     };
 
     const handleDailyReward = async () => {
-        if (dailyRewardCollected) {
-            Alert.alert('Already Collected', 'You have already collected your daily reward today. Come back tomorrow!');
-            return;
-        }
-
         try {
             const result = await collectDailyReward();
             if (result && result.totalPoints !== undefined) {

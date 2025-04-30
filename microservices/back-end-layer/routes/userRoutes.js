@@ -812,32 +812,15 @@ router.post('/update-streak', async (req, res) => {
         const oldStreakCount = user.streakCount;
         let shouldShowNotification = false;
 
-        // Convert all dates to UTC for comparison
-        const currentUTCDate = new Date(Date.UTC(
-            currentDate.getUTCFullYear(),
-            currentDate.getUTCMonth(),
-            currentDate.getUTCDate()
-        ));
-        const lastUTCDate = lastCourseCompletionDate ? new Date(Date.UTC(
-            lastCourseCompletionDate.getUTCFullYear(),
-            lastCourseCompletionDate.getUTCMonth(),
-            lastCourseCompletionDate.getUTCDate()
-        )) : null;
-        const yesterdayUTCDate = new Date(Date.UTC(
-            yesterday.getUTCFullYear(),
-            yesterday.getUTCMonth(),
-            yesterday.getUTCDate()
-        ));
-
         if (!lastCourseCompletionDate) {
             // First course completion
             user.streakCount = 1;
             streakMessage = "Welcome! Start your learning streak today!";
             shouldShowNotification = true;
-        } else if (currentUTCDate.getTime() === lastUTCDate.getTime()) {
+        } else if (currentDate.toDateString() === lastCourseCompletionDate.toDateString()) {
             // Already completed a course today - do nothing
             streakMessage = `Keep up your ${user.streakCount}-day streak!`;
-        } else if (yesterdayUTCDate.getTime() === lastUTCDate.getTime()) {
+        } else if (yesterday.toDateString() === lastCourseCompletionDate.toDateString()) {
             // Completed a course yesterday - increment streak
             user.streakCount += 1;
             streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
@@ -863,7 +846,7 @@ router.post('/update-streak', async (req, res) => {
             }
         }
 
-        user.lastCourseCompletionDate = currentUTCDate;
+        user.lastCourseCompletionDate = currentDate;
         await user.save();
 
         res.json({ 

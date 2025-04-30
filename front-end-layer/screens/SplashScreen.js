@@ -27,26 +27,6 @@ const SplashScreen = () => {
             const rememberedUsername = await AsyncStorage.getItem('rememberedUsername');
             
             if (rememberedEmail && rememberedUsername) {
-                // Check for streak loss
-                const userProfile = await fetchUserProfile();
-                const lastCourseCompletionDate = userProfile?.lastCourseCompletionDate;
-                
-                if (lastCourseCompletionDate) {
-                    const lastDate = new Date(lastCourseCompletionDate);
-                    const today = new Date();
-                    const yesterday = new Date(today);
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    
-                    // If last completion was before yesterday, show streak loss popup
-                    if (lastDate < yesterday) {
-                        navigation.replace('Login', { 
-                            showStreakLoss: true,
-                            streakCount: userProfile.streakCount
-                        });
-                        return;
-                    }
-                }
-                
                 navigation.replace('Home', { 
                     email: rememberedEmail,
                     username: rememberedUsername

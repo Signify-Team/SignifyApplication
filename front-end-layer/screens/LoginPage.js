@@ -22,8 +22,6 @@ import { loginUser, fetchUserProfile } from '../utils/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StreakPopup from '../components/StreakPopup';
 import { COLORS } from '../utils/constants';
-import axios from 'axios';
-import { getUserId } from '../utils/apiService';
 
 // Login Page layout
 const LoginPage = () => {
@@ -36,7 +34,6 @@ const LoginPage = () => {
     const [streakMessage, setStreakMessage] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [username, setUsername] = useState('');
-    const [streakLost, setStreakLost] = useState(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -51,11 +48,6 @@ const LoginPage = () => {
                 }
                 if (savedUsername) {
                     setUsername(savedUsername);
-                }
-                // Check if we need to show streak loss popup
-                if (route.params?.showStreakLoss) {
-                    setStreakMessage(`You've lost your ${route.params.streakCount}-day streak! Complete a course daily to build it back up.`);
-                    setShowStreakPopup(true);
                 }
             } catch (error) {
                 console.error('Error loading saved data:', error);
@@ -122,57 +114,15 @@ const LoginPage = () => {
             
             setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
             
-            // Check for streak loss
-            await checkStreak();
-            
             if (!serverLanguagePreference) {
                 navigation.replace('LanguagePreference', { userId: data.user._id });
             } else {
-                navigation.replace('Home');
+                navigation.replace('Home', { streakMessage: data.streakMessage });
             }
         } catch (error) {
             setErrorMessage(error.message || 'Unable to connect to the server');
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const checkStreak = async () => {
-        try {
-            const userId = await getUserId();
-            if (!userId) return;
-
-            const response = await axios.get(`${API_URL}/users/${userId}`);
-            const user = response.data;
-
-            if (!user.lastCourseCompletionDate) return;
-
-            const lastCompletionDate = new Date(user.lastCourseCompletionDate);
-            const currentDate = new Date();
-
-            // Convert to UTC dates for comparison
-            const lastUTCDate = new Date(Date.UTC(
-                lastCompletionDate.getUTCFullYear(),
-                lastCompletionDate.getUTCMonth(),
-                lastCompletionDate.getUTCDate()
-            ));
-            const currentUTCDate = new Date(Date.UTC(
-                currentDate.getUTCFullYear(),
-                currentDate.getUTCMonth(),
-                currentDate.getUTCDate()
-            ));
-            const yesterdayUTCDate = new Date(Date.UTC(
-                currentDate.getUTCFullYear(),
-                currentDate.getUTCMonth(),
-                currentDate.getUTCDate() - 1
-            ));
-
-            // Check if streak was lost
-            if (lastUTCDate.getTime() < yesterdayUTCDate.getTime()) {
-                setStreakLost(true);
-            }
-        } catch (error) {
-            console.error('Error checking streak:', error);
         }
     };
 

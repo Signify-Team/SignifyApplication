@@ -828,15 +828,15 @@ router.put('/profile', upload.single('profilePicture'), async (req, res) => {
 
 router.post('/update-streak', async (req, res) => {
     try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
+        const { userId } = req.body;
+        const user = await User.findById(userId);
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         const currentDate = new Date();
-        const lastLoginDate = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
+        const lastCourseCompletionDate = user.lastCourseCompletionDate ? new Date(user.lastCourseCompletionDate) : null;
         const yesterday = new Date(currentDate);
         yesterday.setDate(yesterday.getDate() - 1);
 
@@ -844,16 +844,16 @@ router.post('/update-streak', async (req, res) => {
         const oldStreakCount = user.streakCount;
         let shouldShowNotification = false;
 
-        if (!lastLoginDate) {
-            // First time login
+        if (!lastCourseCompletionDate) {
+            // First course completion
             user.streakCount = 1;
             streakMessage = "Welcome! Start your learning streak today!";
             shouldShowNotification = true;
-        } else if (currentDate.toDateString() === lastLoginDate.toDateString()) {
-            // Already logged in today - do nothing
+        } else if (currentDate.toDateString() === lastCourseCompletionDate.toDateString()) {
+            // Already completed a course today - do nothing
             streakMessage = `Keep up your ${user.streakCount}-day streak!`;
-        } else if (yesterday.toDateString() === lastLoginDate.toDateString()) {
-            // Logged in yesterday - increment streak
+        } else if (yesterday.toDateString() === lastCourseCompletionDate.toDateString()) {
+            // Completed a course yesterday - increment streak
             user.streakCount += 1;
             streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
             shouldShowNotification = true;
@@ -861,7 +861,7 @@ router.post('/update-streak', async (req, res) => {
             // Missed a day - reset streak
             const lostStreak = oldStreakCount > 1;
             user.streakCount = 1;
-            streakMessage = "Try to log in every day to maintain your streak!";
+            streakMessage = "Try to complete a course every day to maintain your streak!";
             
             if (lostStreak) {
                 shouldShowNotification = true;
@@ -869,7 +869,7 @@ router.post('/update-streak', async (req, res) => {
                     await createNotification(
                         'streak',
                         'Streak Lost',
-                        `You've lost your ${oldStreakCount}-day streak! Log in daily to build it back up.`,
+                        `You've lost your ${oldStreakCount}-day streak! Complete a course daily to build it back up.`,
                         user._id
                     );
                 } catch (notifError) {
@@ -878,7 +878,7 @@ router.post('/update-streak', async (req, res) => {
             }
         }
 
-        user.lastLoginDate = currentDate;
+        user.lastCourseCompletionDate = currentDate;
         await user.save();
 
         res.json({ 

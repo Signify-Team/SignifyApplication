@@ -9,11 +9,15 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-
-export const updateStreakCount = async (email) => {
+/**
+ * Updates the user's streak count when they complete a course
+ * @param {string} userId - User's ID
+ * @returns {Promise<Object>} - Response containing streak count and message
+ */
+export const updateStreakCount = async (userId) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/users/update-streak`, {
-            email
+            userId
         });
         return response.data;
     } catch (error) {

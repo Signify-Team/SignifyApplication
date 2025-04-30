@@ -228,7 +228,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                 if (!isPracticeMode) {
                     // Only update course progress and completion for regular mode
                     await updateCourseProgress(route.params.courseId, 100, isCoursePassed);
-                    await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                    await updateCourseCompletion(route.params.courseId, isCoursePassed, navigation);
                 }
                 
                 // Navigate to Courses tab with completion message

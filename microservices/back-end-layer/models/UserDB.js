@@ -22,6 +22,7 @@ const UserSchema = new mongoose.Schema({
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     languagePreference: { type: String, enum: ['ASL', 'TID'] },
     lastLoginDate: { type: Date, default: null }, // Track last login date
+    lastCourseCompletionDate: { type: Date, default: null }, // Track last course completion date
     learningLanguages: [
         {
             languageId: { type: String,required: true, enum: ['ASL', 'TID'],}, 

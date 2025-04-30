@@ -11,6 +11,8 @@ import { getUserId } from './authService';
 import { updateUserPoints } from './userService';
 import { createNotification } from './notificationService';
 import { awardFirstSignMasterBadge } from './badgeAwardService';
+import { updateStreakCount } from './streakService';
+import { useNavigation } from '@react-navigation/native';
 
 export const fetchUserCourses = async () => {
   try {
@@ -55,7 +57,7 @@ export const fetchCourseExercises = async (courseId) => {
   }
 };
 
-export const updateCourseCompletion = async (courseId, isPassed) => {
+export const updateCourseCompletion = async (courseId, isPassed, navigation) => {
     try {
         const userId = await getUserId();
         if (!userId) {
@@ -80,6 +82,19 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             await updateUserPoints(50, 'Course completion');
             // Create notification for passing the course
             await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
+            
+            // Update streak count for passing a course
+            const streakData = await updateStreakCount(userId);
+            if (streakData.shouldShowNotification && navigation) {
+                // Pass streak message to the navigation params
+                navigation.navigate('Home', {
+                    screen: 'Courses',
+                    params: {
+                        streakMessage: streakData.streakMessage,
+                        shouldShowNotification: true
+                    }
+                });
+            }
         } else {
             // Create notification for failing the course
             await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);

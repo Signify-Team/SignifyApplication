@@ -98,6 +98,43 @@ router.post('/:id/finish', async (req, res) => {
         courseProgress.completed = completed;
         courseProgress.lastAccessed = new Date();
 
+        // Handle streak logic if the course is completed successfully
+        if (completed && isPassed) {
+            const currentDate = new Date();
+            const yesterday = new Date(currentDate);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            // Format dates to compare only the date part (ignoring time)
+            const formatDate = (date) => {
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            };
+
+            const currentDateFormatted = formatDate(currentDate);
+            const yesterdayFormatted = formatDate(yesterday);
+            const lastCompletedFormatted = user.lastCompletedCourseDate ? formatDate(user.lastCompletedCourseDate) : null;
+
+            let streakMessage = null;
+            let shouldShowNotification = false;
+
+            if (!lastCompletedFormatted) {
+                // First course completion
+                user.streakCount = 1;
+                streakMessage = "Great start! You've completed your first course!";
+                shouldShowNotification = true;
+            } else if (currentDateFormatted.getTime() === lastCompletedFormatted.getTime()) {
+                // Already completed a course today - no streak change
+                streakMessage = `Keep going! You're on a ${user.streakCount}-day streak!`;
+            } else if (yesterdayFormatted.getTime() === lastCompletedFormatted.getTime()) {
+                // Completed a course yesterday - increment streak
+                user.streakCount += 1;
+                streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
+                shouldShowNotification = true;
+            }
+
+            // Update last completed course date
+            user.lastCompletedCourseDate = currentDate;
+        }
+
         // Save user with updated progress
         await user.save();
 
@@ -105,7 +142,9 @@ router.post('/:id/finish', async (req, res) => {
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
-            progress: courseProgress
+            progress: courseProgress,
+            streakMessage,
+            shouldShowNotification
         });
     } catch (err) {
         console.error('Error completing course:', err);

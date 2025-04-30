@@ -135,16 +135,16 @@ router.post('/login', async (req, res) => {
             if (daysSinceLastCompletion > 1) {
                 // More than 1 day since last course completion - reset streak
                 const lostStreak = oldStreakCount > 1;
-                user.streakCount = 0;
+                user.streakCount = 1;
                 
                 if (lostStreak) {
-                    streakMessage = `You've lost your ${oldStreakCount}-day streak! Complete a course today to start a new streak.`;
+                    streakMessage = `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`;
                     shouldShowNotification = true;
                     try {
                         await createNotification(
                             'streak',
                             'Streak Lost',
-                            `You've lost your ${oldStreakCount}-day streak! Complete a course today to start a new streak.`,
+                            `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`,
                             user._id
                         );
                     } catch (notifError) {
@@ -851,16 +851,16 @@ router.post('/update-streak', async (req, res) => {
             if (daysSinceLastCompletion > 1) {
                 // More than 1 day since last course completion - reset streak
                 const lostStreak = oldStreakCount > 1;
-                user.streakCount = 0;
+                user.streakCount = 1;
                 
                 if (lostStreak) {
-                    streakMessage = `You've lost your ${oldStreakCount}-day streak! Complete a course today to start a new streak.`;
+                    streakMessage = `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`;
                     shouldShowNotification = true;
                     try {
                         await createNotification(
                             'streak',
                             'Streak Lost',
-                            `You've lost your ${oldStreakCount}-day streak! Complete a course today to start a new streak.`,
+                            `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`,
                             user._id
                         );
                     } catch (notifError) {

@@ -837,12 +837,17 @@ router.post('/update-streak', async (req, res) => {
         // Try to find user by MongoDB ObjectId first
         let user = null;
         if (mongoose.Types.ObjectId.isValid(userId)) {
-            user = await User.findById(new mongoose.Types.ObjectId(userId));
+            user = await User.findById(userId);
         }
         
         // If not found by ObjectId, try to find by UUID
         if (!user) {
             user = await User.findOne({ userId: userId });
+        }
+        
+        // If still not found, try to find by email (as a last resort)
+        if (!user) {
+            user = await User.findOne({ email: userId });
         }
         
         if (!user) {

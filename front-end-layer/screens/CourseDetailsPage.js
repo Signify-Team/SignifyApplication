@@ -29,7 +29,7 @@ const CourseDetailPage = ({ route, navigation }) => {
             const exerciseType = String(exercise?.type || '').trim();
 
             const baseExercise = {
-                id: String(exercise?._id || ''),
+                id: String(exercise?.id || exercise?._id || ''),
                 type: exerciseType.toLowerCase(),
                 data: {},
             };
@@ -143,14 +143,14 @@ const CourseDetailPage = ({ route, navigation }) => {
                     correct = Number(answer) === Number(currentExercise.data.correctAnswerIndex);
                     break;
                 case 'matching':
-                    if (!Array.isArray(answer) || !Array.isArray(currentExercise.data.pairs)) {
+                    if (!answer.data || !Array.isArray(answer.data.pairs) || !Array.isArray(currentExercise.data.pairs)) {
                         console.warn('Invalid matching answer format');
                         correct = false;
                         break;
                     }
-                    correct = answer.every((pair, index) =>
+                    correct = answer.data.pairs.every((pair, index) =>
                         currentExercise.data.pairs[index] &&
-                        String(pair?.word || '') === String(currentExercise.data.pairs[index]?.word || '')
+                        String(pair?.matchedWord || '') === String(currentExercise.data.pairs[index]?.word || '')
                     );
                     break;
                 case 'gesture':
@@ -316,7 +316,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                     return (
                         <MatchingQuestion
                             key={`${currentExercise.id}-${currentExerciseIndex}`}
-                            data={currentExercise.data}
+                            data={currentExercise}
                             onAnswer={handleAnswer}
                         />
                     );

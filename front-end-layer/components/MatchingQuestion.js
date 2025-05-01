@@ -15,46 +15,78 @@ import styles from '../styles/QuestionStyles';
 const { width, height } = Dimensions.get('window');
 
 const MatchingQuestion = ({ data, onAnswer }) => {
+    // All hooks must be at the top level
     const [selectedText, setSelectedText] = useState(null);
     const [matches, setMatches] = useState({});
     const [isComplete, setIsComplete] = useState(false);
     const [randomizedWords, setRandomizedWords] = useState([]);
+    const [isValid, setIsValid] = useState(false);
 
-    // Make sure that the data has a correct structure
-    if (!data || !Array.isArray(data.pairs)) {
-        console.warn('Invalid data structure in MatchingQuestion:', data);
-        return null;
-    }
+    // Validate data structure
+    useEffect(() => {
+        console.log('MatchingQuestion data:', JSON.stringify(data, null, 2));
+        setIsValid(data && data.data && Array.isArray(data.data.pairs));
+    }, [data]);
 
     useEffect(() => {
+        if (!isValid) return;
+
         try {
             // Randomly order the words
-            const validPairs = data.pairs.filter(pair => pair && typeof pair === 'object' && pair.word);
+            const validPairs = data.data.pairs.filter(pair => pair && typeof pair === 'object' && pair.word);
+            console.log('Valid pairs:', JSON.stringify(validPairs, null, 2));
             const shuffledWords = [...validPairs].sort(() => Math.random() - 0.5);
             setRandomizedWords(shuffledWords);
         } catch (error) {
             console.error('Error setting up randomized words:', error);
             setRandomizedWords([]);
         }
-    }, [data.pairs]);
+    }, [data.data.pairs, isValid]);
 
     useEffect(() => {
+        if (!isValid) return;
+
         try {
-            if (Object.keys(matches).length === data.pairs.length) {
+            if (Object.keys(matches).length === data.data.pairs.length) {
                 setIsComplete(true);
                 const isCorrect = checkAllMatches();
-                onAnswer(isCorrect);
+                const answer = {
+                    id: data.id,
+                    type: 'matching',
+                    data: {
+                        pairs: data.data.pairs.map((pair, index) => ({
+                            signVideoUrl: pair.signVideoUrl,
+                            word: pair.word,
+                            matchedWord: matches[index] || null
+                        }))
+                    }
+                };
+                onAnswer(answer);
             }
         } catch (error) {
             console.error('Error checking matches:', error);
         }
-    }, [matches]);
+    }, [matches, isValid, data.id]);
 
     const checkAllMatches = () => {
+        if (!isValid) return false;
+
         try {
-            return data.pairs.every((pair, index) => {
-                return pair && pair.word && matches[index] === pair.word;
+            const correctMatches = {};
+            data.data.pairs.forEach((pair, index) => {
+                if (pair && pair.word) {
+                    correctMatches[index] = pair.word;
+                }
             });
+
+            const isCorrect = Object.entries(matches).every(([videoIndex, matchedWord]) => {
+                const correctWord = correctMatches[parseInt(videoIndex)];
+                const isMatchCorrect = correctWord === matchedWord;
+                console.log(`Video ${videoIndex}: User matched "${matchedWord}" with correct word "${correctWord}" -> ${isMatchCorrect ? 'CORRECT' : 'INCORRECT'}`);
+                return isMatchCorrect;
+            });
+
+            return isCorrect;
         } catch (error) {
             console.error('Error in checkAllMatches:', error);
             return false;
@@ -80,14 +112,25 @@ const MatchingQuestion = ({ data, onAnswer }) => {
     const isTextMatched = (text) => text && Object.values(matches).includes(text);
     const getVideoMatch = (index) => matches[index] || null;
 
+    if (!isValid) {
+        return (
+            <View style={styles.quesContainer}>
+                <Text>Invalid exercise data</Text>
+            </View>
+        );
+    }
+
     // Check the word video pairs
-    const validPairs = data.pairs.filter(pair => 
+    const validPairs = data.data.pairs.filter(pair => 
         pair && typeof pair === 'object' && pair.word && pair.signVideoUrl
     );
 
     if (validPairs.length === 0) {
-        console.warn('No valid pairs found in MatchingQuestion');
-        return null;
+        return (
+            <View style={styles.quesContainer}>
+                <Text>No valid pairs found</Text>
+            </View>
+        );
     }
 
     return (

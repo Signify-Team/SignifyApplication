@@ -1,11 +1,3 @@
-/**
- * @file AddFriendsPage.js
- * @description Page for discovering and adding new friends
- * 
- * @datecreated 31.03.2025
- * @lastmodified 31.03.2025
- */
-
 import React, { useState, useEffect } from 'react';
 import {
     View,
@@ -13,23 +5,19 @@ import {
     FlatList,
     TouchableOpacity,
     Image,
-    TextInput,
     ActivityIndicator,
 } from 'react-native';
-import { getAllUsers, followUser, unfollowUser, getUserProfile } from '../utils/services/userService';
-import { createNotification } from '../utils/services/notificationService';
-import { getUserId } from '../utils/services/authService';
+import { getUserFollowers, getUserFollowing, getUserProfile } from '../utils/services/userService';
 import { COLORS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { styles } from '../styles/AddFriendsPageStyles';
 import UnfollowAlert from '../components/UnfollowAlert';
+import { getUserId } from '../utils/services/authService';
 import FriendStatsModal from '../components/FriendStatsModal';
 
-const AddFriendsPage = () => {
+const FollowersFollowingPage = () => {
     const [users, setUsers] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showUnfollowAlert, setShowUnfollowAlert] = useState(false);
@@ -37,49 +25,36 @@ const AddFriendsPage = () => {
     const [showStatsModal, setShowStatsModal] = useState(false);
     const [userStats, setUserStats] = useState(null);
     const navigation = useNavigation();
+    const route = useRoute();
+    const { type, userId } = route.params;
 
     useEffect(() => {
         loadUsers();
     }, []);
 
-    useEffect(() => {
-        if (searchQuery.trim() === '') {
-            setFilteredUsers(users);
-        } else {
-            const filtered = users.filter(user => 
-                user.username.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredUsers(filtered);
-        }
-    }, [searchQuery, users]);
-
     const loadUsers = async () => {
         try {
+            setLoading(true);
             const currentUserId = await getUserId();
             const currentUserProfile = await getUserProfile(currentUserId);
             const followingIds = currentUserProfile.following || [];
             const followerIds = currentUserProfile.followers || [];
 
-            const allUsers = await getAllUsers();
-            // Filter out current user from the list
-            const otherUsers = allUsers.filter(user => user._id !== currentUserId);
-            
+            let userList = [];
+            if (type === 'followers') {
+                userList = await getUserFollowers(userId);
+            } else {
+                userList = await getUserFollowing(userId);
+            }
+
             // Add isFollowing and isFriend flags to each user
-            const usersWithStatus = otherUsers.map(user => ({
+            const usersWithStatus = userList.map(user => ({
                 ...user,
                 isFollowing: followingIds.includes(user._id),
                 isFriend: followingIds.includes(user._id) && followerIds.includes(user._id)
-            }))
-            .sort((a, b) => {
-                // Sort by following status: non-followed users first
-                if (a.isFollowing && !b.isFollowing) return 1;
-                if (!a.isFollowing && b.isFollowing) return -1;
-                // If both have same following status, sort alphabetically by username
-                return a.username.localeCompare(b.username);
-            });
-            
+            }));
+
             setUsers(usersWithStatus);
-            setFilteredUsers(usersWithStatus);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -127,22 +102,10 @@ const AddFriendsPage = () => {
                             ? { ...user, isFollowing: true } 
                             : user
                     ));
-                    
-                    setFilteredUsers(filteredUsers.map(user => 
-                        user._id === userToFollow._id 
-                            ? { ...user, isFollowing: true } 
-                            : user
-                    ));
                 } catch (notificationError) {
                     console.error('Error creating notification:', notificationError);
                     // Even if notification fails, we still show success since follow worked
                     setUsers(users.map(user => 
-                        user._id === userToFollow._id 
-                            ? { ...user, isFollowing: true } 
-                            : user
-                    ));
-                    
-                    setFilteredUsers(filteredUsers.map(user => 
                         user._id === userToFollow._id 
                             ? { ...user, isFollowing: true } 
                             : user
@@ -164,12 +127,6 @@ const AddFriendsPage = () => {
             if (response && response.message === 'Successfully unfollowed user') {
                 // Update local state
                 setUsers(users.map(user => 
-                    user._id === selectedUser._id 
-                        ? { ...user, isFollowing: false } 
-                        : user
-                ));
-                
-                setFilteredUsers(filteredUsers.map(user => 
                     user._id === selectedUser._id 
                         ? { ...user, isFollowing: false } 
                         : user
@@ -233,7 +190,7 @@ const AddFriendsPage = () => {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={COLORS.bright_button_color} />
-                <Text style={styles.loadingText}>Loading users...</Text>
+                <Text style={styles.loadingText}>Loading {type}...</Text>
             </View>
         );
     }
@@ -259,16 +216,10 @@ const AddFriendsPage = () => {
                         resizeMode="contain"
                     />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Add Friends</Text>
+                <Text style={styles.headerTitle}>{type === 'followers' ? 'Followers' : 'Following'}</Text>
             </View>
-            <TextInput
-                style={styles.searchBar}
-                placeholder="Search users..."
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-            />
             <FlatList
-                data={filteredUsers}
+                data={users}
                 renderItem={renderUserItem}
                 keyExtractor={item => item._id}
                 contentContainerStyle={styles.listContainer}
@@ -293,4 +244,4 @@ const AddFriendsPage = () => {
     );
 };
 
-export default AddFriendsPage; 
+export default FollowersFollowingPage; 

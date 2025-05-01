@@ -189,4 +189,24 @@ export const updateUserProfile = async (formData) => {
         console.error('Error updating profile:', error);
         throw new Error(error.response?.data?.message || 'Failed to update profile');
     }
+};
+
+export const getUserFollowers = async (userId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/users/${userId}/followers`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching followers:', error);
+        throw error;
+    }
+};
+
+export const getUserFollowing = async (userId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/users/${userId}/following`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching following:', error);
+        throw error;
+    }
 }; 

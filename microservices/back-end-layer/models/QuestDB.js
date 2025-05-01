@@ -14,7 +14,13 @@ const QuestSchema = new mongoose.Schema({
     title: { type: String, required: true }, // Quest title
     description: { type: String }, // Detailed description
     rewardPoints: { type: Number, default: 0 }, // Points rewarded upon completion
+    startDate: { type: Date, required: true }, // Start date for the quest
     deadline: { type: Date }, // Optional deadline for the quest
+    language: { 
+        type: String, 
+        enum: ['ASL', 'TİD'],
+        default: 'ASL'
+    }, // Language of the quest
     questType: { 
         type: String, 
         required: true, 

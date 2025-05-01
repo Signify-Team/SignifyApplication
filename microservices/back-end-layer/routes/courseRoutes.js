@@ -253,12 +253,27 @@ router.post('/user/:userId/progress', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const allCourses = await Course.find().sort({ createdAt: 1 });
+        const currentCourseIndex = allCourses.findIndex(c => c._id.toString() === courseId);
+
         // Find or create course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         if (!courseProgress) {
+            // Determine if course should be unlocked
+            const isFirstCourse = currentCourseIndex === 0;
+            const previousCourse = allCourses[currentCourseIndex - 1];
+            const previousCourseProgress = previousCourse ? 
+                user.courseProgress.find(p => p.courseId.toString() === previousCourse._id.toString()) : null;
+            const previousCourseCompleted = previousCourseProgress ? previousCourseProgress.completed : false;
+
+            // Course is unlocked if:
+            // 1. It's the first course, OR
+            // 2. The previous course is completed
+            const isLocked = !(isFirstCourse || previousCourseCompleted);
+
             user.courseProgress.push({
                 courseId: courseId,
-                isLocked: true, // Keep locked by default
+                isLocked: isLocked,
                 progress: 0,
                 completed: false,
                 lastAccessed: new Date()

@@ -130,7 +130,7 @@ const MatchingQuestion = ({ data, onAnswer }) => {
                             disabled={!!getVideoMatch(index)}
                         >
                             <Video
-                                source={pair.signVideoUrl}
+                                source={{ uri: pair.signVideoUrl }}
                                 style={localStyles.video}
                                 resizeMode="cover"
                                 repeat={true}

@@ -156,10 +156,14 @@ router.post('/:id/finish', async (req, res) => {
                         unlockDate: new Date()
                     });
                 } else {
-                    // If it exists, just unlock it
+                    // If it exists, ensure it's unlocked
                     nextCourseProgress.isLocked = false;
                     nextCourseProgress.unlockDate = new Date();
+                    nextCourseProgress.lastAccessed = new Date();
                 }
+
+                // Save the user to persist the changes
+                await user.save();
             }
         }
 

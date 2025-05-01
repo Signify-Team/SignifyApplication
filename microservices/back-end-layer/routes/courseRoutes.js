@@ -161,9 +161,6 @@ router.post('/:id/finish', async (req, res) => {
                     nextCourseProgress.unlockDate = new Date();
                     nextCourseProgress.lastAccessed = new Date();
                 }
-
-                // Save the user to persist the changes
-                await user.save();
             }
         }
 
@@ -172,7 +169,7 @@ router.post('/:id/finish', async (req, res) => {
         courseProgress.completed = completed;
         courseProgress.lastAccessed = new Date();
 
-        // Save user with updated progress
+        // Save user with all updates at once
         await user.save();
 
         res.status(200).json({ 

@@ -149,6 +149,7 @@ router.post('/:id/finish', async (req, res) => {
                     const nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
                     
                     if (!nextCourseProgress) {
+                        // Add next course to progress, unlocked
                         user.courseProgress.push({
                             courseId: nextCourse._id,
                             isLocked: false,
@@ -158,6 +159,7 @@ router.post('/:id/finish', async (req, res) => {
                             unlockDate: new Date()
                         });
                     } else {
+                        // If it exists, ensure it's unlocked
                         nextCourseProgress.isLocked = false;
                         nextCourseProgress.unlockDate = new Date();
                         nextCourseProgress.lastAccessed = new Date();
@@ -186,6 +188,7 @@ router.post('/:id/finish', async (req, res) => {
                                 );
 
                                 if (!nextSectionFirstCourseProgress) {
+                                    // Add next section's first course, unlocked
                                     user.courseProgress.push({
                                         courseId: nextSectionFirstCourseId,
                                         isLocked: false,
@@ -195,6 +198,7 @@ router.post('/:id/finish', async (req, res) => {
                                         unlockDate: new Date()
                                     });
                                 } else {
+                                    // If it exists, ensure it's unlocked
                                     nextSectionFirstCourseProgress.isLocked = false;
                                     nextSectionFirstCourseProgress.unlockDate = new Date();
                                     nextSectionFirstCourseProgress.lastAccessed = new Date();

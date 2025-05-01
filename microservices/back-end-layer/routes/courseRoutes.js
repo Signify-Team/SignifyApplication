@@ -221,16 +221,29 @@ router.get('/user/:userId', async (req, res) => {
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Map courses with user-specific status
-        const coursesWithStatus = allCourses.map(course => {
+        const coursesWithStatus = allCourses.map((course, index) => {
             // Find user's progress for this course
             const userProgress = user.courseProgress.find(
                 progress => progress.courseId.toString() === course._id.toString()
             );
 
-            // If there's user progress, use its lock status
-            // If no progress entry exists, check if it's the first course
-            const isFirstCourse = course._id.toString() === allCourses[0]._id.toString();
-            const isLocked = userProgress ? userProgress.isLocked : !isFirstCourse;
+            // Determine if course should be unlocked
+            const isFirstCourse = index === 0;
+            const previousCourse = allCourses[index - 1];
+            const previousCourseProgress = previousCourse ? 
+                user.courseProgress.find(p => p.courseId.toString() === previousCourse._id.toString()) : null;
+            const previousCourseCompleted = previousCourseProgress ? previousCourseProgress.completed : false;
+
+            // Course is unlocked if:
+            // 1. It's the first course, OR
+            // 2. The previous course is completed
+            const shouldBeUnlocked = isFirstCourse || previousCourseCompleted;
+
+            // If there's user progress, use its lock status if it's unlocked
+            // Otherwise, use the calculated lock status
+            const isLocked = userProgress ? 
+                (userProgress.isLocked && !shouldBeUnlocked) : 
+                !shouldBeUnlocked;
 
             return {
                 ...course.toObject(),

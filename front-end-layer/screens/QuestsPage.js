@@ -8,11 +8,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { View, ScrollView, Text, Modal, ActivityIndicator, RefreshControl, TouchableOpacity, Animated, Easing } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/QuestsCardStyle.js';
 import QuestsCard from '../components/QuestsCard';
-import { getUserId, fetchQuests, fetchCompletedQuests, completeQuest, collectQuestReward } from '../utils/apiService';
+import { getUserId } from '../utils/services/authService';
+import { fetchQuests, fetchCompletedQuests, completeQuest, collectQuestReward } from '../utils/services/questService';
+import { getUserLanguagePreference } from '../utils/services/languageService';
+import { API_URL } from '@env';
+
+const LANGUAGE_PREFERENCE_KEY = '@user_language_preference';
 
 const QuestsPage = () => {
+  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,43 +30,163 @@ const QuestsPage = () => {
   const [friendQuests, setFriendQuests] = useState([]);
   const [completedQuests, setCompletedQuests] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [userLanguage, setUserLanguage] = useState('ASL');
 
   // Animation values
   const modalScaleAnim = useRef(new Animated.Value(0.8)).current;
   const modalOpacityAnim = useRef(new Animated.Value(0)).current;
   const questAnimations = useRef({}).current;
 
+  // Add useEffect to handle route params
   useEffect(() => {
-    initializeUserId();
-  }, []);
-
-  const initializeUserId = async () => {
-    try {
-      const id = await getUserId();
-      if (!id) {
-        setError('Please log in to view your quests');
-        return;
+    const unsubscribe = navigation.addListener('focus', () => {
+      const params = navigation.getState().routes.find(route => route.name === 'Quests')?.params;
+      if (params?.refresh) {
+        console.log('Refreshing quests due to language change');
+        onRefresh();
+        // Clear the refresh parameter
+        navigation.setParams({ refresh: undefined });
       }
-      setUserId(id);
-      fetchQuestsData(id);
-    } catch (err) {
-      setError('Failed to get user information');
-      console.error('Error getting user ID:', err);
+    });
+
+    // Initial load
+    initializeUserId();
+
+    return unsubscribe;
+  }, [navigation]);
+
+  // Add useEffect to watch for language changes
+  useEffect(() => {
+    const checkAndUpdateLanguage = async () => {
+      if (userId) {
+        try {
+          const currentLanguage = await fetchUserLanguage();
+          if (currentLanguage !== userLanguage) {
+            setUserLanguage(currentLanguage);
+            await fetchQuestsData(userId);
+          }
+        } catch (error) {
+          console.error('Error checking language:', error);
+        }
+      }
+    };
+
+    checkAndUpdateLanguage();
+  }, [userId]);
+
+  // Add focus listener to refresh when page comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      try {
+        const currentLanguage = await fetchUserLanguage();
+        if (currentLanguage !== userLanguage) {
+          setUserLanguage(currentLanguage);
+          if (userId) {
+            await fetchQuestsData(userId);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching language on focus:', error);
+      }
+    });
+
+    // Initial load
+    initializeUserId();
+
+    return unsubscribe;
+  }, [navigation, userId]);
+
+  // Fetch user language preference
+  const fetchUserLanguage = async () => {
+    try {
+      const userId = await getUserId();
+      if (!userId) {
+        throw new Error('No user ID found. Please log in again.');
+      }
+
+      const language = await getUserLanguagePreference();
+      
+      if (!language) {
+        throw new Error('User language preference not set');
+      }
+
+      const userLang = language === 'TİD' || language === 'TID' ? 'TİD' : language;
+      
+      return userLang;
+    } catch (error) {
+      console.error('Error in fetchUserLanguage:', error);
+      throw error;
     }
   };
 
-  const fetchQuestsData = async (currentUserId) => {
+  const initializeUserId = async () => {
     try {
       setLoading(true);
-      const [allQuests, userQuests] = await Promise.all([
-        fetchQuests(),
-        fetchCompletedQuests(currentUserId)
-      ]);
+      const id = await getUserId();
+      if (!id) {
+        setError('Please log in to view your quests');
+        setLoading(false);
+        return;
+      }
+      setUserId(id);
+      try {
+        const currentLanguage = await fetchUserLanguage();
+        setUserLanguage(currentLanguage);
+        await fetchQuestsData(id);
+      } catch (error) {
+        console.error('Error fetching user language:', error);
+        setError('Failed to load user preferences. Please try again later.');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error in initializeUserId:', err);
+      setError('Failed to get user information');
+      setLoading(false);
+    }
+  };
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    if (userId) {
+      fetchUserLanguage()
+        .then((currentLanguage) => {
+          if (currentLanguage !== userLanguage) {
+            setUserLanguage(currentLanguage);
+          }
+          fetchQuestsData(userId);
+        })
+        .catch((error) => {
+          console.error('Error refreshing user language:', error);
+          setError('Failed to refresh user preferences. Please try again later.');
+          setRefreshing(false);
+        });
+    } else {
+      initializeUserId();
+    }
+  }, [userId, userLanguage]);
+
+  const fetchQuestsData = async (currentUserId) => {
+    try {
+      setError(null);
+      setCollectError(null);
+
+      let allQuests, userQuests;
+      try {
+        allQuests = await fetchQuests();
+      } catch (error) {
+        console.error('Error fetching quests:', error);
+        throw new Error('Failed to fetch quests: ' + error.message);
+      }
+
+      try {
+        userQuests = await fetchCompletedQuests(currentUserId);
+      } catch (error) {
+        console.error('Error fetching completed quests:', error);
+        throw new Error('Failed to fetch completed quests: ' + error.message);
+      }
 
       // Helper function to get user quest data
       const getQuestStatus = (quest, userQuests) => {
-        
         const userQuest = userQuests.find(uq => uq.questId === quest._id);
         if (userQuest) {
           return {
@@ -73,29 +200,55 @@ const QuestsPage = () => {
 
       // Filter and sort quests
       const filterAndSortQuests = (quests, type) => {
+        const now = new Date();
         
         const filteredQuests = quests
           .filter(quest => {
             const status = getQuestStatus(quest, userQuests);
             
-            // completed AND collected quests
-            if (type === 'completed') {
-              return status.isCompleted && status.collected;
-            }
-            
-            // // uncompleted quests or completed but not collected
-            // return quest.questType === type && (!status.isCompleted || (status.isCompleted && !status.collected));
+            const isWithinDateRange = () => {
+              const hasStartDate = quest.startDate;
+              const hasDeadline = quest.deadline;
+              
+              if (hasStartDate && hasDeadline) {
+                return new Date(quest.startDate) <= now && new Date(quest.deadline) >= now;
+              }
+              
+              if (hasStartDate) {
+                return new Date(quest.startDate) <= now;
+              }
+              
+              if (hasDeadline) {
+                return new Date(quest.deadline) >= now;
+              }
+              
+              return true;
+            };
 
-            // keep the completed / uncompleted and not collected quests but hide the expired ones
-            const now = new Date();
+            const isLanguageMatch = () => {
+
+              if (userLanguage === 'TİD' || userLanguage === 'TID') {
+                const isTIDQuest = quest.language === 'TİD';
+                return isTIDQuest;
+              }
+              
+              if (userLanguage === 'ASL') {
+                const isASLQuest = quest.language === 'ASL' || !quest.language;
+                return isASLQuest;
+              }
+              
+              return false;
+            };
+            
             const isPastDeadline = quest.deadline && new Date(quest.deadline) < now;
 
-            return (
-              quest.questType === type &&
+            const shouldShow = quest.questType === type &&
               (!status.isCompleted || (status.isCompleted && !status.collected)) &&
-              !(isPastDeadline && !status.isCompleted) // <== hide incomplete + expired quests
-            );
+              !(isPastDeadline && !status.isCompleted) &&
+              isWithinDateRange() &&
+              isLanguageMatch();
 
+            return shouldShow;
           })
           .map(quest => {
             const status = getQuestStatus(quest, userQuests);
@@ -107,7 +260,6 @@ const QuestsPage = () => {
             };
           })
           .sort((a, b) => {
-            // Prioritizes completed but not collected quests
             const aStatus = getQuestStatus(a, userQuests);
             const bStatus = getQuestStatus(b, userQuests);
             
@@ -145,13 +297,12 @@ const QuestsPage = () => {
             dateCompleted: quest.dateCompleted || new Date(),
             status: 'Completed',
             isCompleted: true,
-            collected: quest.collected || false // Default to false if not set
+            collected: quest.collected || false
           };
 
           return formattedQuest;
         })
         .filter(quest => {
-          // completed and collected
           const isValid = quest !== null && quest.isCompleted && quest.collected === true;
           return isValid;
         });
@@ -159,23 +310,14 @@ const QuestsPage = () => {
       setDailyQuests(daily);
       setFriendQuests(friends);
       setCompletedQuests(formattedCompletedQuests);
-      setError(null);
-      setCollectError(null);
     } catch (err) {
-      console.error('Error fetching quests:', err);
+      console.error('Error in fetchQuestsData:', err);
       setError('Failed to fetch quests. Please try again later.');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    if (userId) {
-      fetchQuestsData(userId);
-    }
-  }, [userId]);
 
   // Initialize animation
   const initializeQuestAnimation = (questId) => {
@@ -514,11 +656,19 @@ const QuestsPage = () => {
               <>
                 <Text style={styles.modalTitle}>{selectedQuest.title}</Text>
                 <Text style={styles.modalDescription}>{selectedQuest.description}</Text>
+                {selectedQuest.startDate && (
+                  <Text style={styles.modalDeadline}>
+                    Start Date: {new Date(selectedQuest.startDate).toLocaleString()}
+                  </Text>
+                )}
                 {selectedQuest.deadline && (
                   <Text style={styles.modalDeadline}>
                     Deadline: {new Date(selectedQuest.deadline).toLocaleString()}
                   </Text>
                 )}
+                <Text style={styles.modalLanguage}>
+                  Language: {selectedQuest.language || 'ASL'}
+                </Text>
                 <Text style={styles.modalPoints}>
                   Reward Points: {selectedQuest.rewardPoints}
                 </Text>

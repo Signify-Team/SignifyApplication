@@ -204,6 +204,12 @@ export default StyleSheet.create({
         color: COLORS.dark_gray_1,
         marginBottom: height * 0.01,
     },
+    modalLanguage: {
+        fontFamily: FONTS.poppins_font,
+        fontSize: 14,
+        color: COLORS.dark_gray_1,
+        marginBottom: height * 0.01,
+    },
     modalPoints: {
         fontFamily: FONTS.poppins_font,
         fontSize: 16,

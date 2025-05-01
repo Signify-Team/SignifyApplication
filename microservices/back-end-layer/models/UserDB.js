@@ -41,6 +41,7 @@ const UserSchema = new mongoose.Schema({
     ],
     progress: { type: mongoose.Schema.Types.ObjectId, ref: 'UserProgress' },
     streakCount: { type: Number, default: 0 },
+    lastCompletedCourseDate: { type: Date, default: null }, // Track last course completion date
     totalPoints: { type: Number, default: 0 },
     achievements: [
         {

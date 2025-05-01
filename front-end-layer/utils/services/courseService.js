@@ -62,6 +62,7 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             throw new Error('No user ID found. Please log in again.');
         }
 
+        // First, complete the course
         const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/finish`, {
             userId,
             isPassed,
@@ -73,27 +74,33 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             throw new Error('Failed to update course completion');
         }
 
-        // Update course progress to 100%
-        await updateCourseProgress(courseId, 100, true);
-
+        // Then handle points and notifications
         if (isPassed) {
-            await updateUserPoints(50, 'Course completion');
-            // Create notification for passing the course
-            await createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId);
+            try {
+                await Promise.all([
+                    updateUserPoints(50, 'Course completion'),
+                    createNotification('course', 'Course Completed!', 'Congratulations! You\'ve completed the course with a passing grade!', userId),
+                    awardFirstSignMasterBadge(userId)
+                ]);
+            } catch (error) {
+                console.error('Error handling post-completion tasks:', error);
+                // Don't fail the completion if these tasks fail
+            }
         } else {
-            // Create notification for failing the course
-            await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
+            try {
+                await createNotification('course', 'Course Completed', 'You\'ve completed the course. Try again to improve your score!', userId);
+            } catch (error) {
+                console.error('Error creating completion notification:', error);
+                // Don't fail the completion if notification fails
+            }
         }
 
-        // Check and award the "First Sign Master" badge
-        try {
-            await awardFirstSignMasterBadge(userId);
-        } catch (badgeError) {
-            // Don't let badge errors affect the course completion flow
-            console.error('Error checking/awarding First Sign Master badge:', badgeError);
-        }
-
-        return response.data;
+        // Return the complete response data including streak info
+        return {
+            ...response.data,
+            isPassed,
+            completed: true
+        };
     } catch (error) {
         console.error('Error updating course completion:', error);
         throw new Error(error.response?.data?.message || 'Failed to update course completion');

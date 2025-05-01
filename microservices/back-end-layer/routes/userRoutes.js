@@ -122,41 +122,34 @@ router.post('/login', async (req, res) => {
         };
 
         const currentDateFormatted = formatDate(currentDate);
-        const yesterdayFormatted = formatDate(yesterday);
-        const lastLoginFormatted = user.lastLoginDate ? formatDate(user.lastLoginDate) : null;
+        const lastCompletedFormatted = user.lastCompletedCourseDate ? formatDate(user.lastCompletedCourseDate) : null;
 
         let streakMessage = null;
+        let shouldShowNotification = false;
         const oldStreakCount = user.streakCount;
 
-        // Update streak count based on login pattern
-        if (!lastLoginFormatted) {
-            // First time login
-            user.streakCount = 1;
-            streakMessage = "Welcome! Start your learning streak today!";
-        } else if (currentDateFormatted.getTime() === lastLoginFormatted.getTime()) {
-            // Already logged in today - do nothing
-        } else if (yesterdayFormatted.getTime() === lastLoginFormatted.getTime()) {
-            // Logged in yesterday - increment streak
-            user.streakCount += 1;
-            streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
-        } else {
-            // Missed a day - reset streak
-            const lostStreak = oldStreakCount > 1;
-            user.streakCount = 1;
-            streakMessage = "Try to log in every day to maintain your streak!";
+        // Check for streak loss
+        if (lastCompletedFormatted) {
+            const daysSinceLastCompletion = Math.floor((currentDateFormatted - lastCompletedFormatted) / (1000 * 60 * 60 * 24));
             
-            // Create a streak loss notification if they actually lost a streak
-            if (lostStreak) {
-                try {
-                    await createNotification(
-                        'streak',
-                        'Streak Lost',
-                        `You've lost your ${oldStreakCount}-day streak! Log in daily to build it back up.`,
-                        user._id
-                    );
-                } catch (notifError) {
-                    console.error('Error creating streak loss notification:', notifError);
-                    // Continue with login process even if notification creation fails
+            if (daysSinceLastCompletion > 1) {
+                // More than 1 day since last course completion - reset streak
+                const lostStreak = oldStreakCount > 1;
+                user.streakCount = 1;
+                
+                if (lostStreak) {
+                    streakMessage = `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`;
+                    shouldShowNotification = true;
+                    try {
+                        await createNotification(
+                            'streak',
+                            'Streak Lost',
+                            `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`,
+                            user._id
+                        );
+                    } catch (notifError) {
+                        console.error('Error creating streak loss notification:', notifError);
+                    }
                 }
             }
         }
@@ -174,7 +167,8 @@ router.post('/login', async (req, res) => {
                 languagePreference: user.languagePreference,
                 streakCount: user.streakCount
             },
-            streakMessage: streakMessage
+            streakMessage,
+            shouldShowNotification
         });
     } catch (error) {
         console.error('Login Error:', error);
@@ -836,49 +830,46 @@ router.post('/update-streak', async (req, res) => {
         }
 
         const currentDate = new Date();
-        const lastLoginDate = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
-        const yesterday = new Date(currentDate);
-        yesterday.setDate(yesterday.getDate() - 1);
+        const lastCompletedDate = user.lastCompletedCourseDate ? new Date(user.lastCompletedCourseDate) : null;
+
+        // Format dates to compare only the date part (ignoring time)
+        const formatDate = (date) => {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        };
+
+        const currentDateFormatted = formatDate(currentDate);
+        const lastCompletedFormatted = lastCompletedDate ? formatDate(lastCompletedDate) : null;
 
         let streakMessage = '';
-        const oldStreakCount = user.streakCount;
         let shouldShowNotification = false;
+        const oldStreakCount = user.streakCount;
 
-        if (!lastLoginDate) {
-            // First time login
-            user.streakCount = 1;
-            streakMessage = "Welcome! Start your learning streak today!";
-            shouldShowNotification = true;
-        } else if (currentDate.toDateString() === lastLoginDate.toDateString()) {
-            // Already logged in today - do nothing
-            streakMessage = `Keep up your ${user.streakCount}-day streak!`;
-        } else if (yesterday.toDateString() === lastLoginDate.toDateString()) {
-            // Logged in yesterday - increment streak
-            user.streakCount += 1;
-            streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
-            shouldShowNotification = true;
-        } else {
-            // Missed a day - reset streak
-            const lostStreak = oldStreakCount > 1;
-            user.streakCount = 1;
-            streakMessage = "Try to log in every day to maintain your streak!";
+        // Check for streak loss
+        if (lastCompletedFormatted) {
+            const daysSinceLastCompletion = Math.floor((currentDateFormatted - lastCompletedFormatted) / (1000 * 60 * 60 * 24));
             
-            if (lostStreak) {
-                shouldShowNotification = true;
-                try {
-                    await createNotification(
-                        'streak',
-                        'Streak Lost',
-                        `You've lost your ${oldStreakCount}-day streak! Log in daily to build it back up.`,
-                        user._id
-                    );
-                } catch (notifError) {
-                    console.error('Error creating streak loss notification:', notifError);
+            if (daysSinceLastCompletion > 1) {
+                // More than 1 day since last course completion - reset streak
+                const lostStreak = oldStreakCount > 1;
+                user.streakCount = 1;
+                
+                if (lostStreak) {
+                    streakMessage = `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`;
+                    shouldShowNotification = true;
+                    try {
+                        await createNotification(
+                            'streak',
+                            'Streak Lost',
+                            `You've lost your ${oldStreakCount}-day streak! Complete a course every day to maintain your new streak.`,
+                            user._id
+                        );
+                    } catch (notifError) {
+                        console.error('Error creating streak loss notification:', notifError);
+                    }
                 }
             }
         }
 
-        user.lastLoginDate = currentDate;
         await user.save();
 
         res.json({ 

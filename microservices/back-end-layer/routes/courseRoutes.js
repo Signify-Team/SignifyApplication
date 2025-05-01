@@ -93,7 +93,72 @@ router.post('/:id/finish', async (req, res) => {
             courseProgress = user.courseProgress[user.courseProgress.length - 1];
         }
 
-        // Update progress
+        // Only update streak if the course wasn't already completed
+        let streakMessage = null;
+        let shouldShowNotification = false;
+
+        if (completed && isPassed && !courseProgress.completed) {
+            const currentDate = new Date();
+            const yesterday = new Date(currentDate);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            // Format dates to compare only the date part (ignoring time)
+            const formatDate = (date) => {
+                return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            };
+
+            const currentDateFormatted = formatDate(currentDate);
+            const yesterdayFormatted = formatDate(yesterday);
+            const lastCompletedFormatted = user.lastCompletedCourseDate ? formatDate(user.lastCompletedCourseDate) : null;
+
+            if (!lastCompletedFormatted) {
+                // First course completion
+                user.streakCount = 1;
+                streakMessage = "Great start! You've completed your first course!";
+                shouldShowNotification = true;
+            } else if (currentDateFormatted.getTime() === lastCompletedFormatted.getTime()) {
+                // Already completed a course today - no streak change
+                streakMessage = `Keep going! You're on a ${user.streakCount}-day streak!`;
+            } else if (yesterdayFormatted.getTime() === lastCompletedFormatted.getTime()) {
+                // Completed a course yesterday - increment streak
+                user.streakCount += 1;
+                streakMessage = `Congratulations! Your streak is now ${user.streakCount} days!`;
+                shouldShowNotification = true;
+            } else {
+                // Streak broken - reset to 1 instead of 0
+                user.streakCount = 1;
+                streakMessage = "You've started a new streak! Keep it going!";
+                shouldShowNotification = true;
+            }
+
+            // Update last completed course date
+            user.lastCompletedCourseDate = currentDate;
+
+            // Find all courses in the same section
+            const allCourses = await Course.find().sort({ createdAt: 1 });
+            const currentCourseIndex = allCourses.findIndex(c => c._id.toString() === courseId);
+            
+            if (currentCourseIndex !== -1 && currentCourseIndex < allCourses.length - 1) {
+                // Get the next course
+                const nextCourse = allCourses[currentCourseIndex + 1];
+                
+                // Find or create progress entry for the next course
+                let nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
+                if (!nextCourseProgress) {
+                    user.courseProgress.push({
+                        courseId: nextCourse._id,
+                        isLocked: false, // Unlock the next course
+                        progress: 0,
+                        completed: false,
+                        lastAccessed: new Date()
+                    });
+                } else {
+                    nextCourseProgress.isLocked = false; // Unlock the next course
+                }
+            }
+        }
+
+        // Update progress regardless of completion status
         courseProgress.progress = progress;
         courseProgress.completed = completed;
         courseProgress.lastAccessed = new Date();
@@ -105,7 +170,9 @@ router.post('/:id/finish', async (req, res) => {
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
-            progress: courseProgress
+            progress: courseProgress,
+            streakMessage,
+            shouldShowNotification
         });
     } catch (err) {
         console.error('Error completing course:', err);

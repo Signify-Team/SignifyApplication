@@ -119,7 +119,7 @@ const DictionaryPage = ({ navigation, route }) => {
             <FlatList
               contentContainerStyle={styles.wordList}
               data={filteredWords}
-              keyExtractor={(item) => item._id}
+              keyExtractor={(item) => `${item._id}-${item.courseId || 'global'}`}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.wordCard}

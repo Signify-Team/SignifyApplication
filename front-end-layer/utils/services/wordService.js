@@ -33,27 +33,23 @@ export const fetchAllUnlockedCourseWords = async () => {
       return course.isLocked === false || course.isLocked === "false" || course._id === allCourses[0]?._id;
     });
     
-    const nextLockedCourse = allCourses.find(course => 
-      !unlockedCourses.some(uc => uc._id === course._id)
-    );
-    
-    const allWords = [];
+    // Use a Map to store unique words by their ID
+    const uniqueWordsMap = new Map();
     
     for (const course of unlockedCourses) {
       const courseResponse = await axios.get(`${API_BASE_URL}/courses/${course._id}`);
       if (courseResponse.data.dictionary) {
-        allWords.push(...courseResponse.data.dictionary);
+        courseResponse.data.dictionary.forEach(word => {
+          // Add courseId to the word object
+          const wordWithCourse = { ...word, courseId: course._id };
+          // Store in map using word ID as key
+          uniqueWordsMap.set(word._id, wordWithCourse);
+        });
       }
     }
     
-    if (nextLockedCourse) {
-      const nextCourseResponse = await axios.get(`${API_BASE_URL}/courses/${nextLockedCourse._id}`);
-      if (nextCourseResponse.data.dictionary) {
-        allWords.push(...nextCourseResponse.data.dictionary);
-      }
-    }
-    
-    return allWords;
+    // Convert Map values to array
+    return Array.from(uniqueWordsMap.values());
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch unlocked course words');
   }

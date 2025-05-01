@@ -6,6 +6,7 @@ import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
 import TrueFalseQuestion from '../components/TrueFalseQuestion';
 import FillInTheBlankQuestion from '../components/FillInTheBlankQuestion';
 import ProgressTopBar from '../components/ProgressTopBar';
+import ConfirmationModal from '../components/ConfirmationModal';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 import MatchingQuestion from '../components/MatchingQuestion';
@@ -106,7 +107,8 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
     const [lives, setLives] = useState(5); // Initialize with 1 life
-
+    const [showLeaveModal, setShowLeaveModal] = useState(false);
+    
     // Calculate progress percentage
     const progressPercentage = exercises.length > 0
         ? ((currentExerciseIndex) / exercises.length) * 100
@@ -340,15 +342,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                     lives={lives}
                     onBackPress={() => {
                         if (exercises.length > 0) {
-                            // Show confirmation dialog before leaving
-                            Alert.alert(
-                                "Leave Course?",
-                                "Your progress will not be saved if you leave now.",
-                                [
-                                    { text: "Stay", style: "cancel" },
-                                    { text: "Leave", style: "destructive", onPress: () => navigation.goBack() }
-                                ]
-                            );
+                            setShowLeaveModal(true);
                         } else {
                             navigation.goBack();
                         }
@@ -388,6 +382,16 @@ const CourseDetailPage = ({ route, navigation }) => {
                     )}
                 </View>
             </View>
+            <ConfirmationModal
+                visible={showLeaveModal}
+                title="Leave Course?"
+                message="Your progress will not be saved if you leave now."
+                onConfirm={() => {
+                    setShowLeaveModal(false);
+                    navigation.goBack();
+                }}
+                onCancel={() => setShowLeaveModal(false)}
+            />
         </View>
     );
 };

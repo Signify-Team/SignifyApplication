@@ -16,9 +16,11 @@ import {
     StyleSheet,
     Dimensions,
     TextInput,
+    ActivityIndicator,
 } from 'react-native';
 import { COLORS, FONTS } from '../utils/constants';
 import BackIcon from '../assets/icons/header/back.png';
+import KoalaHand from '../assets/icons/header/koala-hand.png';
 import { fetchCourseDictionary, fetchAllUnlockedCourseWords } from '../utils/services/wordService';
 
 const { width, height } = Dimensions.get('window');
@@ -27,16 +29,17 @@ const DictionaryPage = ({ navigation, route }) => {
   const [words, setWords] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredWords, setFilteredWords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadDictionary = async () => {
       try {
+        setLoading(true);
         let fetchedWords;
         if (route.params?.courseId) {
-          // get the words of that course
           fetchedWords = await fetchCourseDictionary(route.params.courseId);
         } else {
-          // get all unlocked words
           fetchedWords = await fetchAllUnlockedCourseWords();
         }
         setWords(fetchedWords);
@@ -45,7 +48,6 @@ const DictionaryPage = ({ navigation, route }) => {
       } catch (err) {
         setError(err.message);
         setLoading(false);
-        console.error('Error loading dictionary:', err);
       }
     };
 
@@ -64,13 +66,36 @@ const DictionaryPage = ({ navigation, route }) => {
   }, [searchQuery, words]);
 
   const handleWordPress = (wordObj) => {
-    navigation.navigate('WordVideo', {
-      word: wordObj.name,
-      videoUrl: wordObj.videoUrl,
-      description: wordObj.description, // Optional: if you want to show it on the video screen
-    });
+    if (wordObj.videoUrl) {
+      navigation.navigate('WordVideo', {
+        word: wordObj.name,
+        videoUrl: wordObj.videoUrl,
+        description: wordObj.description,
+      });
+    }
   };
 
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <View style={styles.loadingContainer}>
+          <Image source={KoalaHand} style={styles.loadingKoalaHand} />
+          <ActivityIndicator size="large" color={COLORS.primary} style={styles.loadingIndicator} />
+          <Text style={styles.loadingText}>Loading dictionary...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      </View>
+    );
+  }
 
     return (
         <View style={styles.container}>
@@ -115,6 +140,40 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.background,
         paddingTop: height * 0.07,
     },
+    centerContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    loadingKoalaHand: {
+        width: 100,
+        height: 100,
+        resizeMode: 'contain',
+        marginBottom: 20,
+    },
+    loadingIndicator: {
+        marginBottom: 20,
+    },
+    loadingText: {
+        fontSize: 18,
+        fontFamily: FONTS.poppins_font,
+        color: COLORS.primary,
+        textAlign: 'center',
+    },
+    errorContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+    },
+    errorText: {
+        fontSize: 16,
+        fontFamily: FONTS.poppins_font,
+        color: COLORS.error,
+        textAlign: 'center',
+    },
     topBar: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -148,6 +207,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     wordText: {
         fontSize: width * 0.045,

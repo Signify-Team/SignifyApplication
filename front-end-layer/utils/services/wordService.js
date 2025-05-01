@@ -14,7 +14,6 @@ export const fetchCourseDictionary = async (courseId) => {
     const response = await axios.get(`${API_BASE_URL}/courses/${courseId}`);
     return response.data.dictionary || [];
   } catch (error) {
-    console.error('Error fetching course dictionary:', error);
     throw new Error(error.response?.data?.message || 'Failed to fetch course dictionary');
   }
 };
@@ -26,12 +25,20 @@ export const fetchAllUnlockedCourseWords = async () => {
       throw new Error('No user ID found. Please log in again.');
     }
     
-    // get all courses to later get the unlocked ones
     const userCoursesResponse = await axios.get(`${API_BASE_URL}/courses/user/${userId}`);
-    const unlockedCourses = userCoursesResponse.data.filter(course => !course.isLocked);
+    const allCoursesResponse = await axios.get(`${API_BASE_URL}/courses`);
+    const allCourses = allCoursesResponse.data;
     
-    // get the unlocked courses words
+    const unlockedCourses = userCoursesResponse.data.filter(course => {
+      return course.isLocked === false || course.isLocked === "false" || course._id === allCourses[0]?._id;
+    });
+    
+    const nextLockedCourse = allCourses.find(course => 
+      !unlockedCourses.some(uc => uc._id === course._id)
+    );
+    
     const allWords = [];
+    
     for (const course of unlockedCourses) {
       const courseResponse = await axios.get(`${API_BASE_URL}/courses/${course._id}`);
       if (courseResponse.data.dictionary) {
@@ -39,11 +46,14 @@ export const fetchAllUnlockedCourseWords = async () => {
       }
     }
     
-    // remove duplicates if the same word is in multiple courses
-    const uniqueWords = Array.from(new Set(allWords.map(word => word._id)))
-      .map(id => allWords.find(word => word._id === id));
+    if (nextLockedCourse) {
+      const nextCourseResponse = await axios.get(`${API_BASE_URL}/courses/${nextLockedCourse._id}`);
+      if (nextCourseResponse.data.dictionary) {
+        allWords.push(...nextCourseResponse.data.dictionary);
+      }
+    }
     
-    return uniqueWords;
+    return allWords;
   } catch (error) {
     throw new Error(error.response?.data?.message || 'Failed to fetch unlocked course words');
   }

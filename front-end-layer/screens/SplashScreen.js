@@ -14,6 +14,7 @@ import Sound from 'react-native-sound';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/SplashScreenStyles.js';
 import { updateStreakCount } from '../utils/services/streakService';
+import { USER_ID_KEY } from '../utils/config';
 
 const SplashScreen = () => {
     const navigation = useNavigation();
@@ -23,10 +24,11 @@ const SplashScreen = () => {
 
     const checkRememberedCredentials = async () => {
         try {
+            const userId = await AsyncStorage.getItem(USER_ID_KEY);
             const rememberedEmail = await AsyncStorage.getItem('rememberedEmail');
             const rememberedUsername = await AsyncStorage.getItem('rememberedUsername');
             
-            if (rememberedEmail && rememberedUsername) {
+            if (userId && rememberedEmail && rememberedUsername) {
                 try {
                     const streakData = await updateStreakCount(rememberedEmail);
                     navigation.replace('Home', { 

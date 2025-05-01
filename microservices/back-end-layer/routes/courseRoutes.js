@@ -139,17 +139,16 @@ router.post('/:id/finish', async (req, res) => {
             const allCourses = await Course.find().sort({ createdAt: 1 });
             const currentCourseIndex = allCourses.findIndex(c => c._id.toString() === courseId);
             
-            // Get the current section
-            const currentSection = await Section.findOne({ courses: courseId });
+            // Get the current section with populated courses
+            const currentSection = await Section.findOne({ courses: courseId }).populate('courses');
             
             if (currentCourseIndex !== -1 && currentSection) {
-                // Find all courses in the current section
-                const sectionCourses = allCourses.filter(c => currentSection.courses.includes(c._id));
-                const currentCourseInSectionIndex = sectionCourses.findIndex(c => c._id.toString() === courseId);
+                // Find the current course's index in the section's courses array
+                const currentCourseInSectionIndex = currentSection.courses.findIndex(c => c._id.toString() === courseId);
                 
                 // Handle next course in the same section
-                if (currentCourseInSectionIndex < sectionCourses.length - 1) {
-                    const nextCourse = sectionCourses[currentCourseInSectionIndex + 1];
+                if (currentCourseInSectionIndex < currentSection.courses.length - 1) {
+                    const nextCourse = currentSection.courses[currentCourseInSectionIndex + 1];
                     const nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
                     
                     if (!nextCourseProgress) {
@@ -171,7 +170,7 @@ router.post('/:id/finish', async (req, res) => {
                 }
 
                 // Handle next section's first course if current section is completed
-                const nonPremiumCourses = sectionCourses.filter(c => !c.isPremium);
+                const nonPremiumCourses = currentSection.courses.filter(c => !c.isPremium);
                 const allNonPremiumCompleted = nonPremiumCourses.every(c => {
                     const progress = user.courseProgress.find(p => p.courseId.toString() === c._id.toString());
                     return progress && progress.completed;
@@ -179,32 +178,28 @@ router.post('/:id/finish', async (req, res) => {
 
                 if (allNonPremiumCompleted) {
                     // Find next section
-                    const nextSection = await Section.findOne({ order: currentSection.order + 1 });
+                    const nextSection = await Section.findOne({ order: currentSection.order + 1 }).populate('courses');
                     if (nextSection && nextSection.courses.length > 0) {
-                        const nextSectionFirstCourseId = nextSection.courses[0];
-                        const nextSectionFirstCourse = allCourses.find(c => c._id.toString() === nextSectionFirstCourseId.toString());
-                        
-                        if (nextSectionFirstCourse) {
-                            const nextSectionFirstCourseProgress = user.courseProgress.find(
-                                p => p.courseId.toString() === nextSectionFirstCourseId.toString()
-                            );
+                        const nextSectionFirstCourse = nextSection.courses[0];
+                        const nextSectionFirstCourseProgress = user.courseProgress.find(
+                            p => p.courseId.toString() === nextSectionFirstCourse._id.toString()
+                        );
 
-                            if (!nextSectionFirstCourseProgress) {
-                                // Add next section's first course, unlocked
-                                user.courseProgress.push({
-                                    courseId: nextSectionFirstCourseId,
-                                    isLocked: false,
-                                    progress: 0,
-                                    completed: false,
-                                    lastAccessed: new Date(),
-                                    unlockDate: new Date()
-                                });
-                            } else {
-                                // If it exists, ensure it's unlocked
-                                nextSectionFirstCourseProgress.isLocked = false;
-                                nextSectionFirstCourseProgress.unlockDate = new Date();
-                                nextSectionFirstCourseProgress.lastAccessed = new Date();
-                            }
+                        if (!nextSectionFirstCourseProgress) {
+                            // Add next section's first course, unlocked
+                            user.courseProgress.push({
+                                courseId: nextSectionFirstCourse._id,
+                                isLocked: false,
+                                progress: 0,
+                                completed: false,
+                                lastAccessed: new Date(),
+                                unlockDate: new Date()
+                            });
+                        } else {
+                            // If it exists, ensure it's unlocked
+                            nextSectionFirstCourseProgress.isLocked = false;
+                            nextSectionFirstCourseProgress.unlockDate = new Date();
+                            nextSectionFirstCourseProgress.lastAccessed = new Date();
                         }
                     }
                 }

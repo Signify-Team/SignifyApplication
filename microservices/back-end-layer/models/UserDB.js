@@ -43,6 +43,7 @@ const UserSchema = new mongoose.Schema({
     streakCount: { type: Number, default: 0 },
     lastCompletedCourseDate: { type: Date, default: null }, // Track last course completion date
     totalPoints: { type: Number, default: 0 },
+    lastRewardDate: { type: Date, default: null }, // Track last daily reward collection date
     achievements: [
         {
             achievementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Achievement' },

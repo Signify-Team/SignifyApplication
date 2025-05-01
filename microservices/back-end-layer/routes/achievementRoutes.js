@@ -17,7 +17,7 @@ const router = express.Router();
 
 const achievementLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 10,
+    max: 3000,
     message: 'Too many requests, please try again later.'
 });
 
@@ -124,7 +124,11 @@ router.get('/users/:userId', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user.achievements);
+        res.json({
+            achievements: user.achievements,
+            totalPoints: user.totalPoints,
+            lastRewardDate: user.lastRewardDate
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -208,30 +212,47 @@ router.post('/daily-reward/:userId', async (req, res) => {
             });
         }
 
-        // Check if user has already collected reward today
-        const today = new Date();
+        // Get current UTC time
+        const now = new Date();
+        const utcNow = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+        
+        // Get last reward date in UTC
         const lastRewardDate = user.lastRewardDate ? new Date(user.lastRewardDate) : null;
-        console.log('Last reward date:', lastRewardDate);
-
-        if (lastRewardDate && 
-            lastRewardDate.getDate() === today.getDate() &&
-            lastRewardDate.getMonth() === today.getMonth() &&
-            lastRewardDate.getFullYear() === today.getFullYear()) {
-            console.log('Reward already collected today');
-            return res.status(400).json({ 
-                message: 'Daily reward already collected today',
-                error: 'Reward already collected'
+        
+        if (lastRewardDate) {
+            const utcLastReward = new Date(lastRewardDate.getTime() + lastRewardDate.getTimezoneOffset() * 60000);
+            
+            // Calculate time difference in milliseconds
+            const timeSinceLastReward = utcNow.getTime() - utcLastReward.getTime();
+            const hoursSinceLastReward = timeSinceLastReward / (1000 * 60 * 60);
+            
+            console.log('Time since last reward:', {
+                hoursSinceLastReward,
+                lastRewardDate: utcLastReward,
+                currentTime: utcNow
             });
+            
+            if (hoursSinceLastReward < 24) {
+                console.log('Reward already collected within 24 hours');
+                const nextAvailableTime = new Date(utcLastReward.getTime() + 24 * 60 * 60 * 1000);
+                return res.status(400).json({ 
+                    message: 'Daily reward already collected. Please wait 24 hours between rewards.',
+                    error: 'Reward already collected',
+                    nextAvailableTime,
+                    hoursSinceLastReward
+                });
+            }
         }
 
-        // Award 50 points and update last reward date
+        // Award 50 points and update last reward date with UTC time
         user.totalPoints += 50;
-        user.lastRewardDate = today;
+        user.lastRewardDate = utcNow;
         await user.save();
 
         res.json({ 
             message: 'Daily reward collected!', 
-            totalPoints: user.totalPoints 
+            totalPoints: user.totalPoints,
+            collectedAt: utcNow
         });
     } catch (error) {
         console.error('Error in daily reward route:', error);

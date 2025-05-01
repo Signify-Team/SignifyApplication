@@ -40,23 +40,28 @@ const AchievementsPage = () => {
                 fetchUserAchievements()
             ]);
             
-            setAllAchievements(allAchievementsData);
-            setUserAchievements(userAchievementsData);
+            setAllAchievements(allAchievementsData || []);
+            setUserAchievements(userAchievementsData?.achievements || []);
+            
             // Set initial total points from user data
             if (userAchievementsData && userAchievementsData.totalPoints !== undefined) {
                 setTotalPoints(userAchievementsData.totalPoints);
             }
-            // Set daily reward status
+            
+            // Set daily reward status using server's lastRewardDate
             if (userAchievementsData && userAchievementsData.lastRewardDate) {
-                setLastRewardDate(new Date(userAchievementsData.lastRewardDate));
-                const today = new Date();
                 const lastReward = new Date(userAchievementsData.lastRewardDate);
-                setDailyRewardCollected(
-                    lastReward.getDate() === today.getDate() &&
-                    lastReward.getMonth() === today.getMonth() &&
-                    lastReward.getFullYear() === today.getFullYear()
-                );
+                const now = new Date();
+                const timeSinceLastReward = now.getTime() - lastReward.getTime();
+                const hoursSinceLastReward = timeSinceLastReward / (1000 * 60 * 60);
+                
+                setLastRewardDate(lastReward);
+                setDailyRewardCollected(hoursSinceLastReward < 24);
+            } else {
+                setLastRewardDate(null);
+                setDailyRewardCollected(false);
             }
+            
             setError(null);
         } catch (err) {
             setError(err.message);
@@ -74,35 +79,44 @@ const AchievementsPage = () => {
     useEffect(() => {
         if (!dailyRewardCollected) {
             const startShakeAnimation = () => {
-                Animated.loop(
-                    Animated.sequence([
-                        Animated.timing(shakeAnimation, {
-                            toValue: 1,
-                            duration: 1000,
-                            useNativeDriver: true,
-                        }),
-                        Animated.timing(shakeAnimation, {
-                            toValue: -1,
-                            duration: 1000,
-                            useNativeDriver: true,
-                        }),
-                        Animated.timing(shakeAnimation, {
-                            toValue: 0.5,
-                            duration: 1000,
-                            useNativeDriver: true,
-                        }),
-                        Animated.timing(shakeAnimation, {
-                            toValue: -0.5,
-                            duration: 1000,
-                            useNativeDriver: true,
-                        }),
-                        Animated.timing(shakeAnimation, {
-                            toValue: 0,
-                            duration: 1000,
-                            useNativeDriver: true,
-                        }),
-                    ])
-                ).start();
+                // Create a sequence of two shakes to each side, then pause
+                const shakeSequence = Animated.sequence([
+                    // First shake right
+                    Animated.timing(shakeAnimation, {
+                        toValue: 1,
+                        duration: 150,
+                        useNativeDriver: true,
+                    }),
+                    // First shake left
+                    Animated.timing(shakeAnimation, {
+                        toValue: -1,
+                        duration: 150,
+                        useNativeDriver: true,
+                    }),
+                    // Second shake right
+                    Animated.timing(shakeAnimation, {
+                        toValue: 1,
+                        duration: 150,
+                        useNativeDriver: true,
+                    }),
+                    // Second shake left
+                    Animated.timing(shakeAnimation, {
+                        toValue: -1,
+                        duration: 150,
+                        useNativeDriver: true,
+                    }),
+                    // Return to center
+                    Animated.timing(shakeAnimation, {
+                        toValue: 0,
+                        duration: 150,
+                        useNativeDriver: true,
+                    }),
+                    // Pause
+                    Animated.delay(1000),
+                ]);
+
+                // Loop the sequence
+                Animated.loop(shakeSequence).start();
             };
 
             startShakeAnimation();
@@ -114,7 +128,7 @@ const AchievementsPage = () => {
 
     const rotateInterpolate = shakeAnimation.interpolate({
         inputRange: [-1, 1],
-        outputRange: ['-10deg', '10deg']
+        outputRange: ['-12deg', '12deg']
     });
 
     const onRefresh = useCallback(() => {
@@ -157,26 +171,28 @@ const AchievementsPage = () => {
         setShowAchievementPopup(false);
     };
 
+    const isAchievementUnlocked = (achievementId) => {
+        if (!userAchievements || !Array.isArray(userAchievements)) {
+            return false;
+        }
+        return userAchievements.some(achievement => achievement._id === achievementId);
+    };
+
     const isAchievementCollected = (achievementId) => {
+        if (!userAchievements || !Array.isArray(userAchievements)) {
+            return false;
+        }
         const userAchievement = userAchievements.find(userAchievement => userAchievement._id === achievementId);
         return userAchievement?.collected || false;
     };
 
-    const isAchievementUnlocked = (achievementId) => {
-        return userAchievements.some(achievement => achievement._id === achievementId);
-    };
-
     const handleDailyReward = async () => {
-        if (dailyRewardCollected) {
-            Alert.alert('Already Collected', 'You have already collected your daily reward today. Come back tomorrow!');
-            return;
-        }
-
         try {
             const result = await collectDailyReward();
             if (result && result.totalPoints !== undefined) {
+                // Update the state with the new data from the server
                 setDailyRewardCollected(true);
-                setLastRewardDate(new Date());
+                setLastRewardDate(new Date(result.collectedAt));
                 setTotalPoints(result.totalPoints);
                 setAchievementXp(50);
                 setShowAchievementPopup(true);

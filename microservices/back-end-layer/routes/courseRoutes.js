@@ -142,18 +142,23 @@ router.post('/:id/finish', async (req, res) => {
                 // Get the next course
                 const nextCourse = allCourses[currentCourseIndex + 1];
                 
-                // Find or create progress entry for the next course
-                let nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
+                // Check if the next course is already in user's progress
+                const nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
+                
                 if (!nextCourseProgress) {
+                    // Add the next course to user's progress if it doesn't exist
                     user.courseProgress.push({
                         courseId: nextCourse._id,
-                        isLocked: false, // Unlock the next course
+                        isLocked: false,
                         progress: 0,
                         completed: false,
-                        lastAccessed: new Date()
+                        lastAccessed: new Date(),
+                        unlockDate: new Date()
                     });
                 } else {
-                    nextCourseProgress.isLocked = false; // Unlock the next course
+                    // If it exists, just unlock it
+                    nextCourseProgress.isLocked = false;
+                    nextCourseProgress.unlockDate = new Date();
                 }
             }
         }

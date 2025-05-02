@@ -63,11 +63,6 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
         }
 
         // First, complete the course
-        console.log('Sending course completion request:', {
-            courseId,
-            isPassed,
-            progress: 100
-        });
         const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/finish`, {
             userId,
             isPassed,
@@ -78,7 +73,6 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
         if (!response.data) {
             throw new Error('Failed to update course completion');
         }
-        console.log('Course completion response:', response.data);
 
         // Then handle points and notifications
         if (isPassed) {
@@ -101,13 +95,11 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             }
         }
 
-        // Return the complete response data including streak info and quest completion data
+        // Return the complete response data including streak info
         return {
             ...response.data,
             isPassed,
-            completed: true,
-            showCompletionMessage: true,
-            questCompletionData: response.data.questCompletionData
+            completed: true
         };
     } catch (error) {
         console.error('Error updating course completion:', error);

@@ -95,16 +95,11 @@ const CoursesPage = ({ navigation, route }) => {
                             remainingLives: route.params.remainingLives || 0
                         });
 
-                        // Show course completion popup first
-                        setShowCompletionPopup(true);
-
-                        // After a delay, check for quest completion data
-                        setTimeout(() => {
-                            if (route.params.questCompletionData) {
-                                setQuestCompletionData(route.params.questCompletionData);
-                                setShowQuestCompletionPopup(true);
-                            }
-                        }, 1500); // 1.5 second delay after course completion popup
+                        // Check for quest completion data
+                        if (route.params.questCompletionData) {
+                            setQuestCompletionData(route.params.questCompletionData);
+                            setShowQuestCompletionPopup(true);
+                        }
                     } else {
                         // For practice mode, points aren't relevant
                         setCompletionData({
@@ -115,8 +110,9 @@ const CoursesPage = ({ navigation, route }) => {
                             outOfLives: route.params.outOfLives || false,
                             remainingLives: route.params.remainingLives || 0
                         });
-                        setShowCompletionPopup(true);
                     }
+
+                    setShowCompletionPopup(true);
 
                     // Handle streak message after completion popup is shown
                     if (route.params.streakMessage && route.params.shouldShowNotification) {
@@ -380,12 +376,6 @@ const CoursesPage = ({ navigation, route }) => {
             if (completionData.streakMessage) {
                 setShowStreakPopup(true);
                 setStreakMessage(completionData.streakMessage);
-            }
-
-            // If there's quest completion data, show quest completion popup
-            if (completionData.questCompletionData) {
-                setQuestCompletionData(completionData.questCompletionData);
-                setShowQuestCompletionPopup(true);
             }
 
             // Refresh user data to get updated points and progress

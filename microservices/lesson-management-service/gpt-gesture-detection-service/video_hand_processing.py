@@ -154,39 +154,32 @@ def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
 async def process_frame_batch(frame_batch):
     """Process a batch of frames in parallel to shorten the response time"""
     try:
-        # ThreadPoolExecutor is used to proccess the frames in parallel to shorten the response time
+        # Create a temporary directory for processed frames
+        temp_dir = os.path.join(os.path.dirname(EXTRACTED_FRAMES_DIR), "temp_processed")
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # ThreadPoolExecutor is used to process the frames in parallel
         with ThreadPoolExecutor() as executor:
-            loop = asyncio.get_event_loop() # get_event_loop is used to get the event loop to manage this task
-            # event loop is responsible for running the tasks in parallel
-            # if an asyncio task is created, it is added to the event loop
-            # if an event loop is not running, it is created and run
-            # if an event loop is running, the task is added to the event loop
-
+            loop = asyncio.get_event_loop()
             tasks = []
-            for frame_path in frame_batch:
+            for i, frame_path in enumerate(frame_batch):
                 if os.path.exists(frame_path):  # Check if file exists
-                    tasks.append(loop.run_in_executor(executor, cv2.imread, frame_path)) # this line makes sure that the frame is read in parallel 
-                    # this way when processing 100 frames, it will not take 100 times the time
-                    # but instead it will take the time of the longest frame
-                    # this is because the frames are read in parallel
-                    # and the time it takes to read the frames is the same
-                    # so it is faster to read all the frames at once
-                    # and then process them in parallel
-
+                    # Save frame as temporary file
+                    temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
+                    tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, cv2.imread(frame_path)), temp_path))
                 else:
                     print(f"Warning: Frame file not found: {frame_path}")
             
             if not tasks:
                 return []
             
-            frames = await asyncio.gather(*tasks, return_exceptions=True) # this line is used to run the tasks in parallel
-            # gather is used to run the tasks in parallel
-            # return_exceptions is used to return the exceptions and makes sure that the program does not crash
-            # if an exception is thrown, it is returned in the list so it can be handled later
-
-            # Filter out None values and exceptions
-            valid_frames = [f for f in frames if f is not None and not isinstance(f, Exception)]
-            return valid_frames
+            # Wait for all frames to be saved
+            await asyncio.gather(*tasks)
+            
+            # Get all saved frame paths
+            processed_frames = sorted([os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith('.jpg')])
+            return processed_frames
+            
     except Exception as e:
         print(f"Error in process_frame_batch: {e}")
         return []

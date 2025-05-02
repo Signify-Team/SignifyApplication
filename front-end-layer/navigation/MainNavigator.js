@@ -3,7 +3,7 @@
  * @description Includes main navigations of the pages.
  *
  * @datecreated 05.11.2024
- * @lastmodified 23.12.2024
+ * @lastmodified 30.04.2025
  */
 
 import React from 'react';
@@ -29,6 +29,7 @@ import DictionaryPage from '../screens/DictionaryPage';
 import WordVideoPage from '../screens/WordVideoPage';
 import AddFriendsPage from '../screens/AddFriendsPage';
 import FollowersFollowingPage from '../screens/FollowersFollowingPage';
+import ConsentFormPage from '../screens/ConsentFormPage';
 
 const Stack =
 createStackNavigator();
@@ -159,6 +160,13 @@ const MainNavigator = () => (
         <Stack.Screen
             name="FollowersFollowing"
             component={FollowersFollowingPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="ConsentForm"
+            component={ConsentFormPage}
             options={{
                 headerShown: false,
             }}

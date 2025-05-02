@@ -6,6 +6,7 @@ import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
 import TrueFalseQuestion from '../components/TrueFalseQuestion';
 import FillInTheBlankQuestion from '../components/FillInTheBlankQuestion';
 import ProgressTopBar from '../components/ProgressTopBar';
+import ConfirmationModal from '../components/ConfirmationModal';
 import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 import MatchingQuestion from '../components/MatchingQuestion';
@@ -29,7 +30,7 @@ const CourseDetailPage = ({ route, navigation }) => {
             const exerciseType = String(exercise?.type || '').trim();
 
             const baseExercise = {
-                id: String(exercise?._id || ''),
+                id: String(exercise?.id || exercise?._id || ''),
                 type: exerciseType.toLowerCase(),
                 data: {},
             };
@@ -106,7 +107,8 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
     const [lives, setLives] = useState(5); // Initialize with 1 life
-
+    const [showLeaveModal, setShowLeaveModal] = useState(false);
+    
     // Calculate progress percentage
     const progressPercentage = exercises.length > 0
         ? ((currentExerciseIndex) / exercises.length) * 100
@@ -143,14 +145,14 @@ const CourseDetailPage = ({ route, navigation }) => {
                     correct = Number(answer) === Number(currentExercise.data.correctAnswerIndex);
                     break;
                 case 'matching':
-                    if (!Array.isArray(answer) || !Array.isArray(currentExercise.data.pairs)) {
+                    if (!answer.data || !Array.isArray(answer.data.pairs) || !Array.isArray(currentExercise.data.pairs)) {
                         console.warn('Invalid matching answer format');
                         correct = false;
                         break;
                     }
-                    correct = answer.every((pair, index) =>
+                    correct = answer.data.pairs.every((pair, index) =>
                         currentExercise.data.pairs[index] &&
-                        String(pair?.word || '') === String(currentExercise.data.pairs[index]?.word || '')
+                        String(pair?.matchedWord || '') === String(currentExercise.data.pairs[index]?.word || '')
                     );
                     break;
                 case 'gesture':
@@ -316,7 +318,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                     return (
                         <MatchingQuestion
                             key={`${currentExercise.id}-${currentExerciseIndex}`}
-                            data={currentExercise.data}
+                            data={currentExercise}
                             onAnswer={handleAnswer}
                         />
                     );
@@ -340,15 +342,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                     lives={lives}
                     onBackPress={() => {
                         if (exercises.length > 0) {
-                            // Show confirmation dialog before leaving
-                            Alert.alert(
-                                "Leave Course?",
-                                "Your progress will not be saved if you leave now.",
-                                [
-                                    { text: "Stay", style: "cancel" },
-                                    { text: "Leave", style: "destructive", onPress: () => navigation.goBack() }
-                                ]
-                            );
+                            setShowLeaveModal(true);
                         } else {
                             navigation.goBack();
                         }
@@ -388,6 +382,16 @@ const CourseDetailPage = ({ route, navigation }) => {
                     )}
                 </View>
             </View>
+            <ConfirmationModal
+                visible={showLeaveModal}
+                title="Leave Course?"
+                message="Your progress will not be saved if you leave now."
+                onConfirm={() => {
+                    setShowLeaveModal(false);
+                    navigation.goBack();
+                }}
+                onCancel={() => setShowLeaveModal(false)}
+            />
         </View>
     );
 };

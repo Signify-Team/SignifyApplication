@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit';
 import Course from '../models/CourseDB.js';
 import User from '../models/UserDB.js';
 import mongoose from 'mongoose';
+import Section from '../models/SectionDB.js';
 
 const router = express.Router();
 
@@ -85,7 +86,7 @@ router.post('/:id/finish', async (req, res) => {
         if (!courseProgress) {
             user.courseProgress.push({
                 courseId: courseId,
-                isLocked: true,
+                isLocked: false, // First course is always unlocked
                 progress: 0,
                 completed: false,
                 lastAccessed: new Date()
@@ -138,22 +139,69 @@ router.post('/:id/finish', async (req, res) => {
             const allCourses = await Course.find().sort({ createdAt: 1 });
             const currentCourseIndex = allCourses.findIndex(c => c._id.toString() === courseId);
             
-            if (currentCourseIndex !== -1 && currentCourseIndex < allCourses.length - 1) {
-                // Get the next course
-                const nextCourse = allCourses[currentCourseIndex + 1];
+            // Get the current section with populated courses
+            const currentSection = await Section.findOne({ courses: courseId }).populate('courses');
+            
+            if (currentCourseIndex !== -1 && currentSection) {
+                // Find the current course's index in the section's courses array
+                const currentCourseInSectionIndex = currentSection.courses.findIndex(c => c._id.toString() === courseId);
                 
-                // Find or create progress entry for the next course
-                let nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
-                if (!nextCourseProgress) {
-                    user.courseProgress.push({
-                        courseId: nextCourse._id,
-                        isLocked: false, // Unlock the next course
-                        progress: 0,
-                        completed: false,
-                        lastAccessed: new Date()
-                    });
-                } else {
-                    nextCourseProgress.isLocked = false; // Unlock the next course
+                // Handle next course in the same section
+                if (currentCourseInSectionIndex < currentSection.courses.length - 1) {
+                    const nextCourse = currentSection.courses[currentCourseInSectionIndex + 1];
+                    const nextCourseProgress = user.courseProgress.find(p => p.courseId.toString() === nextCourse._id.toString());
+                    
+                    if (!nextCourseProgress) {
+                        // Add next course to progress, unlocked
+                        user.courseProgress.push({
+                            courseId: nextCourse._id,
+                            isLocked: false,
+                            progress: 0,
+                            completed: false,
+                            lastAccessed: new Date(),
+                            unlockDate: new Date()
+                        });
+                    } else {
+                        // If it exists, ensure it's unlocked
+                        nextCourseProgress.isLocked = false;
+                        nextCourseProgress.unlockDate = new Date();
+                        nextCourseProgress.lastAccessed = new Date();
+                    }
+                }
+
+                // Handle next section's first course if current section is completed
+                const nonPremiumCourses = currentSection.courses.filter(c => !c.isPremium);
+                const allNonPremiumCompleted = nonPremiumCourses.every(c => {
+                    const progress = user.courseProgress.find(p => p.courseId.toString() === c._id.toString());
+                    return progress && progress.completed;
+                });
+
+                if (allNonPremiumCompleted) {
+                    // Find next section
+                    const nextSection = await Section.findOne({ order: currentSection.order + 1 }).populate('courses');
+                    if (nextSection && nextSection.courses.length > 0) {
+                        const nextSectionFirstCourse = nextSection.courses[0];
+                        const nextSectionFirstCourseProgress = user.courseProgress.find(
+                            p => p.courseId.toString() === nextSectionFirstCourse._id.toString()
+                        );
+
+                        if (!nextSectionFirstCourseProgress) {
+                            // Add next section's first course, unlocked
+                            user.courseProgress.push({
+                                courseId: nextSectionFirstCourse._id,
+                                isLocked: false,
+                                progress: 0,
+                                completed: false,
+                                lastAccessed: new Date(),
+                                unlockDate: new Date()
+                            });
+                        } else {
+                            // If it exists, ensure it's unlocked
+                            nextSectionFirstCourseProgress.isLocked = false;
+                            nextSectionFirstCourseProgress.unlockDate = new Date();
+                            nextSectionFirstCourseProgress.lastAccessed = new Date();
+                        }
+                    }
                 }
             }
         }
@@ -161,9 +209,10 @@ router.post('/:id/finish', async (req, res) => {
         // Update progress regardless of completion status
         courseProgress.progress = progress;
         courseProgress.completed = completed;
+        courseProgress.isLocked = false; // Ensure completed course is always unlocked
         courseProgress.lastAccessed = new Date();
 
-        // Save user with updated progress
+        // Save user with all updates at once
         await user.save();
 
         res.status(200).json({ 
@@ -209,30 +258,55 @@ router.get('/user/:userId', async (req, res) => {
         // Get both user and all courses in parallel
         const [user, allCourses] = await Promise.all([
             User.findById(userId),
-            Course.find().populate('exercises')
+            Course.find().populate('exercises').populate('dictionary')
         ]);
 
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         // Map courses with user-specific status
-        const coursesWithStatus = allCourses.map(course => {
+        const coursesWithStatus = allCourses.map((course, index) => {
             // Find user's progress for this course
             const userProgress = user.courseProgress.find(
                 progress => progress.courseId.toString() === course._id.toString()
             );
 
-            // If there's user progress, use its lock status
-            // If no progress entry exists, check if it's the first course
-            const isFirstCourse = course._id.toString() === allCourses[0]._id.toString();
-            const isLocked = userProgress ? userProgress.isLocked : !isFirstCourse;
+            // Determine if course should be unlocked
+            const isFirstCourse = index === 0;
+            const previousCourse = allCourses[index - 1];
+            const previousCourseProgress = previousCourse ? 
+                user.courseProgress.find(p => p.courseId.toString() === previousCourse._id.toString()) : null;
+            const previousCourseCompleted = previousCourseProgress ? previousCourseProgress.completed : false;
 
-            return {
+            // Course is unlocked if:
+            // 1. It's the first course, OR
+            // 2. The previous course is completed, OR
+            // 3. It's a premium course, OR
+            // 4. It's explicitly marked as unlocked in user progress
+            const shouldBeUnlocked = isFirstCourse || 
+                                   previousCourseCompleted || 
+                                   course.isPremium || 
+                                   (userProgress && !userProgress.isLocked);
+
+            // If there's user progress, use its lock status if it's unlocked
+            // Otherwise, use the calculated lock status
+            const isLocked = userProgress ? 
+                (userProgress.isLocked && !shouldBeUnlocked) : 
+                !shouldBeUnlocked;
+
+            // Only include dictionary if course is unlocked
+            const courseData = {
                 ...course.toObject(),
                 isLocked,
                 progress: userProgress ? userProgress.progress : 0,
                 completed: userProgress ? userProgress.completed : false,
                 lastAccessed: userProgress ? userProgress.lastAccessed : null
             };
+
+            if (isLocked) {
+                delete courseData.dictionary;
+            }
+
+            return courseData;
         });
 
         res.status(200).json(coursesWithStatus);
@@ -253,12 +327,27 @@ router.post('/user/:userId/progress', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const allCourses = await Course.find().sort({ createdAt: 1 });
+        const currentCourseIndex = allCourses.findIndex(c => c._id.toString() === courseId);
+
         // Find or create course progress entry
         let courseProgress = user.courseProgress.find(p => p.courseId.toString() === courseId);
         if (!courseProgress) {
+            // Determine if course should be unlocked
+            const isFirstCourse = currentCourseIndex === 0;
+            const previousCourse = allCourses[currentCourseIndex - 1];
+            const previousCourseProgress = previousCourse ? 
+                user.courseProgress.find(p => p.courseId.toString() === previousCourse._id.toString()) : null;
+            const previousCourseCompleted = previousCourseProgress ? previousCourseProgress.completed : false;
+
+            // Course is unlocked if:
+            // 1. It's the first course, OR
+            // 2. The previous course is completed
+            const isLocked = !(isFirstCourse || previousCourseCompleted);
+
             user.courseProgress.push({
                 courseId: courseId,
-                isLocked: true, // Keep locked by default
+                isLocked: isLocked,
                 progress: 0,
                 completed: false,
                 lastAccessed: new Date()

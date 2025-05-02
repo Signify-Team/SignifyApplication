@@ -32,6 +32,7 @@
 		C285E5BC22594340BEF23DCC /* Poppins-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA9B4431E88A4054AF23382C /* Poppins-ExtraBoldItalic.ttf */; };
 		C6A3B7FCB8C5472DB783CF69 /* Poppins-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 016BAA37ACA44D0F8259E2BA /* Poppins-LightItalic.ttf */; };
 		D123BB562DC4EA3500E8200E /* splash_screen.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D123BB552DC4EA3500E8200E /* splash_screen.mp3 */; };
+		D123BB582DC4F07C00E8200E /* primary_button_sound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D123BB572DC4F07C00E8200E /* primary_button_sound.mp3 */; };
 		D7A3BC77947B42DAB47FF947 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7C02417B96C24EDB9EA6AA85 /* Poppins-Medium.ttf */; };
 		DAC28C19C6524BBFA55117A9 /* Poppins-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D2A21ADD7F842CDB03009AD /* Poppins-BoldItalic.ttf */; };
 		EE0D9D988C343DD98B53C8E9 /* libPods-SignifyProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA466FF9EE95F9937E8DAB48 /* libPods-SignifyProject.a */; };
@@ -85,6 +86,7 @@
 		BA466FF9EE95F9937E8DAB48 /* libPods-SignifyProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SignifyProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA9B4431E88A4054AF23382C /* Poppins-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-ExtraBoldItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		D123BB552DC4EA3500E8200E /* splash_screen.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = splash_screen.mp3; sourceTree = "<group>"; };
+		D123BB572DC4F07C00E8200E /* primary_button_sound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = primary_button_sound.mp3; sourceTree = "<group>"; };
 		D3F9EBF0CC54461CA40846CF /* Poppins-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-MediumItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-MediumItalic.ttf"; sourceTree = "<group>"; };
 		E3308BEE0A3048E8936706C2 /* Poppins-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-BlackItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-BlackItalic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -220,6 +222,7 @@
 				B8B23E9976524F45A84C86E5 /* Poppins-SemiBoldItalic.ttf */,
 				B8F8F6F10C764B588E21EBEE /* Poppins-Thin.ttf */,
 				26AF3ACEE2B24E1B9A3EA0A3 /* Poppins-ThinItalic.ttf */,
+				D123BB572DC4F07C00E8200E /* primary_button_sound.mp3 */,
 				D123BB552DC4EA3500E8200E /* splash_screen.mp3 */,
 			);
 			name = Resources;
@@ -327,6 +330,7 @@
 				B8A1BACAA0094D0EAE4FD96E /* Poppins-Black.ttf in Resources */,
 				14CA052255B24B0D8A05A14D /* Poppins-BlackItalic.ttf in Resources */,
 				BBFA330AC62747D6A8C4C5FB /* Poppins-Bold.ttf in Resources */,
+				D123BB582DC4F07C00E8200E /* primary_button_sound.mp3 in Resources */,
 				DAC28C19C6524BBFA55117A9 /* Poppins-BoldItalic.ttf in Resources */,
 				FDEA7232FC83447ABE5638A4 /* Poppins-ExtraBold.ttf in Resources */,
 				C285E5BC22594340BEF23DCC /* Poppins-ExtraBoldItalic.ttf in Resources */,
@@ -566,7 +570,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HHZ2B3U66M;
+				DEVELOPMENT_TEAM = V485H87WF4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SignifyProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -580,7 +584,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dila.signify1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeynep.signify1;
 				PRODUCT_NAME = SignifyProject;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -595,7 +599,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = HHZ2B3U66M;
+				DEVELOPMENT_TEAM = V485H87WF4;
 				INFOPLIST_FILE = SignifyProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -608,7 +612,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.dila.signify1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeynep.signify1;
 				PRODUCT_NAME = SignifyProject;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

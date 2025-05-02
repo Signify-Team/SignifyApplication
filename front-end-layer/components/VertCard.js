@@ -3,13 +3,14 @@
  * @description Vertical card component with title, description and button.
  *
  * @datecreated 19.12.2024
- * @lastmodified 19.12.2024
+ * @lastmodified 02.05.2025
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Alert } from 'react-native';
 import { COLORS, darkenColor, FONTS } from '../utils/constants';
 import RectangularButton from './RectangularButton';
+import { playPrimaryButtonSound } from '../utils/services/soundServices';
 import DictionaryIcon from '../assets/icons/header/dictionary_icon.png';
 const { width, height } = Dimensions.get('window');
 
@@ -21,7 +22,7 @@ const VertCard = ({
     onPress,
     onDictionaryPress,
     courseId,
-    isPracticeMode = false
+    isPracticeMode = false,
 }) => {
     return (
         <View style={[styles.cardWrapper, { backgroundColor: darkenColor(COLORS.soft_pink_background, 40) }]}>
@@ -32,9 +33,12 @@ const VertCard = ({
                 <View style={styles.buttonRow}>
                     <RectangularButton
                         width={isPracticeMode ? width * 0.35 : width * 0.25}
-                        text={isPracticeMode ? "PRACTICE" : buttonText}
+                        text={isPracticeMode ? 'PRACTICE' : buttonText}
                         color={isPracticeMode ? COLORS.secondary : buttonColor}
-                        onPress={() => { onPress(); }}
+                        onPress={() => { 
+                            playPrimaryButtonSound();
+                            onPress(); 
+                        }}
                     />
                     {onDictionaryPress && (
                         <RectangularButton
@@ -44,7 +48,10 @@ const VertCard = ({
                             iconWidth={width * 0.08}
                             onlyIcon={true}
                             color={COLORS.paw_color}
-                            onPress={() => onDictionaryPress(courseId)}
+                            onPress={() => {
+                                playPrimaryButtonSound();
+                                onDictionaryPress(courseId);
+                            }}
                         />
                     )}
                 </View>

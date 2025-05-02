@@ -14,6 +14,7 @@ import CourseInfoCard from '../components/CourseInfoCard';
 import VertCard from '../components/VertCard';
 import CoursePath from '../components/CoursePath';
 import { COLORS } from '../utils/constants';
+import { loadSounds, playPrimaryButtonSound } from '../utils/services/soundServices';
 import GreetingsIcon from '../assets/icons/course-info/greetings.png';
 import {
     fetchSectionsByLanguage,
@@ -61,6 +62,7 @@ const CoursesPage = ({ navigation, route }) => {
         loadUserLanguageAndSections();
         loadUserPremiumStatus();
         loadUserData();
+        loadSounds();
     }, []);
 
     useEffect(() => {
@@ -427,7 +429,9 @@ const CoursesPage = ({ navigation, route }) => {
                         level={selectedCourse.level}
                         buttonText="START"
                         onPress={handleNavigateToCourse}
-                        onDictionaryPress={() => navigation.navigate('Dictionary', { courseId: selectedCourse._id })}
+                        onDictionaryPress={() => {
+                            playPrimaryButtonSound();
+                            navigation.navigate('Dictionary', { courseId: selectedCourse._id });}}
                         isPracticeMode={selectedCourse.completed === true}
                     />
                 )}

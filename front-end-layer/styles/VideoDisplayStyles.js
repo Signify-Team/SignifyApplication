@@ -12,13 +12,14 @@ const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
-      width: '100%',
-      aspectRatio: 16/9,
-      backgroundColor: COLORS.background_secondary,
+      width: width * 0.9,
+      aspectRatio: 1,
+      backgroundColor: COLORS.primary,
       borderRadius: 10,
       overflow: 'hidden',
       marginBottom: 10,
-      maxHeight: 200,
+      padding: 10,
+      alignSelf: 'center',
     },
     dictionaryContainer: {
       justifyContent: 'center',
@@ -31,6 +32,7 @@ const styles = StyleSheet.create({
     video: {
       width: '100%',
       height: '100%',
+      borderRadius: 10,
     },
     dictionaryVideo: {
       width: width * 0.89,
@@ -38,12 +40,12 @@ const styles = StyleSheet.create({
       borderRadius: 16,
     },
     koalaHandContainer: {
-      width: width * 0.89,
-      height: height * 0.37,
+      width: '100%',
+      height: '100%',
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: COLORS.background_secondary,
-      borderRadius: 16,
+      borderRadius: 10,
     },
     koalaHand: {
       width: 100,

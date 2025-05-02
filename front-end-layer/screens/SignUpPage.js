@@ -6,7 +6,7 @@
  *              Includes a button to navigate to the login page
  *
  * @datecreated 05.11.2024
- * @lastmodified 12.11.2024
+ * @lastmodified 30.04.2025
  */
 
 import React, { useState } from 'react';
@@ -88,15 +88,15 @@ const SignUpPage = () => {
                     navigation.replace('Login');
                 }
             } else {
-                // If not verified, send verification code
-                const result = await sendVerificationCode(email, username, password);
-                if (result) {
-                    navigation.replace('Authentication', { email, username, password });
-                }
+                // Navigate to consent form first
+                navigation.navigate('ConsentForm', {
+                    email,
+                    username,
+                    password
+                });
             }
         } catch (error) {
             setErrorMessage(error.message);
-            // Don't navigate on error
         } finally {
             setIsLoading(false);
         }

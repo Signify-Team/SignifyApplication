@@ -16,9 +16,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from openai import OpenAI
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
 import shutil
 from dotenv import load_dotenv
 from PIL import Image

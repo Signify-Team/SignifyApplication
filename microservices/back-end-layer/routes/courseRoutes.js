@@ -12,6 +12,8 @@ import Course from '../models/CourseDB.js';
 import User from '../models/UserDB.js';
 import mongoose from 'mongoose';
 import Section from '../models/SectionDB.js';
+import Quest from '../models/QuestDB.js';
+import Notification from '../models/NotificationDB.js';
 
 const router = express.Router();
 
@@ -204,6 +206,37 @@ router.post('/:id/finish', async (req, res) => {
                     }
                 }
             }
+
+            // Check for Quiz Master quest completion if success rate is 80% or higher
+            if (progress >= 80) {
+                try {
+                    const quizMasterQuest = await Quest.findOne({ 
+                        questId: "67e6bc2ffd5e2d4e82c809e1",
+                        language: "TİD"
+                    });
+
+                    if (quizMasterQuest) {
+                        // Check if user already has this quest
+                        const existingQuest = user.quests.find(q => q.questId.toString() === quizMasterQuest._id.toString());
+                        
+                        if (!existingQuest) {
+                            user.quests.push({
+                                questId: quizMasterQuest._id,
+                                status: "Completed",
+                                dateAssigned: new Date(),
+                                dateCompleted: new Date(),
+                                collected: false
+                            });
+
+                            // Create a notification for the quest completion
+                            await createNotification('quest', 'Quest Completed!', `You've completed the "${quizMasterQuest.title}" quest!`, userId);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking Quiz Master quest:', error);
+                    // Don't fail the course completion if quest check fails
+                }
+            }
         }
 
         // Update progress regardless of completion status
@@ -215,13 +248,22 @@ router.post('/:id/finish', async (req, res) => {
         // Save user with all updates at once
         await user.save();
 
+        // Check if we need to show quest completion popup
+        const questCompletionData = progress >= 80 ? {
+            showQuestCompletion: true,
+            questTitle: "Quiz Master",
+            questDescription: "Score 80% or higher in any course.",
+            rewardPoints: 100
+        } : null;
+
         res.status(200).json({ 
             message: `Course '${course.name}' completed!`, 
             course,
             isPassed,
             progress: courseProgress,
             streakMessage,
-            shouldShowNotification
+            shouldShowNotification,
+            questCompletionData
         });
     } catch (err) {
         console.error('Error completing course:', err);

@@ -29,6 +29,7 @@ import {
 import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
 import CourseCompletionPopup from '../components/CourseCompletionPopup';
+import QuestCompletionPopup from '../components/QuestCompletionPopup';
 
 const CoursesPage = ({ navigation, route }) => {
     const [showCard, setShowCard] = useState(false);
@@ -57,6 +58,9 @@ const CoursesPage = ({ navigation, route }) => {
         userPoints: 0
     });
     const [completionMessage, setCompletionMessage] = useState('');
+
+    const [showQuestCompletionPopup, setShowQuestCompletionPopup] = useState(false);
+    const [questCompletionData, setQuestCompletionData] = useState(null);
 
     useEffect(() => {
         loadUserLanguageAndSections();
@@ -90,6 +94,12 @@ const CoursesPage = ({ navigation, route }) => {
                             outOfLives: route.params.outOfLives || false,
                             remainingLives: route.params.remainingLives || 0
                         });
+
+                        // Check for quest completion data
+                        if (route.params.questCompletionData) {
+                            setQuestCompletionData(route.params.questCompletionData);
+                            setShowQuestCompletionPopup(true);
+                        }
                     } else {
                         // For practice mode, points aren't relevant
                         setCompletionData({
@@ -126,6 +136,7 @@ const CoursesPage = ({ navigation, route }) => {
                     showCompletionMessage: false,
                     streakMessage: null,
                     shouldShowNotification: false,
+                    questCompletionData: null
                 });
             };
 
@@ -375,6 +386,11 @@ const CoursesPage = ({ navigation, route }) => {
         }
     };
 
+    const handleQuestCompletionPopupClose = () => {
+        setShowQuestCompletionPopup(false);
+        setQuestCompletionData(null);
+    };
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.container, styles.centerContent]}>
@@ -455,6 +471,14 @@ const CoursesPage = ({ navigation, route }) => {
                 pointsEarned={50}
                 outOfLives={completionData.outOfLives}
                 remainingLives={completionData.remainingLives}
+            />
+
+            <QuestCompletionPopup
+                visible={showQuestCompletionPopup}
+                onClose={handleQuestCompletionPopupClose}
+                questTitle={questCompletionData?.questTitle}
+                questDescription={questCompletionData?.questDescription}
+                rewardPoints={questCompletionData?.rewardPoints}
             />
         </View>
     );

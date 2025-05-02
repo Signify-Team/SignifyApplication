@@ -224,15 +224,18 @@ router.post('/:id/finish', async (req, res) => {
                         language: "TİD"
                     });
 
+                    console.log('Found Quiz Master quest:', quizMasterQuest);
+
                     if (quizMasterQuest) {
                         // Check if user already has this quest
-                        const existingQuest = user.quests.find(q => q.questId.toString() === quizMasterQuest._id.toString());
+                        const existingQuest = user.quests.find(q => q.questId && q.questId.toString() === quizMasterQuest._id.toString());
+                        console.log('Existing quest check:', existingQuest);
                         
                         if (!existingQuest) {
                             console.log('Awarding Quiz Master quest to user');
                             // Create a new quest entry
                             const newQuestEntry = {
-                                questId: quizMasterQuest._id,
+                                questId: quizMasterQuest._id, // Use the Quest document's _id
                                 status: "Completed",
                                 dateAssigned: new Date(),
                                 dateCompleted: new Date(),

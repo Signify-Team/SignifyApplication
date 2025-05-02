@@ -69,6 +69,14 @@ router.post('/:id/finish', async (req, res) => {
         const { userId, isPassed, completed, progress } = req.body;
         const courseId = req.params.id;
 
+        console.log('Course finish request received:', {
+            courseId,
+            userId,
+            isPassed,
+            completed,
+            progress
+        });
+
         // Validate required fields
         if (!userId || isPassed === undefined || completed === undefined || progress === undefined) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -208,6 +216,7 @@ router.post('/:id/finish', async (req, res) => {
             }
 
             // Check for Quiz Master quest completion if success rate is 80% or higher
+            console.log('Checking quest completion with progress:', progress);
             if (progress >= 80) {
                 try {
                     const quizMasterQuest = await Quest.findOne({ 
@@ -220,22 +229,37 @@ router.post('/:id/finish', async (req, res) => {
                         const existingQuest = user.quests.find(q => q.questId.toString() === quizMasterQuest._id.toString());
                         
                         if (!existingQuest) {
-                            user.quests.push({
+                            console.log('Awarding Quiz Master quest to user');
+                            // Create a new quest entry
+                            const newQuestEntry = {
                                 questId: quizMasterQuest._id,
                                 status: "Completed",
                                 dateAssigned: new Date(),
                                 dateCompleted: new Date(),
                                 collected: false
-                            });
+                            };
+                            
+                            // Add to user's quests array
+                            user.quests.push(newQuestEntry);
+                            
+                            // Save the user immediately after adding the quest
+                            await user.save();
+                            console.log('User saved with new quest:', user.quests);
 
                             // Create a notification for the quest completion
                             await createNotification('quest', 'Quest Completed!', `You've completed the "${quizMasterQuest.title}" quest!`, userId);
+                        } else {
+                            console.log('User already has Quiz Master quest');
                         }
+                    } else {
+                        console.log('Quiz Master quest not found');
                     }
                 } catch (error) {
                     console.error('Error checking Quiz Master quest:', error);
                     // Don't fail the course completion if quest check fails
                 }
+            } else {
+                console.log('Progress not high enough for quest:', progress);
             }
         }
 

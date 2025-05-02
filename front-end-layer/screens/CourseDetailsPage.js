@@ -227,12 +227,18 @@ const CourseDetailPage = ({ route, navigation }) => {
         } else {
             // course complete
             const successRate = (correctAnswers / exercises.length) * 100;
+            console.log('Course completion progress calculation:', {
+                correctAnswers,
+                totalExercises: exercises.length,
+                calculatedProgress: successRate
+            });
             const isCoursePassed = successRate >= 60;
 
             try {
                 if (!isPracticeMode) {
                     // Only update course completion for regular mode
                     const response = await updateCourseCompletion(route.params.courseId, isCoursePassed);
+                    console.log('Course completion response:', response);
 
                     // Navigate to Courses tab with completion message and streak info
                     navigation.navigate('Home', {

@@ -95,11 +95,16 @@ const CoursesPage = ({ navigation, route }) => {
                             remainingLives: route.params.remainingLives || 0
                         });
 
-                        // Check for quest completion data
-                        if (route.params.questCompletionData) {
-                            setQuestCompletionData(route.params.questCompletionData);
-                            setShowQuestCompletionPopup(true);
-                        }
+                        // Show course completion popup first
+                        setShowCompletionPopup(true);
+
+                        // After a delay, check for quest completion data
+                        setTimeout(() => {
+                            if (route.params.questCompletionData) {
+                                setQuestCompletionData(route.params.questCompletionData);
+                                setShowQuestCompletionPopup(true);
+                            }
+                        }, 1500); // 1.5 second delay after course completion popup
                     } else {
                         // For practice mode, points aren't relevant
                         setCompletionData({
@@ -110,9 +115,8 @@ const CoursesPage = ({ navigation, route }) => {
                             outOfLives: route.params.outOfLives || false,
                             remainingLives: route.params.remainingLives || 0
                         });
+                        setShowCompletionPopup(true);
                     }
-
-                    setShowCompletionPopup(true);
 
                     // Handle streak message after completion popup is shown
                     if (route.params.streakMessage && route.params.shouldShowNotification) {

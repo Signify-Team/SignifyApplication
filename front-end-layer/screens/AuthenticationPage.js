@@ -13,6 +13,11 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    KeyboardAvoidingView,
+    ScrollView,
+    Platform,
+    TouchableWithoutFeedback,
+    Keyboard,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import styles from '../styles/styles';
@@ -95,64 +100,76 @@ const AuthenticationPage = () => {
     };
 
     return (
-        <View style={styles.container}>
-            {/* Logo */}
-            <Image
-                source={require('../assets/images/Signify-Logo.png')}
-                style={styles.loginLogo}
-            />
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <ScrollView 
+                    contentContainerStyle={styles.container}
+                    keyboardShouldPersistTaps="handled">
+                    {/* Logo */}
+                    <Image
+                        source={require('../assets/images/Signify-Logo.png')}
+                        style={styles.loginLogo}
+                    />
 
-            {/* Welcome Text */}
-            <Text style={styles.loginWelcomeText}>
-                Verify Your Email
-            </Text>
-
-            <Text style={styles.welcomeDescription}>
-                We've sent a verification code to{'\n'}
-                {email}
-            </Text>
-
-            {/* Verification Code Input */}
-            <CustomTextInput
-                label="VERIFICATION CODE"
-                placeholder="Enter 6-digit code"
-                value={verificationCode}
-                onChangeText={setVerificationCode}
-                keyboardType="number-pad"
-                maxLength={6}
-            />
-
-            {errorMessage ? (
-                <Text style={styles.errorMessage}>
-                    {errorMessage}
-                </Text>
-            ) : null}
-
-            {/* Verify Button */}
-            <TouchableOpacity
-                style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-                onPress={handleVerification}
-                disabled={isLoading}>
-                {isLoading ? (
-                    <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                    <Text style={styles.loginButtonText}>
-                        Verify
+                    {/* Welcome Text */}
+                    <Text style={styles.loginWelcomeText}>
+                        Verify Your Email
                     </Text>
-                )}
-            </TouchableOpacity>
 
-            {/* Resend Code */}
-            <TouchableOpacity
-                onPress={handleResendCode}
-                disabled={timeLeft > 0}>
-                <Text style={[styles.signUpLink, timeLeft > 0 && { opacity: 0.5 }]}>
-                    {timeLeft > 0 
-                        ? `Resend code in ${formatTime(timeLeft)}`
-                        : 'Resend verification code'}
-                </Text>
-            </TouchableOpacity>
-        </View>
+                    <Text style={styles.welcomeDescription}>
+                        We've sent a verification code to{'\n'}
+                        {email}
+                    </Text>
+
+                    {/* Verification Code Input */}
+                    <CustomTextInput
+                        label="VERIFICATION CODE"
+                        placeholder="Enter 6-digit code"
+                        value={verificationCode}
+                        onChangeText={setVerificationCode}
+                        keyboardType="number-pad"
+                        maxLength={6}
+                    />
+
+                    {errorMessage ? (
+                        <Text style={styles.errorMessage}>
+                            {errorMessage}
+                        </Text>
+                    ) : null}
+
+                    {/* Verify Button */}
+                    <TouchableOpacity
+                        style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+                        onPress={handleVerification}
+                        disabled={isLoading}>
+                        {isLoading ? (
+                            <ActivityIndicator color="#FFFFFF" />
+                        ) : (
+                            <Text style={styles.loginButtonText}>
+                                Verify
+                            </Text>
+                        )}
+                    </TouchableOpacity>
+
+                    {/* Timer */}
+                    <Text style={[styles.signUpText, { marginTop: 20 }]}>
+                        {timeLeft > 0 ? `Time remaining: ${formatTime(timeLeft)}` : ''}
+                    </Text>
+
+                    {/* Resend Code - Only show when timer runs out */}
+                    {timeLeft === 0 && (
+                        <TouchableOpacity
+                            onPress={handleResendCode}>
+                            <Text style={styles.signUpLink}>
+                                Resend verification code
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                </ScrollView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 };
 

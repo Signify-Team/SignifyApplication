@@ -47,7 +47,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        gap: width * 0.05,
+        gap: width * 0.02,
     },
     gestContainer: {
         width: '100%',

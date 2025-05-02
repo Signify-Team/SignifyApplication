@@ -35,7 +35,10 @@ const VertCard = ({
                         width={isPracticeMode ? width * 0.35 : width * 0.25}
                         text={isPracticeMode ? 'PRACTICE' : buttonText}
                         color={isPracticeMode ? COLORS.secondary : buttonColor}
-                        onPress={() => { onPress(); }}
+                        onPress={() => { 
+                            playPrimaryButtonSound();
+                            onPress(); 
+                        }}
                     />
                     {onDictionaryPress && (
                         <RectangularButton
@@ -46,7 +49,8 @@ const VertCard = ({
                             onlyIcon={true}
                             color={COLORS.paw_color}
                             onPress={() => {
-                                    onDictionaryPress(courseId);
+                                playPrimaryButtonSound();
+                                onDictionaryPress(courseId);
                             }}
                         />
                     )}

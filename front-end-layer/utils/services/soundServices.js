@@ -25,7 +25,7 @@ export const playPrimaryButtonSound = () => {
     console.log('🟡 Called playPrimaryButtonSound()');
 
     if (primaryButtonSound && primaryButtonSound.isLoaded()) {
-      console.log('🟢 Sound is loaded, trying to play...');
+      primaryButtonSound.setVolume(1.0);
       primaryButtonSound.play((success) => {
         if (success) {
           console.log('✅ Played primary_button_sound.mp3');
@@ -35,5 +35,6 @@ export const playPrimaryButtonSound = () => {
       });
     } else {
       console.warn('❌ primaryButtonSound is not loaded or undefined');
+    loadSounds();
     }
   };

@@ -88,7 +88,6 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
             name: 'gesture.mp4',
             type: 'video/mp4',
         });
-        formData.append('target_word', data.word || data.prompt);
 
         try {
             // Upload video with timeout
@@ -115,7 +114,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ video_url: uploadResult.video_server_path }),
+                    body: JSON.stringify({ 
+                        video_url: uploadResult.video_server_path,
+                        target_word: data.word || data.prompt 
+                    }),
                 }),
                 new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('Processing timeout')), API.PROCESS_TIMEOUT)

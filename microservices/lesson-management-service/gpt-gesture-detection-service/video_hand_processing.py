@@ -513,6 +513,8 @@ async def process_video(request: Request):
         video_url = data.get("video_url")
         target_word = data.get("target_word", "hello")  # Default to "hello" if not provided
         
+        print(f"\nProcessing video for target word: {target_word}\n")  # Add logging
+        
         if not video_url:
             raise HTTPException(status_code=400, detail="No video URL provided")
             

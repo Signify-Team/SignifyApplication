@@ -88,6 +88,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
             name: 'gesture.mp4',
             type: 'video/mp4',
         });
+        formData.append('target_word', data.word || data.prompt);
 
         try {
             // Upload video with timeout

@@ -192,12 +192,18 @@ async def process_frame_batch(frame_batch):
         return []
     
 # resize the image to 256x256 and convert it to RGB for faster processing and less memory usage
-def optimize_image_for_api(image_path):
+def optimize_image_for_api(frame):
     """Optimize image size and quality for API transmission while maintaining aspect ratio"""
-    with Image.open(image_path) as img:
-        # Convert to RGB
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
+    try:
+        # Convert numpy array to PIL Image
+        if isinstance(frame, np.ndarray):
+            # Convert BGR to RGB if needed
+            if len(frame.shape) == 3 and frame.shape[2] == 3:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+        else:
+            # If it's a file path, open it
+            img = Image.open(frame)
         
         # Calculate new dimensions maintaining aspect ratio
         width, height = img.size
@@ -212,6 +218,9 @@ def optimize_image_for_api(image_path):
         buffer = io.BytesIO()
         img.save(buffer, format='JPEG', quality=VideoConstants.IMAGE_QUALITY, optimize=True)
         return base64.b64encode(buffer.getvalue()).decode('utf-8')
+    except Exception as e:
+        print(f"Error optimizing image: {str(e)}")
+        return None
 
 # send the frames to the GPT API
 async def send_frames_to_gpt(frames, target_word):

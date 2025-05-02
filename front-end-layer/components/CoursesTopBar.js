@@ -47,7 +47,7 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
     useEffect(() => {
         loadUserData();
     }, [refreshTrigger, loadUserData]);
-    
+
     // Refresh data when the screen comes into focus
     useFocusEffect(
         useCallback(() => {

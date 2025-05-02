@@ -14,7 +14,7 @@ import {
     FONTS,
 } from '../utils/constants';
 
-const {width, height} = Dimensions.get('window');
+const {height} = Dimensions.get('window');
 
 export default StyleSheet.create({
     container: {

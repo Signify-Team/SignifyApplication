@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
 import { COLORS } from '../utils/constants';
 import HeartIcon from '../assets/icons/header/heart.png';
+import { playBackMenuSound } from '../utils/services/soundServices';
 
 const ProgressTopBar = ({ navigation, currentProgress = 0, onBackPress, lives = 5 }) => {
   const handleBackPress = () => {
@@ -16,22 +17,24 @@ const ProgressTopBar = ({ navigation, currentProgress = 0, onBackPress, lives = 
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.backButton}
-        onPress={handleBackPress}
+        onPress={() => {
+          playBackMenuSound();
+          handleBackPress;}}
       >
         <Text style={styles.backText}>←</Text>
       </TouchableOpacity>
-      
+
       <View style={styles.progressContainer}>
         <View style={styles.progressBackground}>
-          <View 
+          <View
             style={[
               styles.progressFill,
-              { width: `${Math.min(Math.max(currentProgress, 0), 100)}%` }
+              { width: `${Math.min(Math.max(currentProgress, 0), 100)}%` },
             ]}
           />
         </View>
       </View>
-      
+
       <View style={styles.livesContainer}>
         <Image source={HeartIcon} style={styles.heartIcon} />
         <Text style={styles.livesText}>{lives}</Text>
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-  }
+  },
 });
 
-export default ProgressTopBar; 
+export default ProgressTopBar;

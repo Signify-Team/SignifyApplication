@@ -3,7 +3,7 @@
  * @description Displays user notifications with a modern and cute UI.
  *
  * @datecreated 23.12.2024
- * @lastmodified 23.12.2024
+ * @lastmodified 02.05.2025
  */
 
 import React, { useState, useEffect } from 'react';
@@ -16,7 +16,7 @@ import KoalaIcon from '../assets/icons/header/koala-hand.png';
 import FollowerIcon from '../assets/icons/header/followerIcon.png'
 import BackIcon from '../assets/icons/header/back.png';
 import { fetchUserNotifications, markNotificationAsRead, deleteNotification } from '../utils/services/notificationService';
-import { fetchUserProfile } from '../utils/apiService';
+import { playBackMenuSound } from '../utils/services/soundServices';
 import NotificationPopup from '../components/NotificationPopup';
 
 const NotificationsPage = ({ navigation }) => {
@@ -33,7 +33,7 @@ const NotificationsPage = ({ navigation }) => {
         try {
             const fetchedNotifications = await fetchUserNotifications();
             console.log('Fetched notifications:', fetchedNotifications);
-            
+
             // Sort notifications by date in descending order (newest first)
             const sortedNotifications = fetchedNotifications.sort((a, b) => {
                 return new Date(b.date) - new Date(a.date);
@@ -49,7 +49,7 @@ const NotificationsPage = ({ navigation }) => {
                 isRead: notification.isRead,
                 icon: getNotificationIcon(notification.type)
             }));
-            
+
             console.log('Formatted notifications:', formattedNotifications);
             setNotifications(formattedNotifications);
         } catch (error) {
@@ -117,13 +117,13 @@ const NotificationsPage = ({ navigation }) => {
         if (selectedNotification && !selectedNotification.isRead) {
             try {
                 await markNotificationAsRead(selectedNotification);
-                const updatedNotifications = notifications.map(notification => 
-                    notification.id === selectedNotification.id 
+                const updatedNotifications = notifications.map(notification =>
+                    notification.id === selectedNotification.id
                         ? { ...notification, isRead: true }
                         : notification
                 );
                 setNotifications(updatedNotifications);
-                
+
                 // Update notification count in top bar
                 await updateTopBarNotificationCount();
             } catch (error) {
@@ -140,7 +140,7 @@ const NotificationsPage = ({ navigation }) => {
                 notification => notification.id !== item.id
             );
             setNotifications(updatedNotifications);
-            
+
             // Update notification count in top bar if the deleted notification was unread
             if (!item.isRead) {
                 await updateTopBarNotificationCount();
@@ -152,16 +152,16 @@ const NotificationsPage = ({ navigation }) => {
     };
 
     const renderNotification = ({ item }) => (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={[
                 styles.notificationItem,
-                !item.isRead && styles.unreadNotification
+                !item.isRead && styles.unreadNotification,
             ]}
             onPress={() => handleNotificationPress(item)}
         >
             <View style={styles.notificationIconContainer}>
-                <Image 
-                    source={item.icon} 
+                <Image
+                    source={item.icon}
                     style={styles.notificationIcon}
                     resizeMode="contain"
                 />
@@ -191,12 +191,15 @@ const NotificationsPage = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        playBackMenuSound();
+                        navigation.goBack();
+                    }}
                 >
-                    <Image 
-                        source={BackIcon} 
+                    <Image
+                        source={BackIcon}
                         style={styles.backIcon}
                         resizeMode="contain"
                     />

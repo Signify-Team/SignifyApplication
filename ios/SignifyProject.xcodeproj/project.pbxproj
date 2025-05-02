@@ -33,6 +33,7 @@
 		C6A3B7FCB8C5472DB783CF69 /* Poppins-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 016BAA37ACA44D0F8259E2BA /* Poppins-LightItalic.ttf */; };
 		D123BB562DC4EA3500E8200E /* splash_screen.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D123BB552DC4EA3500E8200E /* splash_screen.mp3 */; };
 		D123BB582DC4F07C00E8200E /* primary_button_sound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D123BB572DC4F07C00E8200E /* primary_button_sound.mp3 */; };
+		D123BB5A2DC52C2200E8200E /* menu_back_sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = D123BB592DC52C2200E8200E /* menu_back_sound.wav */; };
 		D7A3BC77947B42DAB47FF947 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7C02417B96C24EDB9EA6AA85 /* Poppins-Medium.ttf */; };
 		DAC28C19C6524BBFA55117A9 /* Poppins-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D2A21ADD7F842CDB03009AD /* Poppins-BoldItalic.ttf */; };
 		EE0D9D988C343DD98B53C8E9 /* libPods-SignifyProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA466FF9EE95F9937E8DAB48 /* libPods-SignifyProject.a */; };
@@ -87,6 +88,7 @@
 		CA9B4431E88A4054AF23382C /* Poppins-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-ExtraBoldItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		D123BB552DC4EA3500E8200E /* splash_screen.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = splash_screen.mp3; sourceTree = "<group>"; };
 		D123BB572DC4F07C00E8200E /* primary_button_sound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = primary_button_sound.mp3; sourceTree = "<group>"; };
+		D123BB592DC52C2200E8200E /* menu_back_sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = menu_back_sound.wav; sourceTree = "<group>"; };
 		D3F9EBF0CC54461CA40846CF /* Poppins-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-MediumItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-MediumItalic.ttf"; sourceTree = "<group>"; };
 		E3308BEE0A3048E8936706C2 /* Poppins-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-BlackItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-BlackItalic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -224,6 +226,7 @@
 				26AF3ACEE2B24E1B9A3EA0A3 /* Poppins-ThinItalic.ttf */,
 				D123BB572DC4F07C00E8200E /* primary_button_sound.mp3 */,
 				D123BB552DC4EA3500E8200E /* splash_screen.mp3 */,
+				D123BB592DC52C2200E8200E /* menu_back_sound.wav */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -336,6 +339,7 @@
 				C285E5BC22594340BEF23DCC /* Poppins-ExtraBoldItalic.ttf in Resources */,
 				19672769E2A54BF18077D933 /* Poppins-ExtraLight.ttf in Resources */,
 				31EB887260D745A0A0A16D0F /* Poppins-ExtraLightItalic.ttf in Resources */,
+				D123BB5A2DC52C2200E8200E /* menu_back_sound.wav in Resources */,
 				72BFF62D0B7D4DA89E3C02A6 /* Poppins-Italic.ttf in Resources */,
 				29D6E6A5EB2647EB858FD722 /* Poppins-Light.ttf in Resources */,
 				D123BB562DC4EA3500E8200E /* splash_screen.mp3 in Resources */,

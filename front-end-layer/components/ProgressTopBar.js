@@ -19,7 +19,8 @@ const ProgressTopBar = ({ navigation, currentProgress = 0, onBackPress, lives = 
         style={styles.backButton}
         onPress={() => {
           playBackMenuSound();
-          handleBackPress;}}
+          handleBackPress();
+        }}
       >
         <Text style={styles.backText}>←</Text>
       </TouchableOpacity>

@@ -16,6 +16,7 @@ import StreaksIcon from '../assets/icons/header/streak.png';
 import NotificationsIcon from '../assets/icons/header/notifications.png';
 import { fetchUserProfile, updateLanguagePreference } from '../utils/apiService';
 import LanguageDropdown from './LanguageDropdown';
+import { playPrimaryButtonSound } from '../utils/services/soundServices';
 import DictionaryIcon from '../assets/icons/header/dictionary_icon.png';
 
 const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
@@ -92,14 +93,18 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
     return (
         <View style={styles.container}>
             <View style={styles.leftIcons}>
-                <TouchableOpacity onPress={() => setShowLanguageDropdown(true)}>
+                <TouchableOpacity onPress={() => {
+                    playPrimaryButtonSound();
+                    setShowLanguageDropdown(true);}}>
                     <Image
                         source={getLanguageFlag(userData.languagePreference)}
                         style={styles.flagIcon}
                     />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => navigation.navigate('Dictionary')}>
+                <TouchableOpacity onPress={() => {
+                    playPrimaryButtonSound();
+                    navigation.navigate('Dictionary');}}>
                     <Image
                         source={DictionaryIcon}
                         style={styles.dictionaryIcon}
@@ -115,7 +120,10 @@ const CoursesTopBar = ({ refreshTrigger, navigation, onLanguageChange }) => {
 
                 <TouchableOpacity
                     style={styles.notificationContainer}
-                    onPress={handleNotificationPress}
+                    onPress={() => {
+                        playPrimaryButtonSound();
+                        handleNotificationPress();}
+                    }
                 >
                     <Image source={NotificationsIcon} style={styles.notifIcon} />
                     {userData.unreadNotifications > 0 && (

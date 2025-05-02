@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { COLORS, darkenColor, FONTS } from '../utils/constants';
 import RectangularButton from './RectangularButton';
 import { playPrimaryButtonSound } from '../utils/services/soundServices';
@@ -35,9 +35,9 @@ const VertCard = ({
                         width={isPracticeMode ? width * 0.35 : width * 0.25}
                         text={isPracticeMode ? 'PRACTICE' : buttonText}
                         color={isPracticeMode ? COLORS.secondary : buttonColor}
-                        onPress={() => { 
+                        onPress={() => {
                             playPrimaryButtonSound();
-                            onPress(); 
+                            onPress();
                         }}
                     />
                     {onDictionaryPress && (

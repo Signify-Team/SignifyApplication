@@ -9,7 +9,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Image, Alert, RefreshControl, TouchableOpacity, Animated } from 'react-native';
 import styles from '../styles/AchievementsStyles';
-import CircularButton from '../components/CircularButton';
 import AchievementCard from '../components/AchievementCard';
 import AchievementPopup from '../components/AchievementPopup';
 import { COLORS } from '../utils/constants';
@@ -37,31 +36,31 @@ const AchievementsPage = () => {
             setLoading(true);
             const [allAchievementsData, userAchievementsData] = await Promise.all([
                 fetchAllAchievements(),
-                fetchUserAchievements()
+                fetchUserAchievements(),
             ]);
-            
+
             setAllAchievements(allAchievementsData || []);
             setUserAchievements(userAchievementsData?.achievements || []);
-            
+
             // Set initial total points from user data
             if (userAchievementsData && userAchievementsData.totalPoints !== undefined) {
                 setTotalPoints(userAchievementsData.totalPoints);
             }
-            
+
             // Set daily reward status using server's lastRewardDate
             if (userAchievementsData && userAchievementsData.lastRewardDate) {
                 const lastReward = new Date(userAchievementsData.lastRewardDate);
                 const now = new Date();
                 const timeSinceLastReward = now.getTime() - lastReward.getTime();
                 const hoursSinceLastReward = timeSinceLastReward / (1000 * 60 * 60);
-                
+
                 setLastRewardDate(lastReward);
                 setDailyRewardCollected(hoursSinceLastReward < 24);
             } else {
                 setLastRewardDate(null);
                 setDailyRewardCollected(false);
             }
-            
+
             setError(null);
         } catch (err) {
             setError(err.message);
@@ -136,12 +135,6 @@ const AchievementsPage = () => {
         loadAchievements();
     }, []);
 
-    const handlePress = (day) => {
-        if (day === currentDay) {
-            setSelectedDay(day);
-        }
-    };
-
     const handleCollectAchievement = async (achievementId) => {
         try {
             const result = await collectAchievementReward(achievementId);
@@ -152,7 +145,7 @@ const AchievementsPage = () => {
                 return achievement;
             });
             setUserAchievements(updatedUserAchievements);
-            
+
             // Find the achievement in allAchievements to get its rewardPoints
             const achievement = allAchievements.find(a => a._id === achievementId);
             if (achievement) {
@@ -160,7 +153,7 @@ const AchievementsPage = () => {
                 // Update total points with the new value from the server
                 setTotalPoints(result.totalPoints);
             }
-            
+
             setShowAchievementPopup(true);
         } catch (err) {
             Alert.alert('Error', err.message || 'Failed to collect achievement');
@@ -182,8 +175,8 @@ const AchievementsPage = () => {
         if (!userAchievements || !Array.isArray(userAchievements)) {
             return false;
         }
-        const userAchievement = userAchievements.find(userAchievement => userAchievement._id === achievementId);
-        return userAchievement?.collected || false;
+        const foundAchievement = userAchievements.find(userAchievement => userAchievement._id === achievementId);
+        return foundAchievement?.collected || false;
     };
 
     const handleDailyReward = async () => {
@@ -225,9 +218,9 @@ const AchievementsPage = () => {
                                 <View style={styles.rewardInfo}>
                                     <Text style={styles.rewardTitle}>Daily Gift</Text>
                                     <Text style={styles.rewardSubtitle}>
-                                        {dailyRewardCollected 
-                                            ? "Come back tomorrow for another gift! 🎁" 
-                                            : "Tap the gift box to collect your daily reward! ✨"}
+                                        {dailyRewardCollected
+                                            ? 'Come back tomorrow for another gift! 🎁'
+                                            : 'Tap the gift box to collect your daily reward! ✨'}
                                     </Text>
                                 </View>
                             </View>
@@ -238,7 +231,7 @@ const AchievementsPage = () => {
                                         {
                                             transform: [
                                                 { rotate: dailyRewardCollected ? '0deg' : rotateInterpolate },
-                                                { scale: dailyRewardCollected ? 1 : 1.1 }
+                                                { scale: dailyRewardCollected ? 1 : 1.1 },
                                             ]
                                         }
                                     ]}
@@ -270,16 +263,16 @@ const AchievementsPage = () => {
                             const bCollected = isAchievementCollected(b._id);
 
                             // First priority: unlocked but not collected
-                            if (aUnlocked && !aCollected && !(bUnlocked && !bCollected)) return -1;
-                            if (bUnlocked && !bCollected && !(aUnlocked && !aCollected)) return 1;
+                            if (aUnlocked && !aCollected && !(bUnlocked && !bCollected)) {return -1;}
+                            if (bUnlocked && !bCollected && !(aUnlocked && !aCollected)) {return 1;}
 
                             // Second priority: locked achievements
-                            if (!aUnlocked && bUnlocked) return -1;
-                            if (!bUnlocked && aUnlocked) return 1;
+                            if (!aUnlocked && bUnlocked) {return -1;}
+                            if (!bUnlocked && aUnlocked) {return 1;}
 
                             // Third priority: collected achievements
-                            if (aCollected && !bCollected) return 1;
-                            if (bCollected && !aCollected) return -1;
+                            if (aCollected && !bCollected) {return 1;}
+                            if (bCollected && !aCollected) {return -1;}
 
                             return 0;
                         })

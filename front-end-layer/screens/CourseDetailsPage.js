@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Dimensions, Alert, StatusBar, Text, StyleSheet, Image } from 'react-native';
-import Lesson from '../components/Lesson';
+import { View, ScrollView, Dimensions, Alert, StatusBar } from 'react-native';
 import RectangularButton from '../components/RectangularButton';
 import GestureQuestion from '../components/GestureQuestion';
 import MultipleChoiceQuestion from '../components/MultipleChoiceQuestion';
@@ -107,10 +106,10 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
     const [lives, setLives] = useState(5); // Initialize with 1 life
-    
+
     // Calculate progress percentage
-    const progressPercentage = exercises.length > 0 
-        ? ((currentExerciseIndex) / exercises.length) * 100 
+    const progressPercentage = exercises.length > 0
+        ? ((currentExerciseIndex) / exercises.length) * 100
         : 0;
 
     const handleAnswer = (answer) => {
@@ -191,7 +190,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                     const progress = (currentExerciseIndex + 1) / exercises.length * 100;
                     await updateCourseProgress(route.params.courseId, progress, false);
                 }
-                
+
                 // Navigate to Courses tab with out of lives message
                 navigation.navigate('Home', {
                     screen: 'Courses',
@@ -200,8 +199,8 @@ const CourseDetailPage = ({ route, navigation }) => {
                         successRate: (correctAnswers / (currentExerciseIndex + 1)) * 100,
                         isPassed: false,
                         isPracticeMode: isPracticeMode,
-                        outOfLives: true
-                    }
+                        outOfLives: true,
+                    },
                 });
                 return;
             } catch (error) {
@@ -228,7 +227,7 @@ const CourseDetailPage = ({ route, navigation }) => {
                 if (!isPracticeMode) {
                     // Only update course completion for regular mode
                     const response = await updateCourseCompletion(route.params.courseId, isCoursePassed);
-                    
+
                     // Navigate to Courses tab with completion message and streak info
                     navigation.navigate('Home', {
                         screen: 'Courses',
@@ -355,12 +354,12 @@ const CourseDetailPage = ({ route, navigation }) => {
                         }
                     }}
                 />
-                <View style={{ 
+                <View style={{
                     flex: 1,
                     paddingTop: 20,
                     paddingBottom: 0,
                 }}>
-                    <ScrollView 
+                    <ScrollView
                         contentContainerStyle={[
                             styles.questionsContainer,
                             { paddingBottom: userAnswer !== null ? 60 : 0 }

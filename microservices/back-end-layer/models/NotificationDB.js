@@ -17,7 +17,7 @@ const NotificationSchema = new mongoose.Schema({
     type: { 
         type: String, 
         required: true,
-        enum: ['streak', 'badge', 'course', 'general', 'follow'],
+        enum: ['streak', 'badge', 'course', 'general', 'follow', 'quest'],
         default: 'general'
     },
     title: { type: String },

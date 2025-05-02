@@ -378,6 +378,12 @@ const CoursesPage = ({ navigation, route }) => {
                 setStreakMessage(completionData.streakMessage);
             }
 
+            // If there's quest completion data, show quest completion popup
+            if (completionData.questCompletionData) {
+                setQuestCompletionData(completionData.questCompletionData);
+                setShowQuestCompletionPopup(true);
+            }
+
             // Refresh user data to get updated points and progress
             await loadUserData();
         } catch (error) {

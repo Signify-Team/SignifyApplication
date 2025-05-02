@@ -244,7 +244,8 @@ const CourseDetailPage = ({ route, navigation }) => {
                             isPracticeMode: isPracticeMode,
                             remainingLives: lives,
                             streakMessage: response.streakMessage,
-                            shouldShowNotification: response.shouldShowNotification
+                            shouldShowNotification: response.shouldShowNotification,
+                            questCompletionData: response.questCompletionData
                         }
                     });
                 } else {

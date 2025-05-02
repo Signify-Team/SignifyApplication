@@ -95,11 +95,13 @@ export const updateCourseCompletion = async (courseId, isPassed) => {
             }
         }
 
-        // Return the complete response data including streak info
+        // Return the complete response data including streak info and quest completion data
         return {
             ...response.data,
             isPassed,
-            completed: true
+            completed: true,
+            showCompletionMessage: true,
+            questCompletionData: response.data.questCompletionData
         };
     } catch (error) {
         console.error('Error updating course completion:', error);

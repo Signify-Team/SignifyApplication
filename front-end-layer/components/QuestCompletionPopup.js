@@ -10,7 +10,7 @@ import React from 'react';
 import { View, Text, Modal, TouchableOpacity, Image } from 'react-native';
 import styles from '../styles/QuestCompletionPopupStyle';
 import { COLORS } from '../utils/constants';
-import QuestCompleteIcon from '../assets/icons/quests/questComplete.png';
+import SuccessIcon from '../assets/icons/course-info/successIcon.png';
 
 const QuestCompletionPopup = ({
     visible,
@@ -30,7 +30,7 @@ const QuestCompletionPopup = ({
                 <View style={styles.modalContainer}>
                     <View style={styles.iconContainer}>
                         <Image 
-                            source={QuestCompleteIcon} 
+                            source={SuccessIcon} 
                             style={styles.icon}
                         />
                     </View>

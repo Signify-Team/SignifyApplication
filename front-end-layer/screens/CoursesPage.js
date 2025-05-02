@@ -48,7 +48,7 @@ const CoursesPage = ({ navigation, route }) => {
     });
     const [showStreakPopup, setShowStreakPopup] = useState(false);
     const [streakMessage, setStreakMessage] = useState('');
-    
+
     // New state for course completion popup
     const [showCompletionPopup, setShowCompletionPopup] = useState(false);
     const [completionData, setCompletionData] = useState({
@@ -81,7 +81,7 @@ const CoursesPage = ({ navigation, route }) => {
                     if (!route.params.isPracticeMode) {
                         const userProfile = await fetchUserProfile();
                         console.log('User profile for completion popup:', userProfile);
-                        
+
                         setCompletionData({
                             isPracticeMode: route.params.isPracticeMode || false,
                             isPassed: route.params.isPassed || false,

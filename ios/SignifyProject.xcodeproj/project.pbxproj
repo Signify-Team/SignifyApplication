@@ -19,7 +19,6 @@
 		29D6E6A5EB2647EB858FD722 /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F83E36F21E97488495852B48 /* Poppins-Light.ttf */; };
 		31EB887260D745A0A0A16D0F /* Poppins-ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6AF502D4DE4A4EB9BA8EDE1B /* Poppins-ExtraLightItalic.ttf */; };
 		33D5F590AF964924AFF940EB /* Poppins-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B8B23E9976524F45A84C86E5 /* Poppins-SemiBoldItalic.ttf */; };
-		43F0D9012DB289730088E2EB /* splash_screen.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 43F0D9002DB289730088E2EB /* splash_screen.mp3 */; };
 		49A83B682902466CBF0FA333 /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 49DB8C30CC7D4FA08005E1CC /* Poppins-SemiBold.ttf */; };
 		72BFF62D0B7D4DA89E3C02A6 /* Poppins-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4DA43A31029E43B99B3DF4E9 /* Poppins-Italic.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -32,6 +31,7 @@
 		BDB32E70D25A0A0C45D52CB0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		C285E5BC22594340BEF23DCC /* Poppins-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA9B4431E88A4054AF23382C /* Poppins-ExtraBoldItalic.ttf */; };
 		C6A3B7FCB8C5472DB783CF69 /* Poppins-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 016BAA37ACA44D0F8259E2BA /* Poppins-LightItalic.ttf */; };
+		D123BB562DC4EA3500E8200E /* splash_screen.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D123BB552DC4EA3500E8200E /* splash_screen.mp3 */; };
 		D7A3BC77947B42DAB47FF947 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7C02417B96C24EDB9EA6AA85 /* Poppins-Medium.ttf */; };
 		DAC28C19C6524BBFA55117A9 /* Poppins-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D2A21ADD7F842CDB03009AD /* Poppins-BoldItalic.ttf */; };
 		EE0D9D988C343DD98B53C8E9 /* libPods-SignifyProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BA466FF9EE95F9937E8DAB48 /* libPods-SignifyProject.a */; };
@@ -66,7 +66,6 @@
 		26AF3ACEE2B24E1B9A3EA0A3 /* Poppins-ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-ThinItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-ThinItalic.ttf"; sourceTree = "<group>"; };
 		2B53D28392A447C4B48F5811 /* PassionOne-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PassionOne-Regular.ttf"; path = "../front-end-layer/assets/fonts/PassionOne-Regular.ttf"; sourceTree = "<group>"; };
 		3739BE0078F7AED6093DD257 /* Pods-SignifyProject.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SignifyProject.debug.xcconfig"; path = "Target Support Files/Pods-SignifyProject/Pods-SignifyProject.debug.xcconfig"; sourceTree = "<group>"; };
-		43F0D9002DB289730088E2EB /* splash_screen.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = splash_screen.mp3; sourceTree = "<group>"; };
 		49DB8C30CC7D4FA08005E1CC /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-SemiBold.ttf"; path = "../front-end-layer/assets/fonts/Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
 		4BDD43F355EDDA5169E65845 /* libPods-SignifyProject-SignifyProjectTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SignifyProject-SignifyProjectTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DA43A31029E43B99B3DF4E9 /* Poppins-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Italic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-Italic.ttf"; sourceTree = "<group>"; };
@@ -85,6 +84,7 @@
 		B8F8F6F10C764B588E21EBEE /* Poppins-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Thin.ttf"; path = "../front-end-layer/assets/fonts/Poppins-Thin.ttf"; sourceTree = "<group>"; };
 		BA466FF9EE95F9937E8DAB48 /* libPods-SignifyProject.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SignifyProject.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA9B4431E88A4054AF23382C /* Poppins-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-ExtraBoldItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		D123BB552DC4EA3500E8200E /* splash_screen.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = splash_screen.mp3; sourceTree = "<group>"; };
 		D3F9EBF0CC54461CA40846CF /* Poppins-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-MediumItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-MediumItalic.ttf"; sourceTree = "<group>"; };
 		E3308BEE0A3048E8936706C2 /* Poppins-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-BlackItalic.ttf"; path = "../front-end-layer/assets/fonts/Poppins-BlackItalic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -163,7 +163,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				43F0D9002DB289730088E2EB /* splash_screen.mp3 */,
 				13B07FAE1A68108700A75B9A /* SignifyProject */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* SignifyProjectTests */,
@@ -221,6 +220,7 @@
 				B8B23E9976524F45A84C86E5 /* Poppins-SemiBoldItalic.ttf */,
 				B8F8F6F10C764B588E21EBEE /* Poppins-Thin.ttf */,
 				26AF3ACEE2B24E1B9A3EA0A3 /* Poppins-ThinItalic.ttf */,
+				D123BB552DC4EA3500E8200E /* splash_screen.mp3 */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -330,11 +330,11 @@
 				DAC28C19C6524BBFA55117A9 /* Poppins-BoldItalic.ttf in Resources */,
 				FDEA7232FC83447ABE5638A4 /* Poppins-ExtraBold.ttf in Resources */,
 				C285E5BC22594340BEF23DCC /* Poppins-ExtraBoldItalic.ttf in Resources */,
-				43F0D9012DB289730088E2EB /* splash_screen.mp3 in Resources */,
 				19672769E2A54BF18077D933 /* Poppins-ExtraLight.ttf in Resources */,
 				31EB887260D745A0A0A16D0F /* Poppins-ExtraLightItalic.ttf in Resources */,
 				72BFF62D0B7D4DA89E3C02A6 /* Poppins-Italic.ttf in Resources */,
 				29D6E6A5EB2647EB858FD722 /* Poppins-Light.ttf in Resources */,
+				D123BB562DC4EA3500E8200E /* splash_screen.mp3 in Resources */,
 				C6A3B7FCB8C5472DB783CF69 /* Poppins-LightItalic.ttf in Resources */,
 				D7A3BC77947B42DAB47FF947 /* Poppins-Medium.ttf in Resources */,
 				8B07A8E827DF4639A9421E9B /* Poppins-MediumItalic.ttf in Resources */,
@@ -566,7 +566,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = V485H87WF4;
+				DEVELOPMENT_TEAM = HHZ2B3U66M;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SignifyProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -580,7 +580,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeynep.signify1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dila.signify1;
 				PRODUCT_NAME = SignifyProject;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -595,7 +595,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = V485H87WF4;
+				DEVELOPMENT_TEAM = HHZ2B3U66M;
 				INFOPLIST_FILE = SignifyProject/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -608,7 +608,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zeynep.signify1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dila.signify1;
 				PRODUCT_NAME = SignifyProject;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

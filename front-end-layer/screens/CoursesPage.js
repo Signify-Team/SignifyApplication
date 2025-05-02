@@ -14,7 +14,7 @@ import CourseInfoCard from '../components/CourseInfoCard';
 import VertCard from '../components/VertCard';
 import CoursePath from '../components/CoursePath';
 import { COLORS } from '../utils/constants';
-import { loadSounds, playPrimaryButtonSound } from '../utils/services/soundServices';
+import { loadSounds, playPrimaryButtonSound, playCoursePopUpSound } from '../utils/services/soundServices';
 import GreetingsIcon from '../assets/icons/course-info/greetings.png';
 import {
     fetchSectionsByLanguage,
@@ -259,7 +259,7 @@ const CoursesPage = ({ navigation, route }) => {
             return;
         }
 
-        playPrimaryButtonSound();
+        playCoursePopUpSound();
 
         if (selectedCourse?._id === course._id) {
             setShowCard(!showCard);

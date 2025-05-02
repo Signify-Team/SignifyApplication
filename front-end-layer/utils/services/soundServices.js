@@ -11,6 +11,7 @@ Sound.setCategory('Playback', true);
 
 let primaryButtonSound;
 let backMenuSound;
+let coursePopUpSound;
 
 export const loadSounds = () => {
     primaryButtonSound = new Sound('primary_button_sound.mp3', Sound.MAIN_BUNDLE, (error) => {
@@ -25,6 +26,13 @@ export const loadSounds = () => {
         console.error('Failed to load sound:', error);
         } else {
         console.log('Back menu sound loaded');
+        }
+    });
+    coursePopUpSound = new Sound('course_pop_up.wav', Sound.MAIN_BUNDLE, (error) => {
+        if (error) {
+        console.error('Failed to load sound:', error);
+        } else {
+        console.log('Course pop-up sound loaded');
         }
     });
 };
@@ -61,6 +69,24 @@ export const playBackMenuSound = () => {
       });
     } else {
       console.warn('❌ backMenuSound is not loaded or undefined');
+      loadSounds();
+    }
+};
+
+export const playCoursePopUpSound = () => {
+    if (coursePopUpSound && coursePopUpSound.isLoaded()) {
+      coursePopUpSound.stop();
+      coursePopUpSound.setCurrentTime(0);
+      coursePopUpSound.setVolume(1.0);
+      coursePopUpSound.play((success) => {
+        if (success) {
+          console.log('✅ Played course_popup_sound.mp3');
+        } else {
+          console.warn('⚠️ Failed to play course_popup_sound.mp3');
+        }
+      });
+    } else {
+      console.warn('❌ coursePopUpSound is not loaded or undefined');
       loadSounds();
     }
 };

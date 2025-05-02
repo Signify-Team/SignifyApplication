@@ -10,18 +10,22 @@ import React from 'react';
 import { View, TouchableOpacity, Image } from 'react-native';
 import styles from '../styles/CourseDetailsTopBarStyles';
 import BackIcon from '../assets/icons/header/back.png';
+import { playBackMenuSound } from '../utils/services/soundServices';
 
 const CourseDetailsTopBar = ({ navigation }) => {
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Image 
-                    source={BackIcon} 
-                    style={styles.backIcon} 
+            <TouchableOpacity onPress={() => {
+                playBackMenuSound();
+                navigation.goBack();
+                }}>
+                <Image
+                    source={BackIcon}
+                    style={styles.backIcon}
                 />
             </TouchableOpacity>
         </View>
     );
 };
 
-export default CourseDetailsTopBar; 
+export default CourseDetailsTopBar;

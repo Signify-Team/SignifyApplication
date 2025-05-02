@@ -13,7 +13,7 @@ import styles from '../styles/NotificationPageStyles';
 import StreaksIcon from '../assets/icons/header/streak.png';
 import TrophyIcon from '../assets/icons/course-info/trophyIcon.png';
 import KoalaIcon from '../assets/icons/header/koala-hand.png';
-import FollowerIcon from '../assets/icons/header/followerIcon.png'
+import FollowerIcon from '../assets/icons/header/followerIcon.png';
 import BackIcon from '../assets/icons/header/back.png';
 import { fetchUserNotifications, markNotificationAsRead, deleteNotification } from '../utils/services/notificationService';
 import { playBackMenuSound } from '../utils/services/soundServices';

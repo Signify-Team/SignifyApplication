@@ -49,7 +49,7 @@ const AuthenticationPage = () => {
 
     const handleVerification = async () => {
         setErrorMessage('');
-        
+
         if (!verificationCode) {
             setErrorMessage('Please enter the verification code');
             return;
@@ -84,11 +84,11 @@ const AuthenticationPage = () => {
             setTimeLeft(300);
             setErrorMessage('New verification code sent!');
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.error || 
-                               error.message || 
-                               'Failed to send verification code';
-            setErrorMessage(`Error: ${errorMessage}`);
+            const resendErrorMessage = error.response?.data?.message ||
+                                       error.response?.data?.error ||
+                                       error.message ||
+                                       'Failed to send verification code';
+            setErrorMessage(`Error: ${resendErrorMessage}`);
         } finally {
             setIsLoading(false);
         }
@@ -147,7 +147,7 @@ const AuthenticationPage = () => {
                 onPress={handleResendCode}
                 disabled={timeLeft > 0}>
                 <Text style={[styles.signUpLink, timeLeft > 0 && { opacity: 0.5 }]}>
-                    {timeLeft > 0 
+                    {timeLeft > 0
                         ? `Resend code in ${formatTime(timeLeft)}`
                         : 'Resend verification code'}
                 </Text>

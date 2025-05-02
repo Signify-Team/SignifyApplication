@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, SectionList, ActivityIndicator, RefreshControl, Alert, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, SectionList, ActivityIndicator, RefreshControl, Alert } from 'react-native';
 import styles from '../styles/CoursesPageStyles';
 import CoursesTopBar from '../components/CoursesTopBar';
 import CourseInfoCard from '../components/CourseInfoCard';
@@ -29,8 +29,6 @@ import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
 import CourseCompletionPopup from '../components/CourseCompletionPopup';
 
-const { width } = Dimensions.get('window');
-
 const CoursesPage = ({ navigation, route }) => {
     const [showCard, setShowCard] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -44,11 +42,11 @@ const CoursesPage = ({ navigation, route }) => {
         streakCount: 0,
         languagePreference: 'ASL',
         unreadNotifications: 0,
-        totalPoints: 0
+        totalPoints: 0,
     });
     const [showStreakPopup, setShowStreakPopup] = useState(false);
     const [streakMessage, setStreakMessage] = useState('');
-    
+
     // New state for course completion popup
     const [showCompletionPopup, setShowCompletionPopup] = useState(false);
     const [completionData, setCompletionData] = useState({
@@ -81,7 +79,7 @@ const CoursesPage = ({ navigation, route }) => {
                     if (!route.params.isPracticeMode) {
                         const userProfile = await fetchUserProfile();
                         console.log('User profile for completion popup:', userProfile);
-                        
+
                         setCompletionData({
                             isPracticeMode: route.params.isPracticeMode || false,
                             isPassed: route.params.isPassed || false,
@@ -101,7 +99,7 @@ const CoursesPage = ({ navigation, route }) => {
                             remainingLives: route.params.remainingLives || 0
                         });
                     }
-                    
+
                     setShowCompletionPopup(true);
 
                     // Handle streak message after completion popup is shown
@@ -120,15 +118,15 @@ const CoursesPage = ({ navigation, route }) => {
                         'Course completed. Check your progress in the courses screen.'
                     );
                 }
-                
+
                 // Reset the params
-                navigation.setParams({ 
+                navigation.setParams({
                     showCompletionMessage: false,
                     streakMessage: null,
-                    shouldShowNotification: false
+                    shouldShowNotification: false,
                 });
             };
-            
+
             handleCompletionMessage();
         }
     }, [route?.params?.showCompletionMessage]);
@@ -138,7 +136,7 @@ const CoursesPage = ({ navigation, route }) => {
             checkAndShowStreakPopup(route.params.streakMessage, route.params.shouldShowNotification);
         }
     }, [route.params]);
-    
+
     const handleCompletionPopupClose = () => {
         setShowCompletionPopup(false);
         // Force a complete refresh of the course list
@@ -190,16 +188,16 @@ const CoursesPage = ({ navigation, route }) => {
 
             const [sectionsData, userCoursesData] = await Promise.race([
                 Promise.all([sectionsPromise, userCoursesPromise]),
-                timeoutPromise
+                timeoutPromise,
             ]);
 
             const processedSections = sectionsData.map((section, sectionIndex) => {
                 // Check if the previous section's non-premium courses are completed
                 const previousSection = sectionsData[sectionIndex - 1];
-                const previousSectionCompleted = previousSection ? 
+                const previousSectionCompleted = previousSection ?
                     previousSection.courses
                         .filter(course => !course.isPremium) // Only check non-premium courses
-                        .every(course => 
+                        .every(course =>
                             userCoursesData.find(uc => uc.courseId === course.courseId)?.completed
                         ) : true;
 
@@ -214,18 +212,18 @@ const CoursesPage = ({ navigation, route }) => {
                     isLocked: !isSectionUnlocked,
                     courses: section.courses.map((course, courseIndex) => {
                         const userCourse = userCoursesData.find(uc => uc.courseId === course.courseId);
-                        
+
                         // Only unlock if:
                         // * It's the first course in an unlocked section, OR
                         // * The previous course is completed AND the section is unlocked
                         const isFirstCourseInUnlockedSection = isSectionUnlocked && courseIndex === 0;
                         const previousCourse = section.courses[courseIndex - 1];
-                        const previousCourseCompleted = previousCourse ? 
+                        const previousCourseCompleted = previousCourse ?
                             userCoursesData.find(uc => uc.courseId === previousCourse.courseId)?.completed : false;
-                        
+
                         // all courses are locked unless completed with success rate over 60%
                         let isLocked = true;
-                        
+
                         if (isFirstCourseInUnlockedSection) {
                             // first course of an unlocked section is unlocked
                             isLocked = false;
@@ -238,9 +236,9 @@ const CoursesPage = ({ navigation, route }) => {
                             ...course,
                             isLocked,
                             progress: userCourse?.progress || 0,
-                            completed: userCourse?.completed || false
+                            completed: userCourse?.completed || false,
                         };
-                    })
+                    }),
                 };
             });
 
@@ -277,7 +275,7 @@ const CoursesPage = ({ navigation, route }) => {
 
             // Check if this is a practice session (completed course)
             const isPracticeMode = selectedCourse.completed === true;
-            
+
             let exercises;
             if (isPracticeMode) {
                 // Use startPracticeSession for completed courses
@@ -297,7 +295,7 @@ const CoursesPage = ({ navigation, route }) => {
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
                 exercises: exercises || [],
-                isPracticeMode: isPracticeMode
+                isPracticeMode: isPracticeMode,
             });
         } catch (error) {
             console.error('Error preparing course:', error);
@@ -307,7 +305,7 @@ const CoursesPage = ({ navigation, route }) => {
                 description: selectedCourse.description,
                 courseId: selectedCourse._id,
                 exercises: [],
-                isPracticeMode: false
+                isPracticeMode: false,
             });
         }
     };
@@ -343,12 +341,12 @@ const CoursesPage = ({ navigation, route }) => {
     const handleCourseCompletion = async (courseId, isPassed) => {
         try {
             const completionData = await updateCourseCompletion(courseId, isPassed);
-            
+
             // Update local state with the new completion data
-            setSections(prevSections => 
-                prevSections.map(section => 
-                    section.courses.map(course => 
-                        course._id === courseId 
+            setSections(prevSections =>
+                prevSections.map(section =>
+                    section.courses.map(course =>
+                        course._id === courseId
                             ? { ...course, completed: true, progress: 100 }
                             : course
                     )
@@ -440,7 +438,7 @@ const CoursesPage = ({ navigation, route }) => {
                 message={streakMessage}
                 onClose={handleStreakPopupClose}
             />
-            
+
             <CourseCompletionPopup
                 visible={showCompletionPopup}
                 onClose={handleCompletionPopupClose}
@@ -457,4 +455,3 @@ const CoursesPage = ({ navigation, route }) => {
 };
 
 export default CoursesPage;
-

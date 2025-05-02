@@ -1,7 +1,7 @@
 /**
  * @file AddFriendsPage.js
  * @description Page for discovering and adding new friends
- * 
+ *
  * @datecreated 31.03.2025
  * @lastmodified 31.03.2025
  */
@@ -46,7 +46,7 @@ const AddFriendsPage = () => {
         if (searchQuery.trim() === '') {
             setFilteredUsers(users);
         } else {
-            const filtered = users.filter(user => 
+            const filtered = users.filter(user =>
                 user.username.toLowerCase().includes(searchQuery.toLowerCase())
             );
             setFilteredUsers(filtered);
@@ -63,21 +63,21 @@ const AddFriendsPage = () => {
             const allUsers = await getAllUsers();
             // Filter out current user from the list
             const otherUsers = allUsers.filter(user => user._id !== currentUserId);
-            
+
             // Add isFollowing and isFriend flags to each user
             const usersWithStatus = otherUsers.map(user => ({
                 ...user,
                 isFollowing: followingIds.includes(user._id),
-                isFriend: followingIds.includes(user._id) && followerIds.includes(user._id)
+                isFriend: followingIds.includes(user._id) && followerIds.includes(user._id),
             }))
             .sort((a, b) => {
                 // Sort by following status: non-followed users first
-                if (a.isFollowing && !b.isFollowing) return 1;
-                if (!a.isFollowing && b.isFollowing) return -1;
+                if (a.isFollowing && !b.isFollowing) {return 1;}
+                if (!a.isFollowing && b.isFollowing) {return -1;}
                 // If both have same following status, sort alphabetically by username
                 return a.username.localeCompare(b.username);
             });
-            
+
             setUsers(usersWithStatus);
             setFilteredUsers(usersWithStatus);
         } catch (err) {
@@ -109,7 +109,7 @@ const AddFriendsPage = () => {
 
             // First, follow the user
             const response = await followUser(userToFollow._id);
-            
+
             // Only proceed if follow was successful
             if (response && response.message === 'Successfully followed user') {
                 try {
@@ -120,31 +120,31 @@ const AddFriendsPage = () => {
                         `${currentUserProfile.username} started following you`,
                         userToFollow._id
                     );
-                    
+
                     // Update local state only after both operations succeed
-                    setUsers(users.map(user => 
-                        user._id === userToFollow._id 
-                            ? { ...user, isFollowing: true } 
+                    setUsers(users.map(user =>
+                        user._id === userToFollow._id
+                            ? { ...user, isFollowing: true }
                             : user
                     ));
-                    
-                    setFilteredUsers(filteredUsers.map(user => 
-                        user._id === userToFollow._id 
-                            ? { ...user, isFollowing: true } 
+
+                    setFilteredUsers(filteredUsers.map(user =>
+                        user._id === userToFollow._id
+                            ? { ...user, isFollowing: true }
                             : user
                     ));
                 } catch (notificationError) {
                     console.error('Error creating notification:', notificationError);
                     // Even if notification fails, we still show success since follow worked
-                    setUsers(users.map(user => 
-                        user._id === userToFollow._id 
-                            ? { ...user, isFollowing: true } 
+                    setUsers(users.map(user =>
+                        user._id === userToFollow._id
+                            ? { ...user, isFollowing: true }
                             : user
                     ));
-                    
-                    setFilteredUsers(filteredUsers.map(user => 
-                        user._id === userToFollow._id 
-                            ? { ...user, isFollowing: true } 
+
+                    setFilteredUsers(filteredUsers.map(user =>
+                        user._id === userToFollow._id
+                            ? { ...user, isFollowing: true }
                             : user
                     ));
                 }
@@ -163,15 +163,15 @@ const AddFriendsPage = () => {
             const response = await unfollowUser(selectedUser._id);
             if (response && response.message === 'Successfully unfollowed user') {
                 // Update local state
-                setUsers(users.map(user => 
-                    user._id === selectedUser._id 
-                        ? { ...user, isFollowing: false } 
+                setUsers(users.map(user =>
+                    user._id === selectedUser._id
+                        ? { ...user, isFollowing: false }
                         : user
                 ));
-                
-                setFilteredUsers(filteredUsers.map(user => 
-                    user._id === selectedUser._id 
-                        ? { ...user, isFollowing: false } 
+
+                setFilteredUsers(filteredUsers.map(user =>
+                    user._id === selectedUser._id
+                        ? { ...user, isFollowing: false }
                         : user
                 ));
             }
@@ -194,7 +194,7 @@ const AddFriendsPage = () => {
                     profilePicture: userProfile.profilePicture,
                     streakCount: userProfile.streakCount || 0,
                     totalPoints: userProfile.totalPoints || 0,
-                    _id: user._id
+                    _id: user._id,
                 });
                 setShowStatsModal(true);
             }
@@ -204,18 +204,18 @@ const AddFriendsPage = () => {
     };
 
     const renderUserItem = ({ item }) => (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={styles.userItem}
             onPress={() => handleUserPress(item)}
         >
             <View style={styles.userInfo}>
-                <Image 
-                    source={item.profilePicture ? { uri: item.profilePicture } : require('../assets/icons/header/koala-hand.png')} 
-                    style={styles.profilePic} 
+                <Image
+                    source={item.profilePicture ? { uri: item.profilePicture } : require('../assets/icons/header/koala-hand.png')}
+                    style={styles.profilePic}
                 />
                 <Text style={styles.username}>{item.username}</Text>
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={[styles.followButton, item.isFollowing && styles.followingButton]}
                 onPress={(e) => {
                     e.stopPropagation();
@@ -249,12 +249,12 @@ const AddFriendsPage = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
                 >
-                    <Image 
-                        source={BackIcon} 
+                    <Image
+                        source={BackIcon}
                         style={styles.backIcon}
                         resizeMode="contain"
                     />
@@ -293,4 +293,4 @@ const AddFriendsPage = () => {
     );
 };
 
-export default AddFriendsPage; 
+export default AddFriendsPage;

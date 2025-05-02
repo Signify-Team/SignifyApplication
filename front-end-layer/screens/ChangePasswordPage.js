@@ -35,7 +35,7 @@ const ChangePasswordPage = () => {
     const handleChangePassword = async () => {
         setErrorMessage('');
         setSuccessMessage('');
-        
+
         if (!currentPassword || !newPassword || !confirmPassword) {
             setErrorMessage('Please fill in all fields');
             return;
@@ -149,8 +149,7 @@ const ChangePasswordPage = () => {
                     styles.loginButton,
                     {
                         backgroundColor: COLORS.soft_pink_background,
-                        marginTop: 20
-                    }
+                        marginTop: 20,},
                 ]}
                 onPress={() => navigation.goBack()}
                 disabled={isLoading}>
@@ -162,4 +161,4 @@ const ChangePasswordPage = () => {
     );
 };
 
-export default ChangePasswordPage; 
+export default ChangePasswordPage;

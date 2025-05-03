@@ -23,7 +23,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import styles from '../styles/styles';
 import CustomTextInput from '../utils/textInputSignLogin';
-import { sendVerificationCode, registerUser } from '../utils/services/authService';
+import { registerUser } from '../utils/services/authService';
 
 // SignUp Page layout
 const SignUpPage = () => {
@@ -81,20 +81,15 @@ const SignUpPage = () => {
         setIsLoading(true);
 
         try {
-            if (verified) {
-                // If email is verified, proceed with registration
-                const result = await registerUser(username, email, password);
-                if (result) {
-                    navigation.replace('Login');
-                }
-            } else {
-                // Navigate to consent form first
-                navigation.navigate('ConsentForm', {
-                    email,
-                    username,
-                    password
-                });
-            }
+            // Try to register the user - this will throw appropriate errors if email/username exists
+            await registerUser(username, email, password);
+            
+            // If registration succeeds, proceed to consent form
+            navigation.navigate('ConsentForm', {
+                email,
+                username,
+                password
+            });
         } catch (error) {
             setErrorMessage(error.message);
         } finally {

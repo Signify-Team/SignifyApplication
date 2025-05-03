@@ -34,8 +34,27 @@ const AuthenticationPage = () => {
     const route = useRoute();
     const { email, password, username } = route.params || {};
 
+    // Send verification code when component mounts
     useEffect(() => {
-    }, [email, password, username]);
+        const sendInitialVerificationCode = async () => {
+            if (email && username && password) {
+                setIsLoading(true);
+                try {
+                    await sendVerificationCode(email, username, password);
+                    setErrorMessage('Verification code sent!');
+                } catch (error) {
+                    const errorMessage = error.response?.data?.message ||
+                                       error.response?.data?.error ||
+                                       error.message ||
+                                       'Failed to send verification code';
+                    setErrorMessage(`Error: ${errorMessage}`);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+        sendInitialVerificationCode();
+    }, []); 
 
     useEffect(() => {
         if (timeLeft > 0) {

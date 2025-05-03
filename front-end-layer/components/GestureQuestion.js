@@ -6,6 +6,10 @@
  * @lastmodified 22.12.2024
  * 
  * @param {Object} data - The data object containing the question prompt.
+ * @param {Function} onSubmit - Callback function when gesture is submitted
+ * @param {Function} onComplete - Callback function when gesture is completed
+ * @param {number} lives - Current number of lives
+ * @param {Object} navigation - Navigation object for handling navigation
  */
 
 import React, { useEffect, useState } from 'react';
@@ -17,7 +21,7 @@ import Video from 'react-native-video';
 
 const { width, height } = Dimensions.get('window');
 
-const GestureQuestion = ({ data, onSubmit, onComplete }) => {
+const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [videoPath, setVideoPath] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -153,6 +157,27 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
         }
     };
 
+    const handleOutOfLives = () => {
+        // First close the modal
+        setIsModalVisible(false);
+        setVideoPath(null);
+        
+        // Use a small timeout to ensure state updates are complete before navigation
+        setTimeout(() => {
+            // Navigate to home page with out of lives message
+            navigation.navigate('Home', {
+                screen: 'Courses',
+                params: {
+                    showCompletionMessage: true,
+                    isPassed: false,
+                    isPracticeMode: false,
+                    outOfLives: true,
+                    remainingLives: 0
+                }
+            });
+        }, 100);
+    };
+
     const closeModal = () => {
         setIsModalVisible(false);
         if (isCorrect && onComplete) {
@@ -160,6 +185,26 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
         } else {
             // make sure we can record again when close is pressed
             setVideoPath(null);
+            // Check if out of lives
+            if (lives <= 0) {
+                handleOutOfLives();
+            } else {
+                // Only call onComplete if we have lives left
+                if (onComplete) {
+                    onComplete();
+                }
+            }
+        }
+    };
+
+    const handleSkip = () => {
+        // Check if skipping will result in out of lives
+        if (lives <= 1) {
+            handleOutOfLives();
+        } else {
+            if (onComplete) {
+                onComplete();
+            }
         }
     };
     
@@ -221,7 +266,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
                     text="SKIP"
                     color={COLORS.soft_pink_background}
-                    onPress={onComplete}
+                    onPress={handleSkip}
                 />
             </View>
             <Modal

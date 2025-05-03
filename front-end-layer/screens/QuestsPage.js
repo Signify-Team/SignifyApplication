@@ -15,6 +15,7 @@ import { getUserId } from '../utils/services/authService';
 import { fetchQuests, fetchCompletedQuests, completeQuest, collectQuestReward } from '../utils/services/questService';
 import { getUserLanguagePreference } from '../utils/services/languageService';
 import { API_URL } from '@env';
+import { COLORS } from '../utils/constants';
 
 const LANGUAGE_PREFERENCE_KEY = '@user_language_preference';
 
@@ -442,7 +443,7 @@ const QuestsPage = () => {
   if (loading && !refreshing) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -469,8 +470,8 @@ const QuestsPage = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#0000ff']}
-            tintColor="#0000ff"
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
           />
         }
       >

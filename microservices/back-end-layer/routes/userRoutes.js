@@ -235,7 +235,7 @@ router.post('/send-verification', async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({ email: { $eq: email } });
         
-        // Only return error if user exists AND is explicitly verified
+        // Only return error if user exists AND is verified
         if (existingUser?.isEmailVerified === true) {
             return res.status(409).json({ message: 'Email is already registered' });
         }
@@ -250,14 +250,11 @@ router.post('/send-verification', async (req, res) => {
 
         // If user exists but not verified, update their info
         if (existingUser) {
-            // Update only if not verified
-            if (!existingUser.isEmailVerified) {
-                existingUser.username = username;
-                existingUser.password = hashedPassword;
-                existingUser.verificationCode = verificationCode;
-                existingUser.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
-                await existingUser.save();
-            }
+            existingUser.username = username;
+            existingUser.password = hashedPassword;
+            existingUser.verificationCode = verificationCode;
+            existingUser.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+            await existingUser.save();
         } else {
             // Create new user
             const newUser = new User({

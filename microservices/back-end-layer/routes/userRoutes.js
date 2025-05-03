@@ -234,19 +234,15 @@ router.post('/send-verification', async (req, res) => {
     try {
         // Check if user already exists
         const existingUser = await User.findOne({ email: { $eq: email } });
-        if (existingUser && existingUser.isEmailVerified) {
+        
+        // Only return error if user exists AND is explicitly verified
+        if (existingUser?.isEmailVerified === true) {
             return res.status(409).json({ message: 'Email is already registered' });
-        }
-
-        const existingUsername = await User.findOne({ username: { $eq: username } });
-        if (existingUsername && existingUsername.isEmailVerified) {
-            return res.status(409).json({ message: 'Username is already registered' });
         }
 
         // Generate a 6-digit code
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Create a new user document with provided credentials
         if (!password) {
             return res.status(400).json({ message: 'Password is required for new users' });
         }
@@ -254,11 +250,14 @@ router.post('/send-verification', async (req, res) => {
 
         // If user exists but not verified, update their info
         if (existingUser) {
-            existingUser.username = username;
-            existingUser.password = hashedPassword;
-            existingUser.verificationCode = verificationCode;
-            existingUser.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
-            await existingUser.save();
+            // Update only if not verified
+            if (!existingUser.isEmailVerified) {
+                existingUser.username = username;
+                existingUser.password = hashedPassword;
+                existingUser.verificationCode = verificationCode;
+                existingUser.verificationCodeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+                await existingUser.save();
+            }
         } else {
             // Create new user
             const newUser = new User({

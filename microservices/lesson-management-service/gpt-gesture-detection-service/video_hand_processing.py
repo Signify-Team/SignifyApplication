@@ -556,10 +556,10 @@ async def process_video(request: Request):
             raise HTTPException(status_code=400, detail="No video URL provided")
             
         # Extract frames from video
-        frame_paths = extract_frames(video_url)
+        frame_paths, unique_id = extract_frames(video_url)
         
-        # Process frames in parallel
-        frames = await process_frame_batch(frame_paths)
+        # Process frames with hand detection
+        frames = process_with_detection_s3(frame_paths, f"USER_DATA/{unique_id}/")
         
         # Select optimal frames
         optimal_frames = select_optimal_frames(frames)

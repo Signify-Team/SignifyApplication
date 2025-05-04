@@ -107,7 +107,7 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [isCorrect, setIsCorrect] = useState(null);
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
-    const [lives, setLives] = useState(5); // Initialize with 1 life
+    const [lives, setLives] = useState(1); // Initialize with 1 life
     const [showLeaveModal, setShowLeaveModal] = useState(false);
     
     // Calculate progress percentage
@@ -197,17 +197,23 @@ const CourseDetailPage = ({ route, navigation }) => {
                     await updateCourseProgress(route.params.courseId, progress, false);
                 }
 
-                // Navigate to Courses tab with out of lives message
-                navigation.navigate('Home', {
-                    screen: 'Courses',
-                    params: {
-                        showCompletionMessage: true,
-                        successRate: (correctAnswers / (currentExerciseIndex + 1)) * 100,
-                        isPassed: false,
-                        isPracticeMode: isPracticeMode,
-                        outOfLives: true,
-                    },
-                });
+                // Reset states before navigation
+                setUserAnswer(null);
+                setIsCorrect(null);
+
+                // Use a small timeout to ensure state updates are complete
+                setTimeout(() => {
+                    // Navigate to Courses tab with out of lives message
+                    navigation.navigate('Home', {
+                        screen: 'Courses',
+                        params: {
+                            showCompletionMessage: true,
+                            isPassed: false,
+                            isPracticeMode: isPracticeMode,
+                            outOfLives: true,
+                        },
+                    });
+                }, 100);
                 return;
             } catch (error) {
                 console.error('Error updating course progress:', error);
@@ -300,6 +306,8 @@ const CourseDetailPage = ({ route, navigation }) => {
                                 handleAnswer(false);
                                 handleContinue();
                             }}
+                            lives={lives}
+                            navigation={navigation}
                         />
                     );
                 case 'trueFalse':

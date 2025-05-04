@@ -40,26 +40,22 @@ const FillInTheBlankQuestion = ({ data, onAnswer }) => {
                             key={index}
                             style={[
                                 styles.optionContainer,
-                                selectedOption === index && styles.selectedOption
+                                selectedOption === index && styles.selectedOption,
+                                isAnswered && selectedOption === index && index !== data.correctAnswerIndex && styles.incorrectOption
                             ]}
                             onPress={() => handleOptionPress(index)}
                             disabled={isAnswered}
                         >
-                            <View style={[
-                                styles.videoWrapper,
-                                selectedOption === index && isAnswered && styles.selectedVideoWrapper
-                            ]}>
-                                <Video
-                                    ref={ref => videoRefs.current[index] = ref}
-                                    source={{ uri: videoUrl }}
-                                    style={styles.video}
-                                    controls={false}
-                                    resizeMode="cover"
-                                    repeat={true}
-                                    paused={false}
-                                    muted={true}
-                                />
-                            </View>
+                            <Video
+                                ref={ref => videoRefs.current[index] = ref}
+                                source={{ uri: videoUrl }}
+                                style={styles.video}
+                                controls={false}
+                                resizeMode="cover"
+                                repeat={true}
+                                paused={false}
+                                muted={true}
+                            />
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -100,29 +96,18 @@ const styles = StyleSheet.create({
         width: width * 0.4,
         aspectRatio: 1,
         margin: width * 0.02,
-    },
-    videoWrapper: {
-        flex: 1,
-        backgroundColor: COLORS.background_secondary,
-        borderRadius: 15,
+        borderRadius: 20,
         overflow: 'hidden',
-        borderWidth: 2,
-        borderColor: COLORS.border,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        backgroundColor: COLORS.background_secondary,
     },
     selectedOption: {
         transform: [{ scale: 1.05 }],
-    },
-    selectedVideoWrapper: {
         borderColor: COLORS.tertiary,
-        borderWidth: 3,
+        borderWidth: 2,
+    },
+    incorrectOption: {
+        borderColor: COLORS.highlight_color_2,
+        borderWidth: 2,
     },
     video: {
         width: '100%',

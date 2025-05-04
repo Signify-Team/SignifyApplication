@@ -125,7 +125,8 @@ def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
 
     # Generate unique folder name for this video session
     unique_id = str(uuid.uuid4())
-    s3_folder = f"{unique_id}/"
+    s3_folder = f"USER_DATA/{unique_id}/"
+
 
     while cap.isOpened():
         ret, frame = cap.read()

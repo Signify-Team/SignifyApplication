@@ -31,7 +31,7 @@ class VideoConstants:
     TARGET_SIZE = (320, 240) 
     MAX_FRAMES = 15 
     HAND_DETECTION_THRESHOLD = 0.08 
-    GPT_MAX_TOKENS = 150
+    GPT_MAX_TOKENS = 250
     GPT_TEMPERATURE = 0.1 
     IMAGE_QUALITY = 85
     TARGET_WIDTH = 256
@@ -237,16 +237,16 @@ async def send_frames_to_gpt(frames, target_word):
     message_content = [
         {
             "type": "text",
-            "text": f"""Analyze these images as a sequence showing a hand gesture and determine if they show the {target_word.upper()} hand gesture/sign language.
+            "text": f"""Analyze these images as a sequence showing a hand gesture and determine if they show the "{target_word.upper()}" hand gesture/sign language.
 
-            A {target_word.lower()} gesture typically includes:
-            - The appropriate hand shape and movement for {target_word.lower()}
+            A "{target_word.lower()}" gesture typically includes:
+            - The appropriate hand shape and movement for "{target_word.lower()}"
             - The hand positioned in the correct location
             - The correct palm orientation
             - The correct finger configuration
 
-            IMPORTANT: This is specifically for the {target_word.upper()} gesture. Do not accept other gestures that might not be related.
-            Only answer "YES" if the gesture exactly matches the {target_word.upper()} sign language gesture.
+            IMPORTANT: This is specifically for the "{target_word.upper()}" gesture. Do not accept other gestures that might not be related.
+            Only answer "YES" if the gesture exactly matches the "{target_word.upper()}" sign language gesture.
 
             Return the result in this JSON format:
             {{
@@ -255,6 +255,7 @@ async def send_frames_to_gpt(frames, target_word):
             }}
 
             Be strict in your assessment. If uncertain, answer "NO".
+            Be friendly in your feedback as it will be used to improve the user's sign language skills. Provide the correct explanation of the movement if possible.
             """
         },
     ]

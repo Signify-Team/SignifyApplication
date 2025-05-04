@@ -117,12 +117,14 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     body: JSON.stringify({
                         video_url: uploadResult.video_server_path,
                         target_word: data.word || data.prompt
+                        // print the target word to the console
                     }),
                 }),
                 new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Processing timeout')), API.PROCESS_TIMEOUT)
                 )
             ]);
+            console.log('Target word:', data.word || data.prompt);
     
             if (!processResponse.ok) {
                 throw new Error('Failed to process video');

@@ -137,13 +137,14 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                 throw new Error(result.message);
             }
     
-            const isCorrect = result.answer === 'YES';
-    
+            const isCorrect = result.analysis.answer === 'yes';  // note: lowercase 'yes'
+
             setIsCorrect(isCorrect);
             setModalMessage(isCorrect
                 ? "Correct! Your gesture was recognized successfully!"
-                : `Incorrect. ${result.feedback || "Please try again or skip to continue."}`
+                : `Incorrect. ${result.analysis.feedback || "Please try again or skip to continue."}`
             );
+
     
             // Call onSubmit with the result
             if (onSubmit) {

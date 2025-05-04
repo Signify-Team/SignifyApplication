@@ -240,23 +240,24 @@ async def send_frames_to_gpt(frames, target_word):
             "type": "text",
             "text": f"""Analyze these images as a sequence showing a hand gesture and determine if they show the "{target_word.upper()}" hand gesture/sign language.
 
-    A "{target_word.lower()}" gesture typically includes:
-    - The appropriate hand shape and movement for "{target_word.lower()}"
-    - The hand positioned in the correct location
-    - The correct palm orientation
-    - The correct finger configuration
+            A "{target_word.lower()}" gesture typically includes:
+            - The appropriate hand shape and movement for "{target_word.lower()}"
+            - The hand positioned in the correct location
+            - The correct palm orientation
+            - The correct finger configuration
 
-    IMPORTANT: This is specifically for the "{target_word.upper()}" gesture. However, consider that the images may include slight angle variations or camera imperfections. If the gesture is **reasonably** clear and matches the intent of the "{target_word.upper()}" sign, answer "YES."
+            IMPORTANT: This is specifically for the "{target_word.upper()}" gesture. However, consider that the images may include slight angle variations or camera imperfections. If the gesture is **reasonably** clear and matches the intent of the "{target_word.upper()}" sign, answer "YES."
 
-    Return the result in this JSON format:
-    {{
-    "answer": "YES" or "NO",
-    "feedback": "STRICTLY one sentence describing how the user gestured or what should be corrected (ONLY if answer is NO)"
-    }}
+            Return the result in this JSON format:
+            {{
+                "explanation": "A short explanation of what you see in the images",
+                "answer": "YES" or "NO",
+                "feedback": "STRICTLY one sentence describing how the user gestured or what should be corrected (ONLY if answer is NO)"
+            }}
 
-    Be careful, but not overly strict: if the gesture is clearly intended as the target, accept it even if the angle or framing is not perfect.
-    """
-        },
+            Be careful, but not overly strict: if the gesture is clearly intended as the target, accept it even if the angle or framing is not perfect.
+            """
+                },
     ]
 
 

@@ -118,39 +118,34 @@ async def upload_video(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to upload video: {str(e)}")
 
 def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
-    print("Extracting frames from video...", video_path)
-
-    if(video_path.startswith("file://")):
-        video_path = video_path[7:]
-
-    # clear existing frames otherwise it takes the previous frames and gives incorrect results
-    for file in os.listdir(EXTRACTED_FRAMES_DIR):
-        os.remove(os.path.join(EXTRACTED_FRAMES_DIR, file))
-
     cap = cv2.VideoCapture(video_path)
     frame_id = 0
     frame_count = 0
+    s3_frame_keys = []
+
+    # Generate unique folder name for this video session
+    unique_id = str(uuid.uuid4())
+    s3_folder = f"{unique_id}/"
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Only process every 'interval' frame
         if frame_count % interval == 0:
-            output_path = os.path.join(EXTRACTED_FRAMES_DIR, f"frame_{frame_id}.jpg")
-            cv2.imwrite(output_path, frame)
-            frame_id += 1
-        
+            s3_key = f"{s3_folder}frame_{frame_id}.jpg"
+            try:
+                upload_frame_to_s3(frame, s3_key)
+                s3_frame_keys.append(s3_key)
+                frame_id += 1
+            except Exception as e:
+                print(f"Error uploading frame {frame_id}: {str(e)}")
+                continue
+
         frame_count += 1
 
     cap.release()
-    
-    # full paths to frames instead of just filenames
-    frame_files = sorted(os.listdir(EXTRACTED_FRAMES_DIR))
-    frame_paths = [os.path.join(EXTRACTED_FRAMES_DIR, filename) for filename in frame_files]
-    print(f"Extracted {len(frame_paths)} frames from {frame_count} total frames (interval: {interval})")
-    return frame_paths
+    return s3_frame_keys, unique_id  # also return the folder ID if needed
 
 async def process_frame_batch(frame_batch):
     """Process a batch of frames in parallel to shorten the response time"""

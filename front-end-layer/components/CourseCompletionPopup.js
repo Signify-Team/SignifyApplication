@@ -7,12 +7,15 @@
  */
 
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, Image } from 'react-native';
+import { View, Text, Modal, Image, Dimensions } from 'react-native';
 import styles from '../styles/CourseCompletionPopupStyle';
 import { COLORS } from '../utils/constants';
 import SuccessIcon from '../assets/icons/course-info/successIcon.png';
 import FailIcon from '../assets/icons/course-info/failedCourseIcon.png';
 import LivesLostIcon from '../assets/icons/course-info/failedCourseIcon.png'; // Reusing failed course icon for now
+import RectangularButton from './RectangularButton';
+
+const { width } = Dimensions.get('window');
 
 const CourseCompletionPopup = ({
     visible,
@@ -39,7 +42,7 @@ const CourseCompletionPopup = ({
     // Determine message based on mode and success
     const getMessage = () => {
         if (outOfLives) {
-            return `You've used all your lives. You completed ${successRate.toFixed(1)}% of the course. Try again to improve your score and finish the course.`;
+            return "You've used all your lives. Try again to finish the course.";
         } else if (isPracticeMode) {
             return isPassed 
                 ? `Great job practicing! You've passed the practice session with a ${successRate.toFixed(1)}% success rate.`
@@ -77,15 +80,14 @@ const CourseCompletionPopup = ({
                     </View>
                     <Text style={styles.title}>{getTitle()}</Text>
                     <Text style={styles.message}>{getMessage()}</Text>
-                    <TouchableOpacity
-                        style={[styles.button, { 
-                            backgroundColor: outOfLives ? COLORS.highlight_color_2 : 
-                                           (isPassed ? COLORS.secondary : COLORS.primary) 
-                        }]}
+                    <RectangularButton
+                        text="Continue"
+                        width={width * 0.5}
+                        color={outOfLives ? COLORS.highlight_color_2 : 
+                                         (isPassed ? COLORS.tertiary : COLORS.primary)}
                         onPress={onClose}
-                    >
-                        <Text style={styles.buttonText}>Continue</Text>
-                    </TouchableOpacity>
+                        style={{ marginTop: 20 }}
+                    />
                 </View>
             </View>
         </Modal>

@@ -24,6 +24,7 @@ import shutil
 from dotenv import load_dotenv
 from PIL import Image
 import io
+import re
 
 # Constants
 class VideoConstants:
@@ -296,15 +297,16 @@ async def send_frames_to_gpt(frames, target_word):
         print("===================\n")
 
         try:
-            result_data = json.loads(raw_response)
+            # Remove surrounding triple backticks if present
+            cleaned_response = re.sub(r'^```json\s*|```$', '', raw_response.strip(), flags=re.IGNORECASE).strip()
+            result_data = json.loads(cleaned_response)
             answer = result_data.get("answer", "").lower()
             feedback = result_data.get("feedback", "").strip()
             
             return {
-                "answer": answer,  # 'yes' or 'no'
+                "answer": answer,
                 "feedback": feedback if answer == "no" else ""
             }
-
         except json.JSONDecodeError:
             print("Failed to parse JSON from GPT response.")
             return {

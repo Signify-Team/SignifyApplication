@@ -22,6 +22,32 @@ import { playPrimaryButtonSound } from '../utils/services/soundServices';
 
 const { width, height } = Dimensions.get('window');
 
+const successMessages = [
+    "Awesome! You nailed the gesture!",
+    "Great job! That was perfect!",
+    "Fantastic! You signed it correctly!",
+    "Well done! Gesture recognized!",
+    "Excellent! Keep up the good work!",
+    "Bravo! You're mastering this fast!",
+    "Superb! That was spot on!",
+    "You're on fire! Keep going!",
+    "Perfect sign! You're doing amazing!",
+    "Woohoo! That was a flawless gesture!",
+    "Impressive! You're getting better!",
+    "Nice work! You're really improving!",
+    "💥 Boom! You smashed that gesture!",
+    "🎯 Bullseye! Nailed it like a pro!",
+    "🔥 On fire! You're a signing machine!",
+    "🏆 Level up! That was epic!",
+    "🎉 Ding ding! Perfect score!",
+    "😎 Smooth moves! That was flawless!",
+    "🚀 Blasted through that like a champ!",
+    "👏 Clap clap! You’re unstoppable!",
+    "🕹️ Combo hit! Keep stacking wins!",
+    "💎 Shiny! That gesture sparkled!"
+
+];
+
 const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [videoPath, setVideoPath] = useState(null);
@@ -142,10 +168,11 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
             }
     
             const isCorrect = result.analysis.answer === 'yes';  // note: lowercase 'yes'
+            const randomSuccessMessage = successMessages[Math.floor(Math.random() * successMessages.length)];
 
             setIsCorrect(isCorrect);
             setModalMessage(isCorrect
-                ? "Correct! Your gesture was recognized successfully!"
+                ? randomSuccessMessage
                 : `Incorrect. ${result.analysis.feedback || "Please try again or skip to continue."}`
             );
 

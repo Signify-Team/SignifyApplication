@@ -42,7 +42,7 @@ const successMessages = [
     "🎉 Ding ding! Perfect score!",
     "😎 Smooth moves! That was flawless!",
     "🚀 Blasted through that like a champ!",
-    "👏 Clap clap! You’re unstoppable!",
+    "👏 Clap clap! You're unstoppable!",
     "🕹️ Combo hit! Keep stacking wins!",
     "💎 Shiny! That gesture sparkled!"
 
@@ -58,6 +58,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
     const cameraRef = React.useRef(null);
     let isRecording = false;
     const [isCorrect, setIsCorrect] = useState(false); 
+    const [isCameraActive, setIsCameraActive] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -73,6 +74,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
 
     const startRecording = async () => {
         playPrimaryButtonSound();
+        if (lives <= 0) {
+            handleOutOfLives();
+            return;
+        }
         try {
             if (!cameraRef.current) return;
             isRecording = true;
@@ -92,6 +97,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
 
     const stopRecording = async () => {
         playPrimaryButtonSound();
+        if (lives <= 0) {
+            handleOutOfLives();
+            return;
+        }
         try {
             if (!cameraRef.current || !isRecording) return;
             await cameraRef.current.stopRecording();
@@ -103,6 +112,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
 
     const submitGesture = async () => {
         playPrimaryButtonSound();
+        if (lives <= 0) {
+            handleOutOfLives();
+            return;
+        }
         if (!videoPath) {
             setIsModalVisible(true);
             setModalMessage("No video recorded. Please record a video first.");
@@ -196,13 +209,38 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
     
 
     const handleOutOfLives = () => {
-        // First close the modal
+        // Reset states before navigation
+        setIsModalVisible(false);
+        setVideoPath(null);
+        setIsCorrect(null);
+        
+        // Let CourseDetailsPage handle the navigation
+        if (onComplete) {
+            onComplete();
+        }
+    };
+
+    const closeModal = () => {
         setIsModalVisible(false);
         setVideoPath(null);
         
-        // Use a small timeout to ensure state updates are complete before navigation
-        setTimeout(() => {
-            // Navigate to home page with out of lives message
+        // Check if we're out of lives after an incorrect answer
+        if (!isCorrect && lives <= 1) {
+            handleOutOfLives();
+        } else if (onComplete) {
+            onComplete();
+        }
+    };
+
+    const handleSkip = () => {
+        // Check if skipping will result in out of lives
+        if (lives <= 1) {
+            // Reset states before navigation
+            setIsModalVisible(false);
+            setVideoPath(null);
+            setIsCorrect(null);
+            
+            // Navigate directly to Home with Courses tab
             navigation.navigate('Home', {
                 screen: 'Courses',
                 params: {
@@ -210,39 +248,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     isPassed: false,
                     isPracticeMode: false,
                     outOfLives: true,
-                    remainingLives: 0
                 }
             });
-        }, 100);
-    };
-
-    const closeModal = () => {
-        setIsModalVisible(false);
-        if (isCorrect && onComplete) {
-            onComplete(); // continue if correct
-        } else {
-            // make sure we can record again when close is pressed
-            setVideoPath(null);
-            // Check if out of lives
-            if (lives <= 0) {
-                handleOutOfLives();
-            } else {
-                // Only call onComplete if we have lives left
-                if (onComplete) {
-                    onComplete();
-                }
-            }
-        }
-    };
-
-    const handleSkip = () => {
-        // Check if skipping will result in out of lives
-        if (lives <= 1) {
-            handleOutOfLives();
-        } else {
-            if (onComplete) {
-                onComplete();
-            }
+        } else if (onComplete) {
+            onComplete();
         }
     };
     
@@ -275,7 +284,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                         ref={cameraRef}
                         style={styles.camera}
                         device={device}
-                        isActive={true}
+                        isActive={isCameraActive}
                         video={true}
                     />
                 )}
@@ -304,10 +313,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
                     text="SKIP"
                     color={COLORS.soft_pink_background}
-                    onPress={() => {
-                        playPrimaryButtonSound();
-                        onComplete();
-                    }}
+                    onPress={handleSkip}
                 />
             </View>
             <Modal

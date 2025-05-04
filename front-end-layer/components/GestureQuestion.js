@@ -18,6 +18,7 @@ import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import RectangularButton from './RectangularButton';
 import { COLORS, FONTS, API, GESTURE_UI } from '../utils/constants';
 import Video from 'react-native-video';
+import { playPrimaryButtonSound } from '../utils/services/soundServices';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,6 +46,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
     }, []);
 
     const startRecording = async () => {
+        playPrimaryButtonSound();
         try {
             if (!cameraRef.current) return;
             isRecording = true;
@@ -63,6 +65,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
     };
 
     const stopRecording = async () => {
+        playPrimaryButtonSound();
         try {
             if (!cameraRef.current || !isRecording) return;
             await cameraRef.current.stopRecording();
@@ -73,22 +76,23 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
     };
 
     const submitGesture = async () => {
+        playPrimaryButtonSound();
         if (!videoPath) {
             setIsModalVisible(true);
             setModalMessage("No video recorded. Please record a video first.");
             return;
         }
-
+    
         setIsModalVisible(true);
         setModalMessage("Processing your gesture...");
-
+    
         const formData = new FormData();
         formData.append('file', {
             uri: videoPath,
             name: 'gesture.mp4',
             type: 'video/mp4',
         });
-
+    
         try {
             // Upload video with timeout
             const uploadResponse = await Promise.race([
@@ -96,17 +100,17 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     method: 'POST',
                     body: formData,
                 }),
-                new Promise((_, reject) => 
+                new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Upload timeout')), API.UPLOAD_TIMEOUT)
                 )
             ]);
-
+    
             if (!uploadResponse.ok) {
                 throw new Error('Failed to upload video');
             }
-
+    
             const uploadResult = await uploadResponse.json();
-
+    
             // Process video with timeout
             const processResponse = await Promise.race([
                 fetch(`${API.GESTURE_SERVICE_URL}/process-video`, {
@@ -114,48 +118,55 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ video_url: uploadResult.video_server_path }),
+                    body: JSON.stringify({
+                        video_url: uploadResult.video_server_path,
+                        target_word: data.word || data.prompt
+                        // print the target word to the console
+                    }),
                 }),
-                new Promise((_, reject) => 
+                new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Processing timeout')), API.PROCESS_TIMEOUT)
                 )
             ]);
-
+            console.log('Target word:', data.word || data.prompt);
+    
             if (!processResponse.ok) {
                 throw new Error('Failed to process video');
             }
-
+    
             const result = await processResponse.json();
             console.log('Server response:', result);
-
+    
             if (result.status === 'error') {
                 throw new Error(result.message);
             }
+    
+            const isCorrect = result.analysis.answer === 'yes';  // note: lowercase 'yes'
 
-            // Simple yes/no check
-            const isCorrect = result.analysis === 'yes';
             setIsCorrect(isCorrect);
-            setModalMessage(isCorrect ? 
-                "Correct! Your gesture was recognized successfully!" : 
-                "Incorrect. Please try again or skip to continue."
+            setModalMessage(isCorrect
+                ? "Correct! Your gesture was recognized successfully!"
+                : `Incorrect. ${result.analysis.feedback || "Please try again or skip to continue."}`
             );
 
+    
             // Call onSubmit with the result
             if (onSubmit) {
                 onSubmit(isCorrect);
             }
-
+    
         } catch (error) {
             console.error('Error:', error);
             setIsCorrect(false);
             setModalMessage("An error occurred. Please try again.");
-            
+    
             // Call onSubmit with false on error
             if (onSubmit) {
                 onSubmit(false);
             }
         }
     };
+    
 
     const handleOutOfLives = () => {
         // First close the modal
@@ -266,7 +277,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
                     text="SKIP"
                     color={COLORS.soft_pink_background}
-                    onPress={handleSkip}
+                    onPress={() => {
+                        playPrimaryButtonSound();
+                        onComplete();
+                    }}
                 />
             </View>
             <Modal

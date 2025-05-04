@@ -259,6 +259,8 @@ const CoursesPage = ({ navigation, route }) => {
             return;
         }
 
+        playPrimaryButtonSound();
+
         if (selectedCourse?._id === course._id) {
             setShowCard(!showCard);
         } else {

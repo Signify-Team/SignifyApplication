@@ -239,23 +239,26 @@ async def send_frames_to_gpt(frames, target_word):
             "type": "text",
             "text": f"""Analyze these images as a sequence showing a hand gesture and determine if they show the {target_word.upper()} hand gesture/sign language.
 
-A {target_word.lower()} gesture typically includes:
-- The appropriate hand shape and movement for {target_word.lower()}
-- The hand positioned in the correct location
-- The correct palm orientation
-- The correct finger configuration
+    A {target_word.lower()} gesture typically includes:
+    - The appropriate hand shape and movement for {target_word.lower()}
+    - The hand positioned in the correct location
+    - The correct palm orientation
+    - The correct finger configuration
 
-IMPORTANT: This is specifically for the {target_word.upper()} gesture. Do not accept other gestures that might not be related.
-Only answer "YES" if the gesture exactly matches the {target_word.upper()} sign language gesture.
+    IMPORTANT: This is specifically for the {target_word.upper()} gesture. Do not accept other gestures that might not be related.
+    Only answer "YES" if the gesture exactly matches the {target_word.upper()} sign language gesture.
 
-Give me a SINGLE one-word answer:
-- Answer "YES" if these frames clearly show the {target_word.lower()} gesture
-- Answer "NO" for any other gesture
+    Return the result in this JSON format:
+    {{
+    "answer": "YES" or "NO",
+    "feedback": "STRICTLY one sentence describing how the user gestured or what should be corrected (ONLY if answer is NO)"
+    }}
 
-Be strict in your assessment. If uncertain, answer "NO".
-"""
+    Be strict in your assessment. If uncertain, answer "NO".
+    """
         },
     ]
+
 
     # Log the prompt
     print("\n=== GPT PROMPT ===")

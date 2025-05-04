@@ -11,6 +11,7 @@ import styles from '../styles/styles';
 import { COLORS } from '../utils/constants';
 import MatchingQuestion from '../components/MatchingQuestion';
 import { updateCourseProgress, updateCourseCompletion } from '../utils/services/courseService';
+import { playPrimaryButtonSound } from '../utils/services/soundServices';
 
 const { width } = Dimensions.get('window');
 
@@ -184,6 +185,9 @@ const CourseDetailPage = ({ route, navigation }) => {
     };
 
     const handleContinue = async () => {
+        // Play sound effect
+        playPrimaryButtonSound();
+        
         // Check if lives are depleted
         if (lives <= 0) {
             try {

@@ -16,9 +16,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from openai import OpenAI
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
+from pydantic import BaseModel
 import shutil
 from dotenv import load_dotenv
 from PIL import Image
@@ -153,50 +154,49 @@ def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
 async def process_frame_batch(frame_batch):
     """Process a batch of frames in parallel to shorten the response time"""
     try:
-        # ThreadPoolExecutor is used to proccess the frames in parallel to shorten the response time
+        # Create a temporary directory for processed frames
+        temp_dir = os.path.join(os.path.dirname(EXTRACTED_FRAMES_DIR), "temp_processed")
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # ThreadPoolExecutor is used to process the frames in parallel
         with ThreadPoolExecutor() as executor:
-            loop = asyncio.get_event_loop() # get_event_loop is used to get the event loop to manage this task
-            # event loop is responsible for running the tasks in parallel
-            # if an asyncio task is created, it is added to the event loop
-            # if an event loop is not running, it is created and run
-            # if an event loop is running, the task is added to the event loop
-
+            loop = asyncio.get_event_loop()
             tasks = []
-            for frame_path in frame_batch:
+            for i, frame_path in enumerate(frame_batch):
                 if os.path.exists(frame_path):  # Check if file exists
-                    tasks.append(loop.run_in_executor(executor, cv2.imread, frame_path)) # this line makes sure that the frame is read in parallel 
-                    # this way when processing 100 frames, it will not take 100 times the time
-                    # but instead it will take the time of the longest frame
-                    # this is because the frames are read in parallel
-                    # and the time it takes to read the frames is the same
-                    # so it is faster to read all the frames at once
-                    # and then process them in parallel
-
+                    # Save frame as temporary file
+                    temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
+                    tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, cv2.imread(frame_path)), temp_path))
                 else:
                     print(f"Warning: Frame file not found: {frame_path}")
             
             if not tasks:
                 return []
             
-            frames = await asyncio.gather(*tasks, return_exceptions=True) # this line is used to run the tasks in parallel
-            # gather is used to run the tasks in parallel
-            # return_exceptions is used to return the exceptions and makes sure that the program does not crash
-            # if an exception is thrown, it is returned in the list so it can be handled later
-
-            # Filter out None values and exceptions
-            valid_frames = [f for f in frames if f is not None and not isinstance(f, Exception)]
-            return valid_frames
+            # Wait for all frames to be saved
+            await asyncio.gather(*tasks)
+            
+            # Get all saved frame paths
+            processed_frames = sorted([os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith('.jpg')])
+            return processed_frames
+            
     except Exception as e:
         print(f"Error in process_frame_batch: {e}")
         return []
     
 # resize the image to 256x256 and convert it to RGB for faster processing and less memory usage
-def optimize_image_for_api(image_path):
+def optimize_image_for_api(frame):
     """Optimize image size and quality for API transmission while maintaining aspect ratio"""
-    with Image.open(image_path) as img:
-        # Convert to RGB
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
+    try:
+        # Convert numpy array to PIL Image
+        if isinstance(frame, np.ndarray):
+            # Convert BGR to RGB if needed
+            if len(frame.shape) == 3 and frame.shape[2] == 3:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
+        else:
+            # If it's a file path, open it
+            img = Image.open(frame)
         
         # Calculate new dimensions maintaining aspect ratio
         width, height = img.size
@@ -211,9 +211,12 @@ def optimize_image_for_api(image_path):
         buffer = io.BytesIO()
         img.save(buffer, format='JPEG', quality=VideoConstants.IMAGE_QUALITY, optimize=True)
         return base64.b64encode(buffer.getvalue()).decode('utf-8')
+    except Exception as e:
+        print(f"Error optimizing image: {str(e)}")
+        return None
 
 # send the frames to the GPT API
-async def send_frames_to_gpt(frames):
+async def send_frames_to_gpt(frames, target_word):
     print(f"Sending {len(frames)} frames to GPT...")
     
     # track optimization time
@@ -234,21 +237,30 @@ async def send_frames_to_gpt(frames):
     message_content = [
         {
             "type": "text",
-            "text": """Analyze these images as a sequence showing a hand gesture and determine if they show a HELLO or GREETING hand gesture/sign language.
+            "text": f"""Analyze these images as a sequence showing a hand gesture and determine if they show the {target_word.upper()} hand gesture/sign language.
 
-A hello/greeting gesture typically includes:
-- Waving motion with open palm
-- The hand positioned near the face or raised to shoulder level
-- Open palm facing forward
-- Fingers together or slightly spread
+A {target_word.lower()} gesture typically includes:
+- The appropriate hand shape and movement for {target_word.lower()}
+- The hand positioned in the correct location
+- The correct palm orientation
+- The correct finger configuration
+
+IMPORTANT: This is specifically for the {target_word.upper()} gesture. Do not accept other gestures that might not be related.
+Only answer "YES" if the gesture exactly matches the {target_word.upper()} sign language gesture.
+
 Give me a SINGLE one-word answer:
-- Answer "YES" if these frames clearly show a hello/greeting gesture
-- Answer "NO" for any other gesture (pointing, thumbs up, peace sign, etc.)
+- Answer "YES" if these frames clearly show the {target_word.lower()} gesture
+- Answer "NO" for any other gesture
 
 Be strict in your assessment. If uncertain, answer "NO".
 """
         },
     ]
+
+    # Log the prompt
+    print("\n=== GPT PROMPT ===")
+    print(message_content[0]["text"])
+    print("=================\n")
 
     # Add all optimized frames to message content
     for image_b64 in optimized_images:
@@ -279,9 +291,11 @@ Be strict in your assessment. If uncertain, answer "NO".
 
         # response handling
         response_text = response.choices[0].message.content.lower().strip()
-        print(f"GPT response: {response_text}")
+        print("\n=== GPT RESPONSE ===")
+        print(f"Raw response: {response.choices[0].message.content}")
+        print(f"Processed response: {response_text}")
+        print("===================\n")
         
-        print(response_text)
         if response_text.startswith("yes"):
             return "yes"
         else:
@@ -486,77 +500,36 @@ def preprocess_frames_for_detection(frames_dir, target_size=VideoConstants.TARGE
 
 # Main Workflow
 @app.post("/process-video")
-async def process_user_video(request: VideoRequest):
+async def process_video(request: Request):
     try:
-        total_start_time = time.time()
+        data = await request.json()
+        video_url = data.get("video_url")
+        target_word = data.get("target_word", "hello")  # Default to "hello" if not provided
         
+        print(f"\nProcessing video for target word: {target_word}\n")  # Add logging
         
-        extract_start_time = time.time()
-        session_id = str(uuid.uuid4())  # or get from user session
-        exercise_id = "demo"  # pass dynamically in real use
-        folder_name = f"USER_DATA/{session_id}_{exercise_id}/"
-        frames = extract_frames_to_s3(request.video_url, folder_name)
-        extract_time = time.time() - extract_start_time
-        print(f"Frame extraction time: {extract_time:.2f} seconds")
+        if not video_url:
+            raise HTTPException(status_code=400, detail="No video URL provided")
+            
+        # Extract frames from video
+        frame_paths = extract_frames(video_url)
         
-        if not frames:
-            return {"status": "error", "message": "No frames extracted"}
-
-        print(f"Extracted {len(frames)} frames")
-        print(f"Frame paths: {frames[:3]}...")  # Debug print first 3 frames
+        # Process frames in parallel
+        frames = await process_frame_batch(frame_paths)
         
-        # preprocess frames for faster detection
-        preprocess_start_time = time.time()
-        preprocess_time = time.time() - preprocess_start_time
-        print(f"Frame preprocessing time: {preprocess_time:.2f} seconds")
-        
-        # process with detection
-        detection_start_time = time.time()
-        selected_frames = await asyncio.to_thread(
-            process_with_detection_s3, 
-            frames, 
-            folder_name
-        )
-        detection_time = time.time() - detection_start_time
-        print(f"Hand detection time: {detection_time:.2f} seconds")
-        
-        if not selected_frames:
-            return {"status": "error", "message": "No hands detected in the processed frames"}
-
-        print(f"Selected {len(selected_frames)} frames with hand gestures")
-        print(f"Selected frame paths: {selected_frames[:3]}...")  # Debug print first 3 selected frames
-
-        # select optimal subset of frames to send to GPT
-        optimal_frames = select_optimal_frames(selected_frames)
+        # Select optimal frames
+        optimal_frames = select_optimal_frames(frames)
         
         # get GPT result with optimized frames
         gpt_start_time = time.time()
-        gpt_result = await send_frames_to_gpt(optimal_frames)
+        gpt_result = await send_frames_to_gpt(optimal_frames, target_word)
         gpt_time = time.time() - gpt_start_time
         print(f"GPT API processing time: {gpt_time:.2f} seconds")
         
-        print(f"Final result: {gpt_result}")
-        
-        # calculate and log the total time
-        total_time = time.time() - total_start_time
-        print(f"Total processing time: {total_time:.2f} seconds")
-        print("========================")
-        
-        
-        return {
-            "status": "success",
-            "analysis": gpt_result,
-            "processing_time": {
-                "total_time": round(total_time, 2),
-                "frame_extraction": round(extract_time, 2),
-                "preprocessing": round(preprocess_time, 2),
-                "hand_detection": round(detection_time, 2),
-                "gpt_processing": round(gpt_time, 2)
-            }
-        }
+        return {"status": "success", "analysis": gpt_result}
         
     except Exception as e:
-        print(f"An error occurred in process_user_video: {e}")
+        print(f"An error occurred in process_video: {e}")
         return {
             "status": "error",
             "message": "An internal error has occurred. Please try again later."

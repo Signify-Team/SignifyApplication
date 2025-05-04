@@ -14,6 +14,7 @@ import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import RectangularButton from './RectangularButton';
 import { COLORS, FONTS, API, GESTURE_UI } from '../utils/constants';
 import Video from 'react-native-video';
+import { playPrimaryButtonSound } from '../utils/services/soundServices';
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,6 +42,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
     }, []);
 
     const startRecording = async () => {
+        playPrimaryButtonSound();
         try {
             if (!cameraRef.current) return;
             isRecording = true;
@@ -59,6 +61,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
     };
 
     const stopRecording = async () => {
+        playPrimaryButtonSound();
         try {
             if (!cameraRef.current || !isRecording) return;
             await cameraRef.current.stopRecording();
@@ -69,6 +72,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
     };
 
     const submitGesture = async () => {
+        playPrimaryButtonSound();
         if (!videoPath) {
             setIsModalVisible(true);
             setModalMessage("No video recorded. Please record a video first.");
@@ -110,7 +114,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ video_url: uploadResult.video_server_path }),
+                    body: JSON.stringify({ 
+                        video_url: uploadResult.video_server_path,
+                        target_word: data.word || data.prompt 
+                    }),
                 }),
                 new Promise((_, reject) => 
                     setTimeout(() => reject(new Error('Processing timeout')), API.PROCESS_TIMEOUT)
@@ -221,7 +228,10 @@ const GestureQuestion = ({ data, onSubmit, onComplete }) => {
                     width={width * GESTURE_UI.SUBMIT_BUTTON_WIDTH}
                     text="SKIP"
                     color={COLORS.soft_pink_background}
-                    onPress={onComplete}
+                    onPress={() => {
+                        playPrimaryButtonSound();
+                        onComplete();
+                    }}
                 />
             </View>
             <Modal

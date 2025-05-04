@@ -16,7 +16,8 @@ import {
     ActivityIndicator,
     RefreshControl,
     TouchableOpacity,
-    Share
+    Share,
+    Image
 } from 'react-native';
 import styles from '../styles/ProfileCardStyle.js';
 import { SIZES, COLORS } from '../utils/constants.js';
@@ -28,6 +29,7 @@ import {
     fetchSectionsByLanguage 
 } from '../utils/apiService.js';
 import { useNavigation } from '@react-navigation/native';
+import { playPrimaryButtonSound } from '../utils/services/soundServices';
 
 // Components
 import ProfileTopBar from '../components/ProfileTopBar';
@@ -152,6 +154,7 @@ const ProfilePage = () => {
     };
 
     const onShare = async () => {
+        playPrimaryButtonSound();
         try {
             const result = await Share.share({
                 message: `Check out my profile on Signify! Username: ${userData?.username || 'User'}`,
@@ -272,7 +275,10 @@ const ProfilePage = () => {
                             width={305}
                             text="ADD FRIENDS"
                             color={COLORS.bright_button_color}
-                            onPress={() => navigation.navigate('AddFriends')}
+                            onPress={() => {
+                                playPrimaryButtonSound();
+                                navigation.navigate('AddFriends');
+                            }}
                         />
 
                         <RectangularButton

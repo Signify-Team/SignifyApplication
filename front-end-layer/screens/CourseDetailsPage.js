@@ -302,8 +302,10 @@ const CourseDetailPage = ({ route, navigation }) => {
                             key={`${currentExercise.id}-${currentExerciseIndex}`}
                             data={currentExercise.data}
                             onSubmit={handleAnswer}
-                            onComplete={() => {
-                                handleAnswer(false);
+                            onComplete={(isCorrect) => {
+                                if (!isCorrect) {
+                                    handleAnswer(false);
+                                }
                                 handleContinue();
                             }}
                             lives={lives}

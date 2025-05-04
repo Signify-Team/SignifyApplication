@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.lemonade,
+    backgroundColor: COLORS.bright_button_color,
   },
   livesContainer: {
     flexDirection: 'row',

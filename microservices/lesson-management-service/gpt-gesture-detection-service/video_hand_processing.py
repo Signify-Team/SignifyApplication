@@ -159,13 +159,31 @@ async def process_frame_batch(frame_batch):
         with ThreadPoolExecutor() as executor:
             loop = asyncio.get_event_loop()
             tasks = []
-            for i, frame_path in enumerate(frame_batch):
-                if isinstance(frame_path, str) and os.path.exists(frame_path):  # Check if file exists and is a string
-                    # Save frame as temporary file
-                    temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
-                    tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, cv2.imread(frame_path)), temp_path))
-                else:
-                    print(f"Warning: Invalid frame path: {frame_path}")
+            
+            # If frame_batch is a list of S3 paths
+            if isinstance(frame_batch, list) and all(isinstance(path, str) and path.startswith('USER_DATA/') for path in frame_batch):
+                for i, s3_path in enumerate(frame_batch):
+                    try:
+                        # Download frame from S3
+                        frame = load_frame_from_s3(s3_path)
+                        if frame is not None:
+                            temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
+                            tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, frame), temp_path))
+                        else:
+                            print(f"Warning: Failed to load frame from S3: {s3_path}")
+                    except Exception as e:
+                        print(f"Error processing S3 frame {s3_path}: {e}")
+            # If frame_batch is a list of local paths
+            elif isinstance(frame_batch, list) and all(isinstance(path, str) for path in frame_batch):
+                for i, frame_path in enumerate(frame_batch):
+                    if os.path.exists(frame_path):
+                        temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
+                        tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, cv2.imread(frame_path)), temp_path))
+                    else:
+                        print(f"Warning: Frame file not found: {frame_path}")
+            else:
+                print(f"Warning: Invalid frame batch format: {frame_batch}")
+                return []
             
             if not tasks:
                 print("No valid frames to process")
@@ -181,7 +199,17 @@ async def process_frame_batch(frame_batch):
     except Exception as e:
         print(f"Error in process_frame_batch: {e}")
         return []
-    
+
+def load_frame_from_s3(s3_key):
+    try:
+        obj = s3.get_object(Bucket=bucket_name, Key=s3_key)
+        image_bytes = obj['Body'].read()
+        image_array = np.asarray(bytearray(image_bytes), dtype=np.uint8)
+        return cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    except Exception as e:
+        print(f"Failed to load frame {s3_key}: {e}")
+        return None
+
 # resize the image to 256x256 and convert it to RGB for faster processing and less memory usage
 def optimize_image_for_api(frame):
     """Optimize image size and quality for API transmission while maintaining aspect ratio"""
@@ -380,17 +408,6 @@ def process_with_detection_s3(frame_keys, s3_folder_prefix):
         print(f"Error in process_with_detection_s3: {e}")
         return []
     
-def load_frame_from_s3(s3_key):
-    print("HELLOOOOOOO SÜPER ÇALIŞIYO KODUMUZ")
-    try:
-        obj = s3.get_object(Bucket=bucket_name, Key=s3_key)
-        image_bytes = obj['Body'].read()
-        image_array = np.asarray(bytearray(image_bytes), dtype=np.uint8)
-        return cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-    except Exception as e:
-        print(f"Failed to load frame {s3_key}: {e}")
-        return None
-
 def select_optimal_frames(frames, max_frames=VideoConstants.MAX_FRAMES):
     """
     Select the optimal frames to send to GPT API to balance accuracy and cost.

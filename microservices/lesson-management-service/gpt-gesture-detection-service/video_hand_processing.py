@@ -546,6 +546,9 @@ def preprocess_frames_for_detection(frames_dir, target_size=VideoConstants.TARGE
 @app.post("/process-video")
 async def process_video(request: Request):
     try:
+        # Clean up any existing files first
+        await cleanup_files()
+        
         data = await request.json()
         video_url = data.get("video_url")
         target_word = data.get("target_word", "hello")  # Default to "hello" if not provided
@@ -570,10 +573,15 @@ async def process_video(request: Request):
         gpt_time = time.time() - gpt_start_time
         print(f"GPT API processing time: {gpt_time:.2f} seconds")
         
+        # Clean up after processing
+        await cleanup_files()
+        
         return {"status": "success", "analysis": gpt_result}
         
     except Exception as e:
         print(f"An error occurred in process_video: {e}")
+        # Clean up even if there's an error
+        await cleanup_files()
         return {
             "status": "error",
             "message": "An internal error has occurred. Please try again later."

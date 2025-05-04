@@ -166,7 +166,6 @@ async def process_frame_batch(frame_batch):
             loop = asyncio.get_event_loop()
             tasks = []
             
-            # If frame_paths is a list of S3 paths
             if isinstance(frame_paths, list) and all(isinstance(path, str) and path.startswith('USER_DATA/') for path in frame_paths):
                 for i, s3_path in enumerate(frame_paths):
                     try:
@@ -179,14 +178,6 @@ async def process_frame_batch(frame_batch):
                             print(f"Warning: Failed to load frame from S3: {s3_path}")
                     except Exception as e:
                         print(f"Error processing S3 frame {s3_path}: {e}")
-            # If frame_paths is a list of local paths
-            elif isinstance(frame_paths, list) and all(isinstance(path, str) for path in frame_paths):
-                for i, frame_path in enumerate(frame_paths):
-                    if os.path.exists(frame_path):
-                        temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
-                        tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, cv2.imread(frame_path)), temp_path))
-                    else:
-                        print(f"Warning: Frame file not found: {frame_path}")
             else:
                 print(f"Warning: Invalid frame paths format: {frame_paths}")
                 return []

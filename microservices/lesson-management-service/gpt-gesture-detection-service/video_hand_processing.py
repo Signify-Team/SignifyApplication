@@ -118,29 +118,44 @@ async def upload_video(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to upload video: {str(e)}")
 
 def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
-    print("Extracting frames from video...", video_path)
+    print("\n=== FRAME EXTRACTION START ===")
+    start_time = time.time()
+    print(f"Extracting frames from video: {video_path}")
+    print(f"Using frame interval: {interval}")
 
     if(video_path.startswith("file://")):
         video_path = video_path[7:]
 
     # clear existing frames otherwise it takes the previous frames and gives incorrect results
+    print("\nCleaning up existing frames...")
+    cleanup_start = time.time()
     for file in os.listdir(EXTRACTED_FRAMES_DIR):
         os.remove(os.path.join(EXTRACTED_FRAMES_DIR, file))
+        print(f"Removed: {file}")
+        
+    # clear selected frames directory to ensure we don't use old frames
+    for file in os.listdir(SELECTED_FRAMES_DIR):
+        os.remove(os.path.join(SELECTED_FRAMES_DIR, file))
+        print(f"Removed: {file}")
+    cleanup_time = time.time() - cleanup_start
+    print(f"Cleanup completed in {cleanup_time:.2f} seconds")
 
     cap = cv2.VideoCapture(video_path)
     frame_id = 0
     frame_count = 0
+    extracted_count = 0
 
+    print("\nStarting frame extraction...")
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Only process every 'interval' frame
         if frame_count % interval == 0:
             output_path = os.path.join(EXTRACTED_FRAMES_DIR, f"frame_{frame_id}.jpg")
             cv2.imwrite(output_path, frame)
             frame_id += 1
+            extracted_count += 1
         
         frame_count += 1
 
@@ -149,20 +164,30 @@ def extract_frames(video_path, interval=VideoConstants.FRAME_INTERVAL):
     # full paths to frames instead of just filenames
     frame_files = sorted(os.listdir(EXTRACTED_FRAMES_DIR))
     frame_paths = [os.path.join(EXTRACTED_FRAMES_DIR, filename) for filename in frame_files]
-    print(f"Extracted {len(frame_paths)} frames from {frame_count} total frames (interval: {interval})")
+    total_time = time.time() - start_time
+    print(f"\nExtraction Summary:")
+    print(f"- Total frames in video: {frame_count}")
+    print(f"- Extracted frames: {extracted_count}")
+    print(f"- Frame paths generated: {len(frame_paths)}")
+    print(f"- Total extraction time: {total_time:.2f} seconds")
+    print("=== FRAME EXTRACTION COMPLETE ===\n")
     return frame_paths
 
 async def process_frame_batch(frame_batch):
     """Process a batch of frames in parallel to shorten the response time"""
+    print("\n=== FRAME BATCH PROCESSING START ===")
+    start_time = time.time()
     try:
         # Create a temporary directory for processed frames
         temp_dir = os.path.join(os.path.dirname(EXTRACTED_FRAMES_DIR), "temp_processed")
         os.makedirs(temp_dir, exist_ok=True)
+        print(f"Created temp directory: {temp_dir}")
         
         # ThreadPoolExecutor is used to process the frames in parallel
         with ThreadPoolExecutor() as executor:
             loop = asyncio.get_event_loop()
             tasks = []
+            print(f"\nProcessing {len(frame_batch)} frames...")
             for i, frame_path in enumerate(frame_batch):
                 if os.path.exists(frame_path):  # Check if file exists
                     # Save frame as temporary file
@@ -172,13 +197,20 @@ async def process_frame_batch(frame_batch):
                     print(f"Warning: Frame file not found: {frame_path}")
             
             if not tasks:
+                print("No valid frames to process")
                 return []
             
             # Wait for all frames to be saved
+            print("Waiting for frame processing to complete...")
             await asyncio.gather(*tasks)
             
             # Get all saved frame paths
             processed_frames = sorted([os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith('.jpg')])
+            total_time = time.time() - start_time
+            print(f"\nBatch Processing Summary:")
+            print(f"- Processed frames: {len(processed_frames)}")
+            print(f"- Total processing time: {total_time:.2f} seconds")
+            print("=== FRAME BATCH PROCESSING COMPLETE ===\n")
             return processed_frames
             
     except Exception as e:
@@ -388,37 +420,30 @@ def load_frame_from_s3(s3_key):
         return None
 
 def select_optimal_frames(frames, max_frames=VideoConstants.MAX_FRAMES):
-    """
-    Select the optimal frames to send to GPT API to balance accuracy and cost.
+    print("\n=== FRAME SELECTION START ===")
+    start_time = time.time()
+    print(f"Selecting optimal frames from {len(frames)} total frames")
     
-    Parameters:
-    frames (list): List of frame file paths with detected hands
-    max_frames (int): Maximum number of frames to select, defaults to 15
-    
-    Returns:
-    list: Selected frame file paths
-    """
     if not frames:
+        print("No frames to select from")
         return []
     
     if len(frames) <= max_frames:
-        # if we have fewer frames than the maximum, use all of them
+        print(f"Using all {len(frames)} frames (less than max_frames={max_frames})")
         return frames
     
-    # for longer videos, select frames distributed throughout the gesture
-    # this way we can capture the beginning, middle, and end of the gesture
     frame_count = len(frames)
+    print(f"Total frames with hand gestures: {frame_count}")
     
     if frame_count <= 2:
+        print("Using all frames (2 or fewer)")
         return frames
         
     def extract_frame_number(filepath):
         filename = os.path.basename(filepath)
         try:
-            # something like "selected_frame_frame_42.jpg"
             if "selected_frame_frame_" in filename:
                 return int(filename.split("selected_frame_frame_")[1].split(".")[0])
-            # extract the number
             elif "frame_" in filename:
                 return int(filename.split("frame_")[1].split(".")[0])
             return 0
@@ -429,45 +454,34 @@ def select_optimal_frames(frames, max_frames=VideoConstants.MAX_FRAMES):
     frames_with_numbers.sort(key=lambda x: x[1])
     sorted_frames = [f[0] for f in frames_with_numbers]
     
-    # include first, middle, and last frames
-    selected = [sorted_frames[0], sorted_frames[frame_count//2], sorted_frames[-1]]
+    # Always include first and last frames to capture the full gesture
+    selected = [sorted_frames[0], sorted_frames[-1]]
+    print("Selected first and last frames")
     
-    # calculate intervals for remaining frames
-    remaining_slots = max_frames - 3
-    if remaining_slots > 0:
-        # divide the sequence into equal segments
+    # If we have more than 2 frames, add the middle frame
+    if frame_count > 2:
+        selected.append(sorted_frames[frame_count//2])
+        print("Added middle frame")
+    
+    # Calculate intervals for remaining frames, but only if we have enough frames
+    remaining_slots = max_frames - len(selected)
+    if remaining_slots > 0 and frame_count > 3:
+        print(f"Adding {remaining_slots} additional frames")
         segment_size = frame_count // (remaining_slots + 1)
         for i in range(1, remaining_slots + 1):
             index = i * segment_size
             if index < frame_count and sorted_frames[index] not in selected:
                 selected.append(sorted_frames[index])
     
-    # add more frames from uncovered regions
-    while len(selected) < max_frames and len(selected) < frame_count:
-        # largest gap between selected frames
-        selected_indices = [sorted_frames.index(f) for f in selected]
-        selected_indices.sort()
-        
-        max_gap = 0
-        gap_index = 0
-        
-        for i in range(len(selected_indices) - 1):
-            gap = selected_indices[i + 1] - selected_indices[i]
-            if gap > max_gap:
-                max_gap = gap
-                gap_index = i
-        
-        if max_gap <= 1:
-            break
-            
-        # add frame from middle of largest gap
-        new_index = selected_indices[gap_index] + max_gap // 2
-        if new_index < frame_count and sorted_frames[new_index] not in selected:
-            selected.append(sorted_frames[new_index])
-    
+    # Sort the selected frames by their original order
     selected.sort(key=lambda x: sorted_frames.index(x))
     
-    print(f"Optimized frame selection: {len(frames)} frames with hand gestures → {len(selected)} frames to send to GPT")
+    total_time = time.time() - start_time
+    print(f"\nFrame Selection Summary:")
+    print(f"- Total frames with gestures: {len(frames)}")
+    print(f"- Selected frames: {len(selected)}")
+    print(f"- Selection time: {total_time:.2f} seconds")
+    print("=== FRAME SELECTION COMPLETE ===\n")
     return selected
 
 # resize the image for faster processing in hand detection
@@ -518,35 +532,65 @@ def preprocess_frames_for_detection(frames_dir, target_size=VideoConstants.TARGE
 # Main Workflow
 @app.post("/process-video")
 async def process_video(request: Request):
+    print("\n=== VIDEO PROCESSING START ===")
+    process_start_time = time.time()
     try:
         data = await request.json()
         video_url = data.get("video_url")
-        target_word = data.get("target_word", "hello")  # Default to "hello" if not provided
+        target_word = data.get("target_word", "hello")
         
-        print(f"\nProcessing video for target word: {target_word}\n")  # Add logging
+        print(f"Processing video for target word: {target_word}")
+        print(f"Video URL: {video_url}")
         
         if not video_url:
             raise HTTPException(status_code=400, detail="No video URL provided")
             
         # Extract frames from video
+        frame_extraction_start = time.time()
         frame_paths = extract_frames(video_url)
+        frame_extraction_time = time.time() - frame_extraction_start
+        print(f"Frame extraction completed in {frame_extraction_time:.2f} seconds")
         
-        # Process frames in parallel
+        # Process frames 
+        frame_processing_start = time.time()
         frames = await process_frame_batch(frame_paths)
+        frame_processing_time = time.time() - frame_processing_start
+        print(f"Frame processing completed in {frame_processing_time:.2f} seconds")
         
         # Select optimal frames
+        frame_selection_start = time.time()
         optimal_frames = select_optimal_frames(frames)
+        frame_selection_time = time.time() - frame_selection_start
+        print(f"Frame selection completed in {frame_selection_time:.2f} seconds")
         
         # get GPT result with optimized frames
         gpt_start_time = time.time()
         gpt_result = await send_frames_to_gpt(optimal_frames, target_word)
         gpt_time = time.time() - gpt_start_time
-        print(f"GPT API processing time: {gpt_time:.2f} seconds")
+        print(f"GPT API processing completed in {gpt_time:.2f} seconds")
+        
+        # Clean up all temporary files after processing
+        cleanup_start = time.time()
+        await cleanup_files()
+        cleanup_time = time.time() - cleanup_start
+        print(f"Cleanup completed in {cleanup_time:.2f} seconds")
+        
+        total_time = time.time() - process_start_time
+        print(f"\nTotal Processing Summary:")
+        print(f"- Frame Extraction: {frame_extraction_time:.2f} seconds")
+        print(f"- Frame Processing: {frame_processing_time:.2f} seconds")
+        print(f"- Frame Selection: {frame_selection_time:.2f} seconds")
+        print(f"- GPT Processing: {gpt_time:.2f} seconds")
+        print(f"- Cleanup: {cleanup_time:.2f} seconds")
+        print(f"- Total Time: {total_time:.2f} seconds")
+        print("=== VIDEO PROCESSING COMPLETE ===\n")
         
         return {"status": "success", "analysis": gpt_result}
         
     except Exception as e:
         print(f"An error occurred in process_video: {e}")
+        # Clean up files even if there's an error
+        await cleanup_files()
         return {
             "status": "error",
             "message": "An internal error has occurred. Please try again later."

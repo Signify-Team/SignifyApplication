@@ -87,8 +87,7 @@ def process_frames(frames, output_dir, threshold=THRESHOLD_SMALL, min_frame_dist
         # Extract the original frame number from the frame filename
         original_frame_number = os.path.splitext(os.path.basename(frame_path))[0]
 
-        # Load the frame
-        frame_path = os.path.join("extracted_frames", frame_path)
+        # Load the frame - use the actual frame path instead of hardcoded path
         frame = cv2.imread(frame_path)
         if frame is None:
             print(f"Error: Could not load frame from {frame_path}", file=sys.stderr)

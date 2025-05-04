@@ -228,7 +228,7 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
         if (!isCorrect && lives <= 1) {
             handleOutOfLives();
         } else if (onComplete) {
-            onComplete();
+            onComplete(isCorrect);
         }
     };
 

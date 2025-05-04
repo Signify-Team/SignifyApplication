@@ -159,14 +159,15 @@ async def process_frame_batch(frame_batch):
             loop = asyncio.get_event_loop()
             tasks = []
             for i, frame_path in enumerate(frame_batch):
-                if os.path.exists(frame_path):  # Check if file exists
+                if isinstance(frame_path, str) and os.path.exists(frame_path):  # Check if file exists and is a string
                     # Save frame as temporary file
                     temp_path = os.path.join(temp_dir, f"processed_frame_{i}.jpg")
                     tasks.append(loop.run_in_executor(executor, lambda p: cv2.imwrite(p, cv2.imread(frame_path)), temp_path))
                 else:
-                    print(f"Warning: Frame file not found: {frame_path}")
+                    print(f"Warning: Invalid frame path: {frame_path}")
             
             if not tasks:
+                print("No valid frames to process")
                 return []
             
             # Wait for all frames to be saved
@@ -215,6 +216,13 @@ def optimize_image_for_api(frame):
 import json
 
 async def send_frames_to_gpt(frames, target_word):
+    if not frames:
+        print("No frames to send to GPT")
+        return {
+            "answer": "no",
+            "feedback": "No frames with hand gestures were detected in the video."
+        }
+        
     print(f"Sending {len(frames)} frames to GPT...")
     
     opt_start_time = time.time()

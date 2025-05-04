@@ -107,7 +107,7 @@ const CourseDetailPage = ({ route, navigation }) => {
     const [isCorrect, setIsCorrect] = useState(null);
     const [completedExercises, setCompletedExercises] = useState([]);
     const [correctAnswers, setCorrectAnswers] = useState(0);
-    const [lives, setLives] = useState(1); // Initialize with 1 life
+    const [lives, setLives] = useState(5); // Initialize with 1 life
     const [showLeaveModal, setShowLeaveModal] = useState(false);
     
     // Calculate progress percentage

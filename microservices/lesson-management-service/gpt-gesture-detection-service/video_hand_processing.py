@@ -31,7 +31,7 @@ class VideoConstants:
     TARGET_SIZE = (320, 240) 
     MAX_FRAMES = 15 
     HAND_DETECTION_THRESHOLD = 0.08 
-    GPT_MAX_TOKENS = 5
+    GPT_MAX_TOKENS = 150
     GPT_TEMPERATURE = 0.1 
     IMAGE_QUALITY = 85
     TARGET_WIDTH = 256
@@ -216,18 +216,18 @@ def optimize_image_for_api(frame):
         return None
 
 # send the frames to the GPT API
+import json
+
 async def send_frames_to_gpt(frames, target_word):
     print(f"Sending {len(frames)} frames to GPT...")
     
-    # track optimization time
     opt_start_time = time.time()
     
-    # use the ThreadPoolExecutor function again to optimize the images in parallel
     with ThreadPoolExecutor() as executor:
         loop = asyncio.get_event_loop()
         tasks = [
             loop.run_in_executor(executor, optimize_image_for_api, frame)
-            for frame in frames  # process all frames
+            for frame in frames
         ]
         optimized_images = await asyncio.gather(*tasks)
     
@@ -239,33 +239,30 @@ async def send_frames_to_gpt(frames, target_word):
             "type": "text",
             "text": f"""Analyze these images as a sequence showing a hand gesture and determine if they show the {target_word.upper()} hand gesture/sign language.
 
-    A {target_word.lower()} gesture typically includes:
-    - The appropriate hand shape and movement for {target_word.lower()}
-    - The hand positioned in the correct location
-    - The correct palm orientation
-    - The correct finger configuration
+            A {target_word.lower()} gesture typically includes:
+            - The appropriate hand shape and movement for {target_word.lower()}
+            - The hand positioned in the correct location
+            - The correct palm orientation
+            - The correct finger configuration
 
-    IMPORTANT: This is specifically for the {target_word.upper()} gesture. Do not accept other gestures that might not be related.
-    Only answer "YES" if the gesture exactly matches the {target_word.upper()} sign language gesture.
+            IMPORTANT: This is specifically for the {target_word.upper()} gesture. Do not accept other gestures that might not be related.
+            Only answer "YES" if the gesture exactly matches the {target_word.upper()} sign language gesture.
 
-    Return the result in this JSON format:
-    {{
-    "answer": "YES" or "NO",
-    "feedback": "STRICTLY one sentence describing how the user gestured or what should be corrected (ONLY if answer is NO)"
-    }}
+            Return the result in this JSON format:
+            {{
+            "answer": "YES" or "NO",
+            "feedback": "STRICTLY one sentence describing how the user gestured or what should be corrected (ONLY if answer is NO)"
+            }}
 
-    Be strict in your assessment. If uncertain, answer "NO".
-    """
+            Be strict in your assessment. If uncertain, answer "NO".
+            """
         },
     ]
 
-
-    # Log the prompt
     print("\n=== GPT PROMPT ===")
     print(message_content[0]["text"])
     print("=================\n")
 
-    # Add all optimized frames to message content
     for image_b64 in optimized_images:
         message_content.append({
             "type": "image_url",
@@ -277,7 +274,6 @@ async def send_frames_to_gpt(frames, target_word):
     try:
         print(f"Sending request to GPT with {len(optimized_images)} frames...")
         
-        # Track actual API call time
         api_start_time = time.time()
         
         response = await asyncio.to_thread(
@@ -293,20 +289,35 @@ async def send_frames_to_gpt(frames, target_word):
         print(f"  - GPT API call time: {api_time:.2f} seconds")
 
         # response handling
-        response_text = response.choices[0].message.content.lower().strip()
+        raw_response = response.choices[0].message.content.strip()
         print("\n=== GPT RESPONSE ===")
-        print(f"Raw response: {response.choices[0].message.content}")
-        print(f"Processed response: {response_text}")
+        print(f"Raw response: {raw_response}")
         print("===================\n")
-        
-        if response_text.startswith("yes"):
-            return "yes"
-        else:
-            return "no"
+
+        try:
+            result_data = json.loads(raw_response)
+            answer = result_data.get("answer", "").lower()
+            feedback = result_data.get("feedback", "").strip()
+            
+            return {
+                "answer": answer,  # 'yes' or 'no'
+                "feedback": feedback if answer == "no" else ""
+            }
+
+        except json.JSONDecodeError:
+            print("Failed to parse JSON from GPT response.")
+            return {
+                "answer": "no",
+                "feedback": "Could not parse feedback from GPT."
+            }
 
     except Exception as e:
         print(f"Error in GPT request: {str(e)}")
-        return "no"
+        return {
+            "answer": "no",
+            "feedback": "An error occurred during GPT request."
+        }
+
 
 def process_with_detection_s3(frame_keys, s3_folder_prefix):
     """Process frames stored in S3 with hand detection"""

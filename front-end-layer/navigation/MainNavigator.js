@@ -30,6 +30,7 @@ import WordVideoPage from '../screens/WordVideoPage';
 import AddFriendsPage from '../screens/AddFriendsPage';
 import FollowersFollowingPage from '../screens/FollowersFollowingPage';
 import ConsentFormPage from '../screens/ConsentFormPage';
+import LeaderboardPage from '../screens/LeaderboardPage';
 
 const Stack =
 createStackNavigator();
@@ -167,6 +168,13 @@ const MainNavigator = () => (
         <Stack.Screen
             name="ConsentForm"
             component={ConsentFormPage}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
+            name="Leaderboard"
+            component={LeaderboardPage}
             options={{
                 headerShown: false,
             }}

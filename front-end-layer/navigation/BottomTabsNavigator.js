@@ -10,12 +10,14 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
 import styles from '../styles/styles';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 // Page Links
 import Courses from '../screens/CoursesPage';
 import Profile from '../screens/ProfilePage';
 import Quests from '../screens/QuestsPage';
 import Achievements from '../screens/AchievementsPage';
+import Leaderboard from '../screens/LeaderboardPage';
 
 // Icon Links
 import AchievementActiveIcon from '../assets/icons/48x48/achievement-active.png';
@@ -24,6 +26,8 @@ import DashboardActiveIcon from '../assets/icons/48x48/dashboard-active.png';
 import DashboardPassiveIcon from '../assets/icons/48x48/dashboard-passive.png';
 import HomeActiveIcon from '../assets/icons/48x48/home-active.png';
 import HomePassiveIcon from '../assets/icons/48x48/home-passive.png';
+import CourseActiveIcon from '../assets/icons/48x48/course-active.png';
+import CoursePassiveIcon from '../assets/icons/48x48/course-passive.png';
 import UserActiveIcon from '../assets/icons/48x48/user-active.png';
 import UserPassiveIcon from '../assets/icons/48x48/user-passive.png';
 
@@ -32,6 +36,7 @@ const Tab =
 
 const tabBarIcon = ({ route }) => ({ focused }) => {
     let iconSource;
+    let iconStyle = styles.bottomBarIcon;
 
     switch (route.name) {
         case 'Courses':
@@ -46,13 +51,17 @@ const tabBarIcon = ({ route }) => ({ focused }) => {
         case 'Achievements':
             iconSource = focused ? AchievementActiveIcon : AchievementPassiveIcon;
             break;
+        case 'Leaderboard':
+            iconSource = focused ? CourseActiveIcon : CoursePassiveIcon;
+            iconStyle = [styles.bottomBarIcon, { width: wp('10%'), height: wp('12%') }];
+            break;
         default:
             break;
     }
     return(
         <Image
             source={iconSource}
-            style={styles.bottomBarIcon}
+            style={iconStyle}
         />
     );
 };
@@ -87,8 +96,8 @@ const BottomTabsNavigator = ({ route }) => {
                 }}
             />
             <Tab.Screen
-                name="Profile"
-                component={Profile}
+                name="Leaderboard"
+                component={Leaderboard}
                 options={{
                     headerShown: false,
                 }}
@@ -96,6 +105,13 @@ const BottomTabsNavigator = ({ route }) => {
             <Tab.Screen
                 name="Achievements"
                 component={Achievements}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={Profile}
                 options={{
                     headerShown: false,
                 }}

@@ -11,12 +11,11 @@ import { View, Text, Image } from 'react-native';
 import styles from '../styles/CourseInfoCardStyle.js';
 import { COLORS } from '../utils/constants';
 
-const CourseInfoCard = ({ icon, title, isLocked, completed }) => {
+const CourseInfoCard = ({ icon, title, isLocked }) => {
     return (
         <View style={[
             styles.card,
-            isLocked ? { backgroundColor: COLORS.gray } : 
-                completed ? { backgroundColor: COLORS.secondary_light } : { backgroundColor: COLORS.tertiary }
+            isLocked ? { backgroundColor: COLORS.gray } : { backgroundColor: COLORS.tertiary }
         ]}>
             <View style={styles.innerShadow}/>
             <Image 
@@ -28,11 +27,6 @@ const CourseInfoCard = ({ icon, title, isLocked, completed }) => {
                     styles.title,
                     isLocked ? { color: COLORS.neutral_base_medium } : { color: COLORS.neutral_base_dark }
                 ]} numberOfLines={1}>{title}</Text>
-                {completed && (
-                    <View style={styles.completedBadge}>
-                        <Text style={styles.completedText}>✓</Text>
-                    </View>
-                )}
             </View>
         </View>
     );

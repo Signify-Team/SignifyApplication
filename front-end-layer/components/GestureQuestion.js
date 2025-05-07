@@ -160,7 +160,6 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     body: JSON.stringify({
                         video_url: uploadResult.video_server_path,
                         target_word: data.word || data.prompt
-                        // print the target word to the console
                     }),
                 }),
                 new Promise((_, reject) =>
@@ -189,21 +188,17 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                 : `Incorrect. ${result.analysis.feedback || "Please try again or skip to continue."}`
             );
 
-    
-            // Call onSubmit with the result
-            if (onSubmit) {
-                onSubmit(isCorrect);
+            // only call onSubmit with true for correct answers because we no longer deduce lives for incorrect response only for skip
+            if (onSubmit && isCorrect) {
+                onSubmit(true);
             }
+            // Show the modal with the result
+            setIsModalVisible(true);
     
         } catch (error) {
             console.error('Error:', error);
             setIsCorrect(false);
             setModalMessage("An error occurred. Please try again.");
-    
-            // Call onSubmit with false on error
-            if (onSubmit) {
-                onSubmit(false);
-            }
         }
     };
     
@@ -224,11 +219,11 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
         setIsModalVisible(false);
         setVideoPath(null);
         
-        // Check if we're out of lives after an incorrect answer
-        if (!isCorrect && lives <= 1) {
+        // Only call onComplete if the answer was correct and user clicked Continue
+        if (isCorrect && onComplete) {
+            onComplete(true);
+        } else if (!isCorrect && lives <= 1) {
             handleOutOfLives();
-        } else if (onComplete) {
-            onComplete(isCorrect);
         }
     };
 
@@ -250,8 +245,14 @@ const GestureQuestion = ({ data, onSubmit, onComplete, lives = 5, navigation }) 
                     outOfLives: true,
                 }
             });
-        } else if (onComplete) {
-            onComplete();
+        } else {
+            // only lose a life when skipping
+            if (onSubmit) {
+                onSubmit(false);
+            }
+            if (onComplete) {
+                onComplete();
+            }
         }
     };
     

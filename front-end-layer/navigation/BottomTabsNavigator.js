@@ -20,16 +20,16 @@ import Achievements from '../screens/AchievementsPage';
 import Leaderboard from '../screens/LeaderboardPage';
 
 // Icon Links
-import AchievementActiveIcon from '../assets/icons/48x48/achievement-active.png';
-import AchievementPassiveIcon from '../assets/icons/48x48/achievement-passive.png';
-import DashboardActiveIcon from '../assets/icons/48x48/dashboard-active.png';
-import DashboardPassiveIcon from '../assets/icons/48x48/dashboard-passive.png';
-import HomeActiveIcon from '../assets/icons/48x48/home-active.png';
-import HomePassiveIcon from '../assets/icons/48x48/home-passive.png';
-import CourseActiveIcon from '../assets/icons/48x48/course-active.png';
-import CoursePassiveIcon from '../assets/icons/48x48/course-passive.png';
-import UserActiveIcon from '../assets/icons/48x48/user-active.png';
-import UserPassiveIcon from '../assets/icons/48x48/user-passive.png';
+import AchievementActiveIcon from '../assets/icons/48x48/achievement-active.png'; //done
+import AchievementPassiveIcon from '../assets/icons/48x48/achievement-passive.png'; // done
+import DashboardActiveIcon from '../assets/icons/48x48/quests-active.png'; // done
+import DashboardPassiveIcon from '../assets/icons/48x48/quests-passive.png'; // done
+import HomeActiveIcon from '../assets/icons/48x48/home-active.png'; // done
+import HomePassiveIcon from '../assets/icons/48x48/home-passive.png'; // done
+import UserActiveIcon from '../assets/icons/48x48/profile-active.png'; 
+import UserPassiveIcon from '../assets/icons/48x48/profile-passive.png';
+import LeaderboardActiveIcon from '../assets/icons/48x48/leaderboard-active.png'; // done
+import LeaderboardPassiveIcon from '../assets/icons/48x48/leaderboard-passive.png'; // done
 
 const Tab =
     createBottomTabNavigator();
@@ -41,19 +41,23 @@ const tabBarIcon = ({ route }) => ({ focused }) => {
     switch (route.name) {
         case 'Courses':
             iconSource = focused ? HomeActiveIcon : HomePassiveIcon;
+            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
             break;
         case 'Quests':
             iconSource = focused ? DashboardActiveIcon : DashboardPassiveIcon;
+            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
             break;
         case 'Profile':
             iconSource = focused ? UserActiveIcon : UserPassiveIcon;
+            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
             break;
         case 'Achievements':
             iconSource = focused ? AchievementActiveIcon : AchievementPassiveIcon;
+            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
             break;
         case 'Leaderboard':
-            iconSource = focused ? CourseActiveIcon : CoursePassiveIcon;
-            iconStyle = [styles.bottomBarIcon, { width: wp('10%'), height: wp('12%') }];
+            iconSource = focused ? LeaderboardActiveIcon : LeaderboardPassiveIcon;
+            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
             break;
         default:
             break;

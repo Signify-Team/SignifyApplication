@@ -1,8 +1,11 @@
 #!/bin/sh
 
-set -e  # Exit on first error
+set -e
 
-echo ">>> Running pod install (using pre-installed CocoaPods)..."
+echo ">>> Installing Node.js via Homebrew..."
+brew install node
+
+echo ">>> Running pod install..."
 pod install
 
-echo "✅ Pods installed successfully."
+echo "✅ Node.js and CocoaPods setup complete."

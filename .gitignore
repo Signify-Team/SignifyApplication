@@ -97,9 +97,7 @@ __pycache__/
 *.h5
 
 # cocoapods
-ios/Podfile.lock
 ios/Pods/
-ios/SignifyProject.xcodeproj/project.pbxproj
 
 # xcode temporary files 
 *.xcworkspace

@@ -1,13 +1,11 @@
 #!/bin/sh
 
-# Fail on any command error
-set -e
+set -e  # Exit on first error
 
-# Go to iOS directory
-cd ios
+echo ">>> Installing CocoaPods..."
+sudo gem install cocoapods
 
-# Install CocoaPods
-brew install cocoapods
-
-# Install Pods (this generates xcconfig and xcfilelist files)
+echo ">>> Running pod install..."
 pod install
+
+echo "✅ Pods installed successfully."

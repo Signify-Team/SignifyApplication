@@ -1,6 +1,0 @@
-module Pods_SignifyProject {
-  umbrella header "Pods-SignifyProject-umbrella.h"
-
-  export *
-  module * { export * }
-}

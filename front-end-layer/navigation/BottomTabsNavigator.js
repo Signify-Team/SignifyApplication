@@ -41,23 +41,23 @@ const tabBarIcon = ({ route }) => ({ focused }) => {
     switch (route.name) {
         case 'Courses':
             iconSource = focused ? HomeActiveIcon : HomePassiveIcon;
-            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
+            iconStyle = [styles.bottomBarIcon, { width: wp('11%'), height: wp('13%') }];
             break;
         case 'Quests':
             iconSource = focused ? DashboardActiveIcon : DashboardPassiveIcon;
-            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
+            iconStyle = [styles.bottomBarIcon, { width: wp('11%'), height: wp('13%') }];
             break;
         case 'Profile':
             iconSource = focused ? UserActiveIcon : UserPassiveIcon;
-            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
+            iconStyle = [styles.bottomBarIcon, { width: wp('11%'), height: wp('13%') }];
             break;
         case 'Achievements':
             iconSource = focused ? AchievementActiveIcon : AchievementPassiveIcon;
-            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
+            iconStyle = [styles.bottomBarIcon, { width: wp('11%'), height: wp('13%') }];
             break;
         case 'Leaderboard':
             iconSource = focused ? LeaderboardActiveIcon : LeaderboardPassiveIcon;
-            iconStyle = [styles.bottomBarIcon, { width: wp('12%'), height: wp('14%') }];
+            iconStyle = [styles.bottomBarIcon, { width: wp('11%'), height: wp('13%') }];
             break;
         default:
             break;

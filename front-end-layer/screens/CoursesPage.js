@@ -29,6 +29,8 @@ import {
 import { startPracticeSession } from '../utils/services/courseService';
 import StreakPopup from '../components/StreakPopup';
 import CourseCompletionPopup from '../components/CourseCompletionPopup';
+import UserManual from '../components/UserManual';
+import { updateManualStatus } from '../utils/services/userService';
 
 const CoursesPage = ({ navigation, route }) => {
     const [showCard, setShowCard] = useState(false);
@@ -57,6 +59,8 @@ const CoursesPage = ({ navigation, route }) => {
         userPoints: 0
     });
     const [completionMessage, setCompletionMessage] = useState('');
+
+    const [showManual, setShowManual] = useState(false);
 
     useEffect(() => {
         loadUserLanguageAndSections();
@@ -138,6 +142,15 @@ const CoursesPage = ({ navigation, route }) => {
             checkAndShowStreakPopup(route.params.streakMessage, route.params.shouldShowNotification);
         }
     }, [route.params]);
+
+    useEffect(() => {
+        // Check if we should show the manual
+        if (route.params?.showManual) {
+            setShowManual(true);
+            // Clear the flag
+            navigation.setParams({ showManual: false });
+        }
+    }, [route.params?.showManual]);
 
     const handleCompletionPopupClose = () => {
         setShowCompletionPopup(false);
@@ -375,6 +388,16 @@ const CoursesPage = ({ navigation, route }) => {
         }
     };
 
+    const handleManualClose = async () => {
+        try {
+            await updateManualStatus();
+            setShowManual(false);
+        } catch (error) {
+            console.error('Error updating manual status:', error);
+            setShowManual(false);
+        }
+    };
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.container, styles.centerContent]}>
@@ -455,6 +478,11 @@ const CoursesPage = ({ navigation, route }) => {
                 pointsEarned={50}
                 outOfLives={completionData.outOfLives}
                 remainingLives={completionData.remainingLives}
+            />
+
+            <UserManual
+                visible={showManual}
+                onClose={handleManualClose}
             />
         </View>
     );

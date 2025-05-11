@@ -43,6 +43,7 @@ const UserSchema = new mongoose.Schema({
     streakCount: { type: Number, default: 0 },
     lastCompletedCourseDate: { type: Date, default: null }, // Track last course completion date
     totalPoints: { type: Number, default: 0 },
+    hasSeenManual: { type: Boolean, default: false }, // Track if user has seen the manual
     lastRewardDate: { type: Date, default: null }, // Track last daily reward collection date
     achievements: [
         {

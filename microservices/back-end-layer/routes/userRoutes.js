@@ -166,7 +166,8 @@ router.post('/login', async (req, res) => {
                 username: user.username,
                 email: user.email,
                 languagePreference: user.languagePreference,
-                streakCount: user.streakCount
+                streakCount: user.streakCount,
+                hasSeenManual: user.hasSeenManual
             },
             streakMessage,
             shouldShowNotification
@@ -923,6 +924,30 @@ router.get('/:userId/following', async (req, res) => {
         res.json(user.following);
     } catch (error) {
         console.error('Error fetching following:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Update hasSeenManual status
+router.put('/update-manual-status', async (req, res) => {
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.hasSeenManual = true;
+        await user.save();
+
+        res.status(200).json({ message: 'Manual status updated successfully' });
+    } catch (error) {
+        console.error('Update Manual Status Error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

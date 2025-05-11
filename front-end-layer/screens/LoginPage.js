@@ -21,7 +21,9 @@ import CustomTextInput from '../utils/textInputSignLogin';
 import { loginUser, fetchUserProfile } from '../utils/apiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StreakPopup from '../components/StreakPopup';
+import UserManual from '../components/UserManual';
 import { COLORS } from '../utils/constants';
+import { updateManualStatus } from '../utils/services/userService';
 
 // Login Page layout
 const LoginPage = () => {
@@ -34,6 +36,7 @@ const LoginPage = () => {
     const [streakMessage, setStreakMessage] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [username, setUsername] = useState('');
+    const [showManual, setShowManual] = useState(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -114,10 +117,15 @@ const LoginPage = () => {
             
             setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
             
-            if (!serverLanguagePreference) {
-                navigation.replace('LanguagePreference', { userId: data.user._id });
+            // Show manual if user hasn't seen it before
+            if (!data.user.hasSeenManual) {
+                setShowManual(true);
             } else {
-                navigation.replace('Home', { streakMessage: data.streakMessage });
+                if (!serverLanguagePreference) {
+                    navigation.replace('LanguagePreference', { userId: data.user._id });
+                } else {
+                    navigation.replace('Home', { streakMessage: data.streakMessage });
+                }
             }
         } catch (error) {
             setErrorMessage(error.message || 'Unable to connect to the server');
@@ -126,13 +134,26 @@ const LoginPage = () => {
         }
     };
 
-    const handleStreakPopupClose = () => {
-        setShowStreakPopup(false);
-        const serverLanguagePreference = statusMessage.replace('Server Language: ', '');
-        if (serverLanguagePreference === 'None') {
-            navigation.replace('LanguagePreference', { userId: data.user._id });
-        } else {
-            navigation.replace('Home');
+    const handleManualClose = async () => {
+        try {
+            await updateManualStatus();
+            setShowManual(false);
+            const serverLanguagePreference = statusMessage.replace('Server Language: ', '');
+            if (serverLanguagePreference === 'None') {
+                navigation.replace('LanguagePreference', { userId: data.user._id });
+            } else {
+                navigation.replace('Home');
+            }
+        } catch (error) {
+            console.error('Error updating manual status:', error);
+            // Continue with navigation even if update fails
+            setShowManual(false);
+            const serverLanguagePreference = statusMessage.replace('Server Language: ', '');
+            if (serverLanguagePreference === 'None') {
+                navigation.replace('LanguagePreference', { userId: data.user._id });
+            } else {
+                navigation.replace('Home');
+            }
         }
     };
 
@@ -217,10 +238,9 @@ const LoginPage = () => {
                 </TouchableOpacity>
             </View>
 
-            <StreakPopup
-                visible={showStreakPopup}
-                message={streakMessage}
-                onClose={handleStreakPopupClose}
+            <UserManual
+                visible={showManual}
+                onClose={handleManualClose}
             />
         </View>
     );

@@ -209,4 +209,19 @@ export const getUserFollowing = async (userId) => {
         console.error('Error fetching following:', error);
         throw error;
     }
+};
+
+export const updateManualStatus = async () => {
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      throw new Error('No user ID found. Please log in again.');
+    }
+    const response = await axios.put(`${API_BASE_URL}/users/update-manual-status`, {
+      userId
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update manual status');
+  }
 }; 

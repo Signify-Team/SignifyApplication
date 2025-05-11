@@ -159,6 +159,15 @@ router.post('/login', async (req, res) => {
         user.lastLoginDate = currentDate;
         await user.save();
 
+        console.log('Login response user data:', {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            languagePreference: user.languagePreference,
+            streakCount: user.streakCount,
+            hasSeenManual: user.hasSeenManual
+        });
+
         res.status(200).json({
             message: 'Login successful',
             user: {

@@ -11,6 +11,8 @@ import {
 import { COLORS } from '../utils/constants';
 
 const UserManual = ({ visible, onClose }) => {
+    console.log('UserManual props:', { visible, onClose });
+    
     return (
         <Modal
             visible={visible}

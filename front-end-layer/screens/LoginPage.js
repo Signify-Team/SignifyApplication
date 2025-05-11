@@ -37,6 +37,7 @@ const LoginPage = () => {
     const [rememberMe, setRememberMe] = useState(false);
     const [username, setUsername] = useState('');
     const [showManual, setShowManual] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState(null);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -114,13 +115,22 @@ const LoginPage = () => {
             }
             
             const serverLanguagePreference = data.user?.languagePreference;
+            setCurrentUserId(data.user?._id);
             
             setStatusMessage(`Server Language: ${serverLanguagePreference || 'None'}`);
             
+            console.log('Login response data:', {
+                hasSeenManual: data.user?.hasSeenManual,
+                languagePreference: serverLanguagePreference,
+                userId: data.user?._id
+            });
+            
             // Show manual if user hasn't seen it before
             if (!data.user.hasSeenManual) {
+                console.log('Setting showManual to true');
                 setShowManual(true);
             } else {
+                console.log('User has already seen manual, proceeding to navigation');
                 if (!serverLanguagePreference) {
                     navigation.replace('LanguagePreference', { userId: data.user._id });
                 } else {
@@ -140,7 +150,7 @@ const LoginPage = () => {
             setShowManual(false);
             const serverLanguagePreference = statusMessage.replace('Server Language: ', '');
             if (serverLanguagePreference === 'None') {
-                navigation.replace('LanguagePreference', { userId: data.user._id });
+                navigation.replace('LanguagePreference', { userId: currentUserId });
             } else {
                 navigation.replace('Home');
             }
@@ -150,7 +160,7 @@ const LoginPage = () => {
             setShowManual(false);
             const serverLanguagePreference = statusMessage.replace('Server Language: ', '');
             if (serverLanguagePreference === 'None') {
-                navigation.replace('LanguagePreference', { userId: data.user._id });
+                navigation.replace('LanguagePreference', { userId: currentUserId });
             } else {
                 navigation.replace('Home');
             }
